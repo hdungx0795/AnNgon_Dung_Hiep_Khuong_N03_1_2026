@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: .fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'AnNgon - Gói Trọn Vị Ngon '),
     );
   }
 }
@@ -103,8 +103,24 @@ class _MyHomePageState extends State<MyHomePage> {
           // action in the IDE, or press "p" in the console), to see the
           // wireframe for each widget.
           mainAxisAlignment: .center,
-          children: [
-            const Text('You have pushed the button this many times:'),
+          // Tìm đến đoạn này trong code của bạn
+          children: <Widget>[
+            const Text(
+              'DANH SÁCH THÀNH VIÊN NHÓM:',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: Colors.deepPurple,
+              ),
+            ),
+            const SizedBox(height: 20), // Tạo một khoảng trắng cách ra
+            // Hiển thị thông tin từng người
+            const Text('1. Nguyễn Văn Dũng - MSV: 23010438'),
+            const Text('2. Lưu Đức Hiệp - MSV: 23010437'),
+            const Text('3. Nguyễn Kim Khương - MSV: 23010428'),
+
+            const SizedBox(height: 30), // Khoảng cách trước số đếm
+            const Text('Số lần bạn đã nhấn nút:'),
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
