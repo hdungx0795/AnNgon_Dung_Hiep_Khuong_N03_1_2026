@@ -1,17 +1,61 @@
-# an_ngon_app
+# 📱 Project: Ứng dụng Đồ Ăn
 
-A new Flutter project.
+## 👥 Thành viên nhóm
 
-## Getting Started
+* Lưu Đức Hiệp - 23010437
+* Hoàng Văn Dũng - 23010438
+* Nguyễn Kim Khương - 23010428
 
-This project is a starting point for a Flutter application.
+---
 
-A few resources to get you started if this is your first Flutter project:
+## 📌 Nội dung buổi thực hành 01
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+### ✅ Nhiệm vụ đã thực hiện
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+* Tạo repository nhóm trên GitHub
+* Thêm thành viên vào repository
+* Tạo project Flutter framework
+* Chỉnh sửa giao diện:
+
+  * Đổi tên ứng dụng: **Ứng dụng Đồ Ăn**
+  * Hiển thị thông tin thành viên nhóm
+* Đưa code lên GitHub bằng Git
+
+---
+
+## ⚙️ Công nghệ sử dụng
+
+* Flutter
+* Dart
+* Git & GitHub
+
+---
+
+## 🚀 Hướng dẫn chạy project
+
+```bash
+flutter pub get
+flutter run
+```
+
+---
+
+## 📸 Kết quả
+
+* Ứng dụng hiển thị:
+
+  * Tên ứng dụng
+  * Danh sách thành viên
+  * Bộ đếm số lần nhấn nút
+
+---
+
+## 🔗 Link repository
+
+https://github.com/hdungx0795/AnNgon_Dung_Hiep_Khuong_N03_1_2026.git
+
+---
+
+## 📅 Thời gian thực hiện
+
+* Ngày: 08/04/2026

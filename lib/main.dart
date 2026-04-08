@@ -48,15 +48,38 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          // Column is also a layout widget. It takes a list of children and
+          // arranges them vertically. By default, it sizes itself to fit its
+          // children horizontally, and tries to be as tall as its parent.
+          //
+          // Column has various properties to control how it sizes itself and
+          // how it positions its children. Here we use mainAxisAlignment to
+          // center the children vertically; the main axis here is the vertical
+          // axis because Columns are vertical (the cross axis would be
+          // horizontal).
+          //
+          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
+          // action in the IDE, or press "p" in the console), to see the
+          // wireframe for each widget.
+          mainAxisAlignment: .center,
+          // Tìm đến đoạn này trong code của bạn
           children: <Widget>[
-            const Text('Thành viên nhóm:', style: TextStyle(fontSize: 20)),
-            const SizedBox(height: 10),
-            const Text('Lưu Đức Hiệp - 23010437'),
-            const Text('Hoàng Văn Dũng - 23010438'),
-            const Text('Nguyễn Kim Khương - 23010428'),
-            const SizedBox(height: 24),
-            const Text('Số lượt nhấn nút:', style: TextStyle(fontSize: 16)),
+            const Text(
+              'DANH SÁCH THÀNH VIÊN NHÓM:',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: Colors.deepPurple,
+              ),
+            ),
+            const SizedBox(height: 20), // Tạo một khoảng trắng cách ra
+            // Hiển thị thông tin từng người
+            const Text('1. Nguyễn Văn Dũng - MSV: 23010438'),
+            const Text('2. Lưu Đức Hiệp - MSV: 23010437'),
+            const Text('3. Nguyễn Kim Khương - MSV: 23010428'),
+
+            const SizedBox(height: 30), // Khoảng cách trước số đếm
+            const Text('Số lần bạn đã nhấn nút:'),
             Text(
               '$_counter',
               style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
