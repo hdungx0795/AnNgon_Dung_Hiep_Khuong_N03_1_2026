@@ -10,11 +10,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Ứng dụng Đồ Ăn',
+      title: 'App Đồ Ăn',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Ứng dụng Đồ Ăn'),
+      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
@@ -29,7 +31,43 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  int _counter = 2;
+
+  final Map<String, dynamic> _user = {
+    'idUser': 10,
+    'hoTen': 'Nguyễn Văn A',
+    'soDienThoai': '0987654321',
+    'diaChi': 'Hà Đông, Hà Nội',
+    'email': 'nguyenvana@email.com'
+  };
+
+  final List<String> _categories = [
+    'Món Chính',
+    'Đồ Uống',
+    'Tráng Miệng',
+    'Ăn Vặt'
+  ];
+
+  final List<Map<String, dynamic>> _listMonAn = [
+    {
+      'idMon': 1,
+      'tenMon': 'Phở Bò',
+      'gia': 50000.0,
+      'danhMuc': 'Món chính'
+    },
+    {
+      'idMon': 2,
+      'tenMon': 'Bún Đậu Mắm Tôm',
+      'gia': 45000.0,
+      'danhMuc': 'Món chính'
+    },
+    {
+      'idMon': 3,
+      'tenMon': 'Trà Sữa',
+      'gia': 35000.0,
+      'danhMuc': 'Đồ uống'
+    },
+  ];
 
   // 1. KHAI BÁO DANH SÁCH NHÓM Ở ĐÂY (Ngay trên hàm build)
   List<NguoiDung> danhSachNhom = [
@@ -69,7 +107,8 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Center(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           // Đã sửa lại lỗi typo ở dòng này
           mainAxisAlignment: MainAxisAlignment.center,
@@ -108,6 +147,14 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
+            const SizedBox(height: 8),
+            // Dùng vòng lặp in thẳng ra Text
+            for (var mon in _listMonAn)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Text('- ${mon['tenMon']} (${mon['gia']} VNĐ) - Thuộc: ${mon['danhMuc']}'),
+              ),
+              
           ],
         ),
       ),
