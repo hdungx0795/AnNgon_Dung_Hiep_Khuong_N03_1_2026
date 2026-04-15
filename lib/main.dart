@@ -7,7 +7,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -32,6 +31,31 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
+  // 1. KHAI BÁO DANH SÁCH NHÓM Ở ĐÂY (Ngay trên hàm build)
+  List<NguoiDung> danhSachNhom = [
+    NguoiDung(
+      idUser: 1,
+      hoTen: 'Nguyễn Văn Dũng',
+      soDienThoai: '0987654321',
+      diaChi: 'Hà Đông, Hà Nội',
+      email: 'dung.nguyen@student.vn',
+    ),
+    NguoiDung(
+      idUser: 2,
+      hoTen: 'Lưu Đức Hiệp',
+      soDienThoai: '0123456789',
+      diaChi: 'Thanh Xuân, Hà Nội',
+      email: 'hiep.luu@student.vn',
+    ),
+    NguoiDung(
+      idUser: 3,
+      hoTen: 'Nguyễn Kim Khương',
+      soDienThoai: '0988888888',
+      diaChi: 'Cầu Giấy, Hà Nội',
+      email: 'khuong.nguyen@student.vn',
+    ),
+  ];
+
   void _incrementCounter() {
     setState(() {
       _counter++;
@@ -43,42 +67,42 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-
         title: Text(widget.title),
       ),
       body: Center(
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: .center,
-          // Tìm đến đoạn này trong code của bạn
+          // Đã sửa lại lỗi typo ở dòng này
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text(
-              'DANH SÁCH THÀNH VIÊN NHÓM:',
+              'THÔNG TIN CÁC THÀNH VIÊN:',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
                 color: Colors.deepPurple,
               ),
             ),
-            const SizedBox(height: 20), // Tạo một khoảng trắng cách ra
-            // Hiển thị thông tin từng người
-            const Text('1. Nguyễn Văn Dũng - MSV: 23010438'),
-            const Text('2. Lưu Đức Hiệp - MSV: 23010437'),
-            const Text('3. Nguyễn Kim Khương - MSV: 23010428'),
+            const SizedBox(height: 20),
 
-            const SizedBox(height: 30), // Khoảng cách trước số đếm
+            // 2. VÒNG LẶP TỰ ĐỘNG IN RA DANH SÁCH
+            ...danhSachNhom.map((user) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10.0),
+                child: Column(
+                  children: [
+                    Text(
+                      'Họ tên: ${user.hoTen}',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text('Địa chỉ: ${user.diaChi}'),
+                    Text('SĐT: ${user.soDienThoai}'),
+                    const Divider(), // Đường kẻ ngang
+                  ],
+                ),
+              );
+            }).toList(), // Đừng quên .toList()
+
+            const SizedBox(height: 30),
             const Text('Số lần bạn đã nhấn nút:'),
             Text(
               '$_counter',
@@ -93,5 +117,26 @@ class _MyHomePageState extends State<MyHomePage> {
         child: const Icon(Icons.add),
       ),
     );
+  }
+}
+
+// 3. CLASS NGƯỜI DÙNG CHUẨN FORM
+class NguoiDung {
+  int idUser;
+  String hoTen;
+  String soDienThoai;
+  String diaChi;
+  String email;
+
+  NguoiDung({
+    required this.idUser,
+    required this.hoTen,
+    required this.soDienThoai,
+    required this.diaChi,
+    required this.email,
+  });
+
+  void hienThiThongTin() {
+    print('Người dùng: $hoTen - Địa chỉ: $diaChi');
   }
 }
