@@ -7,15 +7,16 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Ứng dụng Đồ Ăn',
+      title: 'App Đồ Ăn',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Ứng dụng Đồ Ăn'),
+      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
@@ -30,7 +31,43 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  int _counter = 2;
+
+  final Map<String, dynamic> _user = {
+    'idUser': 10,
+    'hoTen': 'Nguyễn Văn A',
+    'soDienThoai': '0987654321',
+    'diaChi': 'Hà Đông, Hà Nội',
+    'email': 'nguyenvana@email.com'
+  };
+
+  final List<String> _categories = [
+    'Món Chính',
+    'Đồ Uống',
+    'Tráng Miệng',
+    'Ăn Vặt'
+  ];
+
+  final List<Map<String, dynamic>> _listMonAn = [
+    {
+      'idMon': 1,
+      'tenMon': 'Phở Bò',
+      'gia': 50000.0,
+      'danhMuc': 'Món chính'
+    },
+    {
+      'idMon': 2,
+      'tenMon': 'Bún Đậu Mắm Tôm',
+      'gia': 45000.0,
+      'danhMuc': 'Món chính'
+    },
+    {
+      'idMon': 3,
+      'tenMon': 'Trà Sữa',
+      'gia': 35000.0,
+      'danhMuc': 'Đồ uống'
+    },
+  ];
 
   void _incrementCounter() {
     setState(() {
@@ -43,47 +80,64 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-
         title: Text(widget.title),
       ),
-      body: Center(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20.0),
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: .center,
-          // Tìm đến đoạn này trong code của bạn
+          crossAxisAlignment: CrossAxisAlignment.start, // Căn lề trái toàn bộ
           children: <Widget>[
-            const Text(
-              'DANH SÁCH THÀNH VIÊN NHÓM:',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-                color: Colors.deepPurple,
+            // Phần Counter mặc định
+            Center(
+              child: Column(
+                children: [
+                  const Text('You have pushed the button this many times:'),
+                  Text(
+                    '$_counter',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 20), // Tạo một khoảng trắng cách ra
-            // Hiển thị thông tin từng người
-            const Text('1. Nguyễn Văn Dũng - MSV: 23010438'),
-            const Text('2. Lưu Đức Hiệp - MSV: 23010437'),
-            const Text('3. Nguyễn Kim Khương - MSV: 23010428'),
+            
+            const Divider(height: 40, thickness: 2),
 
-            const SizedBox(height: 30), // Khoảng cách trước số đếm
-            const Text('Số lần bạn đã nhấn nút:'),
-            Text(
-              '$_counter',
-              style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+            // DANH SÁCH 1: Người dùng
+            const Text(
+              '1. THÔNG TIN NGƯỜI DÙNG:',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue),
             ),
+            const SizedBox(height: 8),
+            Text('- Họ tên: ${_user['hoTen']}'),
+            Text('- Số điện thoại: ${_user['soDienThoai']}'),
+            Text('- Địa chỉ: ${_user['diaChi']}'),
+
+            const Divider(height: 40),
+
+            // DANH SÁCH 2: Danh mục
+            const Text(
+              '2. CÁC DANH MỤC:',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue),
+            ),
+            const SizedBox(height: 8),
+            // Dùng join để in mảng thành chuỗi cách nhau bởi dấu phẩy
+            Text(_categories.join(', ')), 
+
+            const Divider(height: 40),
+
+            // DANH SÁCH 3: Món ăn
+            const Text(
+              '3. DANH SÁCH MÓN ĂN:',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue),
+            ),
+            const SizedBox(height: 8),
+            // Dùng vòng lặp in thẳng ra Text
+            for (var mon in _listMonAn)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Text('- ${mon['tenMon']} (${mon['gia']} VNĐ) - Thuộc: ${mon['danhMuc']}'),
+              ),
+              
           ],
         ),
       ),
