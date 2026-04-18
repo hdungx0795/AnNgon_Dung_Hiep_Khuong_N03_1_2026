@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'models/nguoi_dung.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,6 +32,29 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  final List<NguoiDung> _danhSachNguoiDung = const [
+    NguoiDung(
+      id: '23010438',
+      hoTen: 'Nguyen Van Dung',
+      sdt: '0900000001',
+      diaChi: 'Ha Noi',
+      email: 'dung23010438@example.com',
+    ),
+    NguoiDung(
+      id: '23010437',
+      hoTen: 'Luu Duc Hiep',
+      sdt: '0900000002',
+      diaChi: 'Ha Noi',
+      email: 'hiep23010437@example.com',
+    ),
+    NguoiDung(
+      id: '23010428',
+      hoTen: 'Nguyen Kim Khuong',
+      sdt: '0900000003',
+      diaChi: 'Ha Noi',
+      email: 'khuong23010428@example.com',
+    ),
+  ];
 
   void _incrementCounter() {
     setState(() {
@@ -61,7 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
           // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
           // action in the IDE, or press "p" in the console), to see the
           // wireframe for each widget.
-          mainAxisAlignment: .center,
+          mainAxisAlignment: MainAxisAlignment.center,
           // Tìm đến đoạn này trong code của bạn
           children: <Widget>[
             const Text(
@@ -73,10 +97,11 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             const SizedBox(height: 20), // Tạo một khoảng trắng cách ra
-            // Hiển thị thông tin từng người
-            const Text('1. Nguyễn Văn Dũng - MSV: 23010438'),
-            const Text('2. Lưu Đức Hiệp - MSV: 23010437'),
-            const Text('3. Nguyễn Kim Khương - MSV: 23010428'),
+            ..._danhSachNguoiDung.asMap().entries.map((entry) {
+              final index = entry.key + 1;
+              final nguoiDung = entry.value;
+              return Text('$index. ${nguoiDung.hoTen} - MSV: ${nguoiDung.id}');
+            }),
 
             const SizedBox(height: 30), // Khoảng cách trước số đếm
             const Text('Số lần bạn đã nhấn nút:'),
