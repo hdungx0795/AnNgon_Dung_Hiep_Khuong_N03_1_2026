@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'models/nguoi_dung.dart';
 
 void main() {
   runApp(const MyApp());
@@ -7,16 +8,15 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'App Đồ Ăn',
-      debugShowCheckedModeBanner: false,
+      title: 'Ứng dụng Đồ Ăn',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Ứng dụng Đồ Ăn'),
     );
   }
 }
@@ -31,6 +31,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+<<<<<<< HEAD
   int _counter = 2;
 
   final Map<String, dynamic> _user = {
@@ -61,26 +62,30 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // 1. KHAI BÁO DANH SÁCH NHÓM Ở ĐÂY (Ngay trên hàm build)
   List<NguoiDung> danhSachNhom = [
+=======
+  int _counter = 0;
+  final List<NguoiDung> _danhSachNguoiDung = const [
+>>>>>>> main
     NguoiDung(
-      idUser: 1,
-      hoTen: 'Nguyễn Văn Dũng',
-      soDienThoai: '0987654321',
-      diaChi: 'Hà Đông, Hà Nội',
-      email: 'dung.nguyen@student.vn',
+      id: '23010438',
+      hoTen: 'Nguyen Van Dung',
+      sdt: '0900000001',
+      diaChi: 'Ha Noi',
+      email: 'dung23010438@example.com',
     ),
     NguoiDung(
-      idUser: 2,
-      hoTen: 'Lưu Đức Hiệp',
-      soDienThoai: '0123456789',
-      diaChi: 'Thanh Xuân, Hà Nội',
-      email: 'hiep.luu@student.vn',
+      id: '23010437',
+      hoTen: 'Luu Duc Hiep',
+      sdt: '0900000002',
+      diaChi: 'Ha Noi',
+      email: 'hiep23010437@example.com',
     ),
     NguoiDung(
-      idUser: 3,
-      hoTen: 'Nguyễn Kim Khương',
-      soDienThoai: '0988888888',
-      diaChi: 'Cầu Giấy, Hà Nội',
-      email: 'khuong.nguyen@student.vn',
+      id: '23010428',
+      hoTen: 'Nguyen Kim Khuong',
+      sdt: '0900000003',
+      diaChi: 'Ha Noi',
+      email: 'khuong23010428@example.com',
     ),
   ];
 
@@ -95,48 +100,53 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+
         title: Text(widget.title),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
+      body: Center(
         child: Column(
+<<<<<<< HEAD
           // Đã sửa lại lỗi typo ở dòng này
+=======
+          // Column is also a layout widget. It takes a list of children and
+          // arranges them vertically. By default, it sizes itself to fit its
+          // children horizontally, and tries to be as tall as its parent.
+          //
+          // Column has various properties to control how it sizes itself and
+          // how it positions its children. Here we use mainAxisAlignment to
+          // center the children vertically; the main axis here is the vertical
+          // axis because Columns are vertical (the cross axis would be
+          // horizontal).
+          //
+          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
+          // action in the IDE, or press "p" in the console), to see the
+          // wireframe for each widget.
+>>>>>>> main
           mainAxisAlignment: MainAxisAlignment.center,
+          // Tìm đến đoạn này trong code của bạn
           children: <Widget>[
             const Text(
-              'THÔNG TIN CÁC THÀNH VIÊN:',
+              'DANH SÁCH THÀNH VIÊN NHÓM:',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
                 color: Colors.deepPurple,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 20), // Tạo một khoảng trắng cách ra
+            ..._danhSachNguoiDung.asMap().entries.map((entry) {
+              final index = entry.key + 1;
+              final nguoiDung = entry.value;
+              return Text('$index. ${nguoiDung.hoTen} - MSV: ${nguoiDung.id}');
+            }),
 
-            // 2. VÒNG LẶP TỰ ĐỘNG IN RA DANH SÁCH
-            ...danhSachNhom.map((user) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 10.0),
-                child: Column(
-                  children: [
-                    Text(
-                      'Họ tên: ${user.hoTen}',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Text('Địa chỉ: ${user.diaChi}'),
-                    Text('SĐT: ${user.soDienThoai}'),
-                    const Divider(), // Đường kẻ ngang
-                  ],
-                ),
-              );
-            }).toList(), // Đừng quên .toList()
-
-            const SizedBox(height: 30),
+            const SizedBox(height: 30), // Khoảng cách trước số đếm
             const Text('Số lần bạn đã nhấn nút:'),
             Text(
               '$_counter',
               style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
+<<<<<<< HEAD
             const SizedBox(height: 8),
             Text('- Họ tên: ${_user['hoTen']}'),
             Text('- Số điện thoại: ${_user['soDienThoai']}'),
@@ -177,6 +187,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   '- ${mon['tenMon']} (${mon['gia']} VNĐ) - Thuộc: ${mon['danhMuc']}',
                 ),
               ),
+=======
+>>>>>>> main
           ],
         ),
       ),
@@ -186,26 +198,5 @@ class _MyHomePageState extends State<MyHomePage> {
         child: const Icon(Icons.add),
       ),
     );
-  }
-}
-
-// 3. CLASS NGƯỜI DÙNG CHUẨN FORM
-class NguoiDung {
-  int idUser;
-  String hoTen;
-  String soDienThoai;
-  String diaChi;
-  String email;
-
-  NguoiDung({
-    required this.idUser,
-    required this.hoTen,
-    required this.soDienThoai,
-    required this.diaChi,
-    required this.email,
-  });
-
-  void hienThiThongTin() {
-    print('Người dùng: $hoTen - Địa chỉ: $diaChi');
   }
 }
