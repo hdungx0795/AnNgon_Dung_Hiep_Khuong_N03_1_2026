@@ -12,13 +12,13 @@
 
 ### ✅ Nhiệm vụ đã thực hiện
 
-* Tạo repository nhóm trên GitHub
-* Thêm thành viên vào repository
-* Tạo project Flutter framework
+* Tạo repository nhóm trên GitHub.
+* Thêm thành viên vào repository.
+* Tạo project Flutter framework.
 * Chỉnh sửa giao diện:
   * Đổi tên ứng dụng: **Ứng dụng Đồ Ăn**
   * Hiển thị thông tin thành viên nhóm
-* Đưa code lên GitHub bằng Git
+* Đưa code lên GitHub bằng Git.
 
 ---
 
@@ -36,17 +36,46 @@
 
 ---
 
+## 📌 Nội dung buổi thực hành 03
+
+### ✅ Nhiệm vụ đã thực hiện (OOP Nâng cao & Generics)
+
+* **1. Nghiên cứu lý thuyết (Từ khóa `static`):**
+  * Hoàn thành báo cáo lý thuyết về từ khóa `static` trong Dart (Định nghĩa, cách sử dụng, đánh giá ưu/nhược điểm trong quản lý bộ nhớ và truy cập dữ liệu).
+* **2. Áp dụng Generics Class:**
+  * Xây dựng lớp tổng quát `CollectionWrapper<T>` (hoặc `DataContainer<T>`) có biến `obj` để quản lý kiểu dữ liệu linh hoạt. 
+  * Khởi tạo và in thành công danh sách mock data sinh viên bằng Generics.
+* **3. Thiết kế đối tượng nghiệp vụ (`MonAn.dart`):**
+  * Tạo file `lib/models/mon_an.dart` bám sát nghiệp vụ của ứng dụng đặt đồ ăn.
+  * Khai báo các thuộc tính đặc trưng: `idMonAn`, `tenMon`, `giaTien`, `moTa`, `hinhAnh`.
+  * Xây dựng các phương thức hoạt động cơ bản cho đối tượng (VD: `hienThiThongTin()`, `tinhGiaKhuyenMai()`).
+* **4. Triển khai CRUD cho đối tượng (`ListMonAn.dart`):**
+  * Tạo file `lib/models/list_mon_an.dart` quản lý danh sách `List<MonAn>`.
+  * Viết các hàm thao tác với dữ liệu (CRUD):
+    * **Create:** Thêm một đối tượng món ăn mới vào danh sách.
+    * **Read:** Trích xuất và đọc toàn bộ danh sách các món ăn hiện có.
+    * **Edit (Update):** Tìm kiếm món ăn theo `idMonAn` cụ thể và cập nhật thông tin (đổi tên, sửa giá,...).
+* **5. Quản lý mã nguồn:** Cập nhật tài liệu `README.md`, tiến hành commit code và push lên GitHub.
+
+---
+
 ## ⚙️ Công nghệ sử dụng
 
-* Flutter & Dart
-* Quản lý trạng thái cơ bản (`StatefulWidget`, `setState`)
-* Lập trình hướng đối tượng (OOP) & Collections (List, Array)
-* Git & GitHub
+* **Nền tảng:** Flutter & Dart
+* **Kiến trúc & Kỹ thuật:** * Quản lý trạng thái cơ bản (`StatefulWidget`, `setState`)
+  * Lập trình hướng đối tượng (OOP: Classes, Objects, Methods)
+  * Collections (List, Array, Maps)
+  * Generics (Kiểu dữ liệu tổng quát) & Static
+* **Quản lý phiên bản:** Git & GitHub
 
 ---
 
 ## 🚀 Hướng dẫn chạy project
 
+Cloning dự án và cài đặt các thư viện cần thiết:
+
 ```bash
+git clone <link-repo-github-cua-nhom>
+cd an_ngon_app
 flutter pub get
 flutter run
