@@ -1,0 +1,308 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Nguyễn Văn Khách",
+      "phone": "0987654321",
+      "email": "khach@phenikaa.edu.vn",
+      "dob": "2003-05-20",
+      "password": "123456",
+      "avatarPath": "assets/images/products/avatar.jpg"
+    }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "name": "Hamburger Phô Mai",
+      "category": "food",
+      "price": 45000,
+      "rating": 4.9,
+      "imagePath": "assets/images/products/hamburgerPhoMai.jpg",
+      "description": "Bánh mì kẹp thịt bò nướng, rau tươi và lớp phô mai tan chảy thơm ngon."
+    },
+    {
+      "id": 2,
+      "name": "Hamburger Chay",
+      "category": "food",
+      "price": 40000,
+      "rating": 4.8,
+      "imagePath": "assets/images/products/hamburgerChay.jpg",
+      "description": "Hamburger phiên bản chay với nhân nấm và rau củ tươi sạch."
+    },
+    {
+      "id": 3,
+      "name": "Hamburger Gà Sốt Cay",
+      "category": "food",
+      "price": 50000,
+      "rating": 4.7,
+      "imagePath": "assets/images/products/hamburgerGaSotCay.jpg",
+      "description": "Gà chiên giòn rụm kết hợp với sốt cay đặc trưng của PKA Food."
+    },
+    {
+      "id": 4,
+      "name": "Mỳ Ý Sốt Bò Băm",
+      "category": "food",
+      "price": 55000,
+      "rating": 4.6,
+      "imagePath": "assets/images/products/myYSotBoBam.jpg",
+      "description": "Mỳ Ý sợi dai ngon kết hợp cùng sốt cà chua thịt bò băm đậm đà."
+    },
+    {
+      "id": 5,
+      "name": "Mỳ Ý Hải Sản",
+      "category": "food",
+      "price": 65000,
+      "rating": 4.8,
+      "imagePath": "assets/images/products/myYHaiSan.jpg",
+      "description": "Mỳ Ý kết hợp cùng tôm, mực tươi sống và sốt kem béo ngậy."
+    },
+    {
+      "id": 6,
+      "name": "Khoai Tây Chiên",
+      "category": "food",
+      "price": 25000,
+      "rating": 4.5,
+      "imagePath": "assets/images/products/khoaiTayChien.jpg",
+      "description": "Khoai tây cắt que chiên giòn, món ăn kèm không thể thiếu."
+    },
+    {
+      "id": 7,
+      "name": "Khoai Tây Lắc Phô Mai",
+      "category": "food",
+      "price": 30000,
+      "rating": 4.8,
+      "imagePath": "assets/images/products/khoaiTayLacPhoMai.jpg",
+      "description": "Khoai tây chiên giòn được lắc cùng bột phô mai mặn ngọt hấp dẫn."
+    },
+    {
+      "id": 8,
+      "name": "Gà Rán",
+      "category": "food",
+      "price": 35000,
+      "rating": 4.6,
+      "imagePath": "assets/images/products/gaRan.jpg",
+      "description": "Miếng gà lớn được tẩm bột và chiên giòn tan."
+    },
+    {
+      "id": 9,
+      "name": "Cơm Gà Xối Mỡ",
+      "category": "food",
+      "price": 40000,
+      "rating": 4.9,
+      "imagePath": "assets/images/products/comGaXoiMo.jpg",
+      "description": "Cơm đảo vàng thơm ngon ăn kèm với đùi gà xối mỡ da giòn."
+    },
+    {
+      "id": 10,
+      "name": "Cơm Tấm Sườn Bì",
+      "category": "food",
+      "price": 45000,
+      "rating": 4.7,
+      "imagePath": "assets/images/products/comTamSuonBi.jpg",
+      "description": "Cơm tấm dẻo thơm, sườn nướng mật ong và bì chả đậm chất truyền thống."
+    },
+    {
+      "id": 11,
+      "name": "Pizza Bò Ngô",
+      "category": "food",
+      "price": 89000,
+      "rating": 4.6,
+      "imagePath": "assets/images/products/PizzaBoNgo.jpg",
+      "description": "Pizza đế mỏng giòn, topping thịt bò băm, ngô ngọt và phô mai mozzarella."
+    },
+    {
+      "id": 12,
+      "name": "Pizza Xúc Xích",
+      "category": "food",
+      "price": 79000,
+      "rating": 4.8,
+      "imagePath": "assets/images/products/pizzaXucXich.jpg",
+      "description": "Pizza truyền thống với lớp xúc xích dày đặc và phô mai kéo sợi."
+    },
+    {
+      "id": 13,
+      "name": "Salad Rau Củ",
+      "category": "food",
+      "price": 35000,
+      "rating": 4.5,
+      "imagePath": "assets/images/products/SaladRauCu.jpg",
+      "description": "Rau xanh tươi mát kết hợp với sốt mè rang tốt cho sức khỏe."
+    },
+    {
+      "id": 14,
+      "name": "Matcha Latte",
+      "category": "drink",
+      "price": 35000,
+      "rating": 4.5,
+      "imagePath": "assets/images/products/MatchaLatte.jpg",
+      "description": "Sự kết hợp hoàn hảo giữa bột trà xanh Nhật Bản và sữa tươi thanh trùng."
+    },
+    {
+      "id": 15,
+      "name": "Trà Sữa Trân Châu",
+      "category": "drink",
+      "price": 30000,
+      "rating": 4.9,
+      "imagePath": "assets/images/products/traSuaChanTrau.jpg",
+      "description": "Trà sữa đậm vị trà béo vị sữa, đi kèm trân châu đen dai giòn."
+    },
+    {
+      "id": 16,
+      "name": "Cafe Đen Đá",
+      "category": "drink",
+      "price": 20000,
+      "rating": 4.7,
+      "imagePath": "assets/images/products/CafeDenDa.jpg",
+      "description": "Cà phê nguyên chất pha phin, mang đậm hương vị truyền thống."
+    },
+    {
+      "id": 17,
+      "name": "Cafe Sữa Đá",
+      "category": "drink",
+      "price": 25000,
+      "rating": 4.8,
+      "imagePath": "assets/images/products/CafeSuaDa.jpg",
+      "description": "Cà phê pha phin kết hợp với sữa đặc, thơm ngon sảng khoái."
+    },
+    {
+      "id": 18,
+      "name": "Nước Ép Cam",
+      "category": "drink",
+      "price": 35000,
+      "rating": 4.9,
+      "imagePath": "assets/images/products/NuocEpCam.jpg",
+      "description": "Cam tươi nguyên chất vắt tay, giàu Vitamin C."
+    },
+    {
+      "id": 19,
+      "name": "Trà Đào Cam Sả",
+      "category": "drink",
+      "price": 40000,
+      "rating": 4.8,
+      "imagePath": "assets/images/products/TraDaoCamXa.jpg",
+      "description": "Trà đào thơm nức kết hợp với vị chua của cam và hương thơm của sả."
+    },
+    {
+      "id": 20,
+      "name": "Coca Cola",
+      "category": "drink",
+      "price": 15000,
+      "rating": 4.5,
+      "imagePath": "assets/images/products/CocaCola.jpg",
+      "description": "Nước giải khát có gas phổ biến toàn thế giới."
+    },
+    {
+      "id": 21,
+      "name": "Pepsi",
+      "category": "drink",
+      "price": 15000,
+      "rating": 4.5,
+      "imagePath": "assets/images/products/Pepsi.jpg",
+      "description": "Nước giải khát có gas hương cola sảng khoái."
+    },
+    {
+      "id": 22,
+      "name": "Nước Suối",
+      "category": "drink",
+      "price": 10000,
+      "rating": 4.2,
+      "imagePath": "assets/images/products/NuocSuoi.jpg",
+      "description": "Nước khoáng thiên nhiên đóng chai tinh khiết."
+    },
+    {
+      "id": 23,
+      "name": "Combo 2 Pizza + Nước",
+      "category": "combo",
+      "price": 150000,
+      "rating": 4.9,
+      "imagePath": "assets/images/products/Combo2PizzaNuoc.jpg",
+      "description": "Combo tiết kiệm gồm 2 Pizza tùy chọn và 2 chai nước giải khát."
+    },
+    {
+      "id": 24,
+      "name": "Combo Burger + Coca",
+      "category": "combo",
+      "price": 55000,
+      "rating": 4.8,
+      "imagePath": "assets/images/products/comboBurgerCoca.jpg",
+      "description": "1 Hamburger Phô Mai và 1 lon Coca Cola mát lạnh."
+    },
+    {
+      "id": 25,
+      "name": "Combo Gà Rán + Khoai",
+      "category": "combo",
+      "price": 60000,
+      "rating": 4.7,
+      "imagePath": "assets/images/products/comboGaRanKhoai.jpg",
+      "description": "2 Miếng gà rán giòn rụm và 1 phần khoai tây chiên vừa."
+    },
+    {
+      "id": 26,
+      "name": "Combo 3 Món Ăn Vặt",
+      "category": "combo",
+      "price": 75000,
+      "rating": 4.8,
+      "imagePath": "assets/images/products/combo3MonAnVat.jpg",
+      "description": "Khoai tây chiên, Gà rán và Salad rau củ."
+    },
+    {
+      "id": 27,
+      "name": "Combo Cặp Đôi (2 Mỳ Ý)",
+      "category": "combo",
+      "price": 100000,
+      "rating": 4.9,
+      "imagePath": "assets/images/products/ComboCapDoi.jpg",
+      "description": "Lựa chọn 2 phần mỳ ý bất kỳ cho một bữa tối lãng mạn."
+    },
+    {
+      "id": 28,
+      "name": "Combo Sinh Viên",
+      "category": "combo",
+      "price": 45000,
+      "rating": 4.6,
+      "imagePath": "assets/images/products/ComboSinhVien.jpg",
+      "description": "Phần cơm gà hoặc cơm tấm kèm một ly trà đá."
+    },
+    {
+      "id": 29,
+      "name": "Combo Gia Đình",
+      "category": "combo",
+      "price": 299000,
+      "rating": 5.0,
+      "imagePath": "assets/images/products/ComboGiaDinh.jpg",
+      "description": "Phần ăn thịnh soạn gồm Pizza, Gà rán, Mỳ ý và nước uống cho 4 người."
+    },
+    {
+      "id": 30,
+      "name": "Combo Trà Sữa Mua 2 Tặng 1",
+      "category": "combo",
+      "price": 60000,
+      "rating": 4.9,
+      "imagePath": "assets/images/products/Combo2TraSua.jpg",
+      "description": "Mua 2 ly trà sữa trân châu tặng thêm 1 ly cùng loại."
+    }
+  ],
+  "vouchers": [
+    {
+      "code": "PKANEW",
+      "discountAmount": 10000,
+      "discountPercent": 0.0,
+      "minOrderAmount": 50000,
+      "expiresAt": "2026-12-31T23:59:59"
+    },
+    {
+      "code": "FREESHIP",
+      "discountAmount": 15000,
+      "discountPercent": 0.0,
+      "minOrderAmount": 100000,
+      "expiresAt": "2026-12-31T23:59:59"
+    },
+    {
+      "code": "COMBO20",
+      "discountAmount": 0,
+      "discountPercent": 0.2,
+      "minOrderAmount": 80000,
+      "expiresAt": "2026-12-31T23:59:59"
+    }
+  ]
+}
