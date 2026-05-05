@@ -26,7 +26,7 @@ class AboutScreen extends StatelessWidget {
 
             // Tieu de phu
             const Text(
-              'Khám phá các món ăn ngon mỗi ngày hoặc gửi phản hồi cho chúng tôi.',
+              'Thiết kế và phát triển bởi nhóm tôi.\nKhám phá các món ăn ngon mỗi ngày hoặc gửi phản hồi cho chúng tôi.',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 24, color: Colors.black54),
             ),
