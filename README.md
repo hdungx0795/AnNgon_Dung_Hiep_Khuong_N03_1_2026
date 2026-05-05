@@ -59,6 +59,20 @@
 
 ---
 
+---
+
+## 📌 Nội dung buổi thi giữa kì - MidtermMidterm
+
+### ✅ Nhiệm vụ cần thực thực hiện
+
+* Nhóm sinh viên cập nhật công việc yêu cầu trong bài kiểm tra giữa kỳ lên ReadMe.md (Done)
+* Sinh viên commit công việc của mình lên Github.
+* Mỗi sinh viên làm 1 trang tùy chọn: Home, About, ContentContent
+* Đưa code lên GitHub bằng Git.
+
+---
+
+
 ## ⚙️ Công nghệ sử dụng
 
 * **Nền tảng:** Flutter & Dart
