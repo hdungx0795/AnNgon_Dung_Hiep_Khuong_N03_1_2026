@@ -59,19 +59,27 @@
 
 ---
 
+## 📌 Bài kiểm tra giữa kỳ - Phần việc cá nhân
+
+### ✅ Công việc của tôi: `AboutScreen`
+
+* Thành viên thực hiện: **Lưu Đức Hiệp - 23010437**
+* File thực hiện: `lib/midterm/about_screen.dart`
+* Xây dựng giao diện màn hình About theo bố cục bài yêu cầu.
+* Chỉnh màu giao diện theo mẫu tham khảo với tông trắng, xám và đen.
+* Thiết kế các phần chính gồm:
+  * Thanh điều hướng phía trên
+  * Tiêu đề và mô tả giới thiệu ứng dụng
+  * Form liên hệ / phản hồi
+  * Footer gồm icon và các cột thông tin
+* Bổ sung hiệu ứng nhấn cho:
+  * Logo
+  * Các mục menu trên thanh điều hướng
+  * Các nút `Đăng nhập`, `Đăng ký`, `Gửi phản hồi`
+  * Các icon và các mục nội dung trong footer
+* Các thành phần hiện tại chỉ tạo tương tác nhấn, chưa xử lý điều hướng sang trang khác.
+
 ---
-
-## 📌 Nội dung buổi thi giữa kì - MidtermMidterm
-
-### ✅ Nhiệm vụ cần thực thực hiện
-
-* Nhóm sinh viên cập nhật công việc yêu cầu trong bài kiểm tra giữa kỳ lên ReadMe.md (Done)
-* Sinh viên commit công việc của mình lên Github.
-* Mỗi sinh viên làm 1 trang tùy chọn: Home, About, ContentContent
-* Đưa code lên GitHub bằng Git.
-
----
-
 
 ## ⚙️ Công nghệ sử dụng
 
