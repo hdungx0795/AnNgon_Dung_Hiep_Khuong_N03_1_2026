@@ -1,3 +1,4 @@
+import '../models/cart_item.dart';
 import '../models/chi_tiet_don_hang.dart';
 import '../models/danh_gia.dart';
 import '../models/don_hang.dart';
@@ -163,5 +164,21 @@ final List<DanhGia> mockDanhGias = [
     stars: 3,
     comment: 'Tam duoc, can giam do ngot.',
     createdAt: DateTime(2026, 4, 22, 10, 0),
+  ),
+];
+
+/// Giỏ hàng mẫu (Mốc 1 – sau này thay bằng state thật).
+final List<CartItem> mockCartItems = [
+  const CartItem(
+    productId: 1,
+    productName: 'Com ga xoi mo',
+    quantity: 2,
+    unitPrice: 45000,
+  ),
+  const CartItem(
+    productId: 3,
+    productName: 'Tra sua tran chau',
+    quantity: 1,
+    unitPrice: 30000,
   ),
 ];
