@@ -28,8 +28,8 @@ class _BaseLayoutState extends State<BaseLayout> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_titles[_currentIndex]),
-        backgroundColor: Colors.deepOrange,
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.grey.shade200,
+        foregroundColor: Colors.black,
       ),
       // Phần ruột sẽ render màn hình tương ứng
       body: _screens[_currentIndex],
