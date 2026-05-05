@@ -78,7 +78,24 @@
   * Các nút `Đăng nhập`, `Đăng ký`, `Gửi phản hồi`
   * Các icon và các mục nội dung trong footer
 * Các thành phần hiện tại chỉ tạo tương tác nhấn, chưa xử lý điều hướng sang trang khác.
+#### Phần được phân công: `ContentScreen` (Trang Thực đơn)
+**Sinh viên thực hiện:** Nguyễn Kim Khương - 23010428
 
+* **File thực hiện:** `lib/midterm/content_screen.dart`
+* **Mô tả công việc:** 
+  * Xây dựng hoàn thiện giao diện trang Content theo bố cục Figma yêu cầu, áp dụng chủ đề ứng dụng đặt đồ ăn "Ăn Ngon".
+  * Thiết kế UI bám sát phong cách tối giản (Monochrome) với tông màu chủ đạo là Trắng, Xám và Đen.
+* **Các thành phần (Widget) chính đã thiết kế:**
+  * `_NavBar`: Thanh điều hướng chứa Logo, Menu Links và các nút Đăng nhập/Đăng ký.
+  * `_HeroSection`: Khối banner giới thiệu thông điệp chính của ứng dụng.
+  * `_TwoLargeCardsSection`: Khối thẻ hiển thị các chương trình khuyến mãi lớn (Siêu Sale, Freeship).
+  * `_HorizontalListSection`: Danh sách nhà hàng nổi bật theo chiều ngang.
+  * `_GridSection`: Lưới danh sách gợi ý món ăn hôm nay.
+  * `_FooterSection`: Chân trang chứa thông tin liên hệ và các liên kết hỗ trợ.
+* **Kỹ thuật nổi bật áp dụng:**
+  * **Responsive Design:** Tích hợp `MediaQuery` để tự động tính toán kích thước màn hình. Giao diện có khả năng co giãn linh hoạt, tự động chuyển đổi bố cục từ ngang (`Row`) sang dọc (`Column`) để hiển thị hoàn hảo, không bị ép chữ (overflow) trên các thiết bị di động (Mobile).
+  * Bóc tách thành phần (Component-based) giúp code rõ ràng, dễ bảo trì và tái sử dụng.
+  * Tích hợp hiệu ứng cuộn (`SingleChildScrollView`) mượt mà cho toàn bộ trang
 ---
 
 ## ⚙️ Công nghệ sử dụng
