@@ -3,7 +3,9 @@ import '../services/prefs_service.dart';
 import '../core/theme/app_theme.dart';
 
 class ThemeProvider extends ChangeNotifier {
-  final PrefsService _prefsService = PrefsService();
+  ThemeProvider(this._prefsService);
+
+  final PrefsService _prefsService;
   
   bool _isDarkMode = false;
 

@@ -90,7 +90,7 @@ class OrderHistoryScreen extends StatelessWidget {
                             OutlinedButton(
                               onPressed: () async {
                                 final cartProvider = context.read<CartProvider>();
-                                final productService = ProductService();
+                                final productService = context.read<ProductService>();
                                 final userPhone = user.phone;
 
                                 int addedCount = 0;

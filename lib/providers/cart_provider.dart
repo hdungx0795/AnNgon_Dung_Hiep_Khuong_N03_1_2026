@@ -4,7 +4,9 @@ import '../models/product_model.dart';
 import '../services/cart_service.dart';
 
 class CartProvider extends ChangeNotifier {
-  final CartService _cartService = CartService();
+  CartProvider(this._cartService);
+
+  final CartService _cartService;
   List<CartItemModel> _items = [];
 
   List<CartItemModel> get items => List.unmodifiable(_items);

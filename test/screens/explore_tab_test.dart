@@ -7,6 +7,7 @@ import 'package:pka_food/models/product_model.dart';
 import 'package:pka_food/providers/product_provider.dart';
 import 'package:pka_food/screens/home/tabs/explore_tab.dart';
 import 'package:pka_food/services/database_service.dart';
+import 'package:pka_food/services/product_service.dart';
 import 'package:provider/provider.dart';
 
 import '../test_hive.dart';
@@ -26,7 +27,7 @@ void main() {
   });
 
   testWidgets('ExploreTab renders search and seeded product grid', (tester) async {
-    final provider = ProductProvider();
+    final provider = ProductProvider(ProductService());
     await provider.loadProducts();
 
     await tester.pumpWidget(
