@@ -4,7 +4,9 @@ import '../models/enums/category.dart';
 import '../services/product_service.dart';
 
 class ProductProvider extends ChangeNotifier {
-  final ProductService _productService = ProductService();
+  ProductProvider(this._productService);
+
+  final ProductService _productService;
 
   List<ProductModel> _products = [];
   Category _selectedCategory = Category.all;

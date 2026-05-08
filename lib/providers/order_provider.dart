@@ -9,12 +9,12 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../services/database_service.dart';
 
 class OrderProvider extends ChangeNotifier {
-  final OrderService _orderService = OrderService();
-  int? _currentUserId;
-
-  OrderProvider() {
+  OrderProvider(this._orderService) {
     _initListener();
   }
+
+  final OrderService _orderService;
+  int? _currentUserId;
 
   void _initListener() {
     Hive.box<OrderModel>(DatabaseService.ordersBoxName).watch().listen((_) {

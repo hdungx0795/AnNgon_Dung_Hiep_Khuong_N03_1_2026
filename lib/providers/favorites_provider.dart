@@ -2,7 +2,9 @@ import 'package:flutter/foundation.dart';
 import '../services/prefs_service.dart';
 
 class FavoritesProvider extends ChangeNotifier {
-  final PrefsService _prefsService = PrefsService();
+  FavoritesProvider(this._prefsService);
+
+  final PrefsService _prefsService;
   
   Set<int> _favoriteIds = {};
 
