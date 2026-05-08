@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pka_food/providers/cart_provider.dart';
+import 'package:pka_food/services/cart_service.dart';
 
 import '../test_hive.dart';
 
@@ -17,7 +18,7 @@ void main() {
   });
 
   test('CartProvider supports load, add, update quantity, and clear cart', () async {
-    final provider = CartProvider();
+    final provider = CartProvider(CartService());
     const phone = '0900000000';
     final product = testProduct(price: 30000);
 

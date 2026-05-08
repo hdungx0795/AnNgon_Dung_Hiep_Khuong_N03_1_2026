@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
@@ -30,6 +28,10 @@ class _LoginScreenState extends State<LoginScreen> {
   void _handleLogin() async {
     final phone = _phoneController.text.trim();
     final password = _passwordController.text.trim();
+    final authProvider = context.read<AuthProvider>();
+    final cartProvider = context.read<CartProvider>();
+    final favoritesProvider = context.read<FavoritesProvider>();
+    final orderProvider = context.read<OrderProvider>();
 
     if (phone.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -38,23 +40,31 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    final success = await context.read<AuthProvider>().login(phone, password);
-    if (success) {
-      if (mounted) {
-        final userPhone = context.read<AuthProvider>().currentUser!.phone;
-        await context.read<CartProvider>().loadCart(userPhone);
-        await context.read<FavoritesProvider>().loadFavorites(userPhone);
-        await context.read<OrderProvider>().loadOrders(context.read<AuthProvider>().currentUser!.id);
-        if (mounted) Navigator.pushReplacementNamed(context, '/home');
-      }
-    } else {
-      if (mounted) {
-        final error = context.read<AuthProvider>().error;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error ?? 'Đăng nhập thất bại')),
-        );
-      }
+    final success = await authProvider.login(phone, password);
+    if (!mounted) return;
+
+    if (!success) {
+      final error = authProvider.error;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error ?? 'Đăng nhập thất bại')),
+      );
+      return;
     }
+
+    final user = authProvider.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Không thể tải phiên đăng nhập. Vui lòng thử lại.')),
+      );
+      return;
+    }
+
+    await cartProvider.loadCart(user.phone);
+    await favoritesProvider.loadFavorites(user.phone);
+    await orderProvider.loadOrders(user.id);
+
+    if (!mounted) return;
+    Navigator.pushReplacementNamed(context, '/home');
   }
 
   @override

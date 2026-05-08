@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pka_food/providers/auth_provider.dart';
@@ -25,36 +23,39 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _initializeApp() async {
+    final productProvider = context.read<ProductProvider>();
+    final authProvider = context.read<AuthProvider>();
+    final cartProvider = context.read<CartProvider>();
+    final favoritesProvider = context.read<FavoritesProvider>();
+    final orderProvider = context.read<OrderProvider>();
+    final prefsService = context.read<PrefsService>();
+
     // Wait for splash animation
     await Future.delayed(const Duration(seconds: 2));
 
     if (!mounted) return;
 
     // Load initial data
-    await context.read<ProductProvider>().loadProducts();
-    await context.read<AuthProvider>().checkAuth();
+    await productProvider.loadProducts();
+    await authProvider.checkAuth();
 
     if (!mounted) return;
 
-    final onboardingDone = await PrefsService().isOnboardingDone();
+    final onboardingDone = await prefsService.isOnboardingDone();
 
     if (!mounted) return;
 
-    final auth = context.read<AuthProvider>();
-    if (auth.isAuthenticated) {
-      final phone = auth.currentUser!.phone;
-      await context.read<CartProvider>().loadCart(phone);
-      await context.read<FavoritesProvider>().loadFavorites(phone);
-      await context.read<OrderProvider>().loadOrders(auth.currentUser!.id);
+    final user = authProvider.currentUser;
+    if (user != null) {
+      await cartProvider.loadCart(user.phone);
+      await favoritesProvider.loadFavorites(user.phone);
+      await orderProvider.loadOrders(user.id);
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, '/home');
-    } else {
-      if (onboardingDone) {
-        Navigator.pushReplacementNamed(context, '/login');
-      } else {
-        Navigator.pushReplacementNamed(context, '/onboarding');
-      }
+      return;
     }
+
+    Navigator.pushReplacementNamed(context, onboardingDone ? '/login' : '/onboarding');
   }
 
   @override
