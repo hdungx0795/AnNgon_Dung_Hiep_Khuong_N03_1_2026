@@ -1,6 +1,5 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../services/prefs_service.dart';
 
@@ -34,7 +33,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   ];
 
   @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final prefsService = context.read<PrefsService>();
+
     return Scaffold(
       body: Stack(
         children: [
@@ -59,8 +66,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ElevatedButton(
                   onPressed: () async {
                     if (_currentPage == _pages.length - 1) {
-                      await PrefsService().setOnboardingDone();
-                      if (mounted) Navigator.pushReplacementNamed(context, '/login');
+                      await prefsService.setOnboardingDone();
+                      if (!context.mounted) return;
+                      Navigator.pushReplacementNamed(context, '/login');
                     } else {
                       _pageController.nextPage(
                         duration: const Duration(milliseconds: 300),
@@ -86,8 +94,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             right: 20,
             child: TextButton(
               onPressed: () async {
-                await PrefsService().setOnboardingDone();
-                if (mounted) Navigator.pushReplacementNamed(context, '/login');
+                await prefsService.setOnboardingDone();
+                if (!context.mounted) return;
+                Navigator.pushReplacementNamed(context, '/login');
               },
               child: const Text('Bỏ qua', style: TextStyle(color: Colors.grey)),
             ),
