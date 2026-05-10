@@ -129,7 +129,7 @@ class TrackingOrderScreen extends StatelessWidget {
         child: ElevatedButton.icon(
           onPressed: () => orderProvider.completeOrder(order.orderId, order.userId),
           icon: const Icon(Icons.check_circle_outline),
-          label: const Text('Da nhan duoc hang'),
+          label: const Text('Đã nhận được hàng'),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,

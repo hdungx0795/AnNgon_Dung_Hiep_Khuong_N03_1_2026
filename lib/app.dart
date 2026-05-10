@@ -6,6 +6,7 @@ import 'providers/product_provider.dart';
 import 'providers/order_provider.dart';
 import 'providers/favorites_provider.dart';
 import 'providers/theme_provider.dart';
+import 'core/theme/app_theme.dart';
 import 'screens/splash/splash_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
@@ -48,7 +49,8 @@ class PkaFoodApp extends StatelessWidget {
           return MaterialApp(
             title: 'PKA Food v2.0',
             debugShowCheckedModeBanner: false,
-            theme: themeProvider.currentTheme,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
             themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
             initialRoute: '/',
             routes: {
