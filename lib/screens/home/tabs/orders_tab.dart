@@ -8,9 +8,12 @@ import 'package:pka_food/core/constants/app_colors.dart';
 import 'package:pka_food/core/utils/format_utils.dart';
 import 'package:pka_food/models/enums/order_status.dart';
 import 'package:pka_food/screens/tracking/tracking_order_screen.dart';
+import 'package:pka_food/screens/order/order_history_screen.dart';
 
 class OrdersTab extends StatelessWidget {
-  const OrdersTab({super.key});
+  final VoidCallback? onSwitchToExplore;
+
+  const OrdersTab({super.key, this.onSwitchToExplore});
 
   @override
   Widget build(BuildContext context) {
@@ -46,69 +49,104 @@ class OrdersTab extends StatelessWidget {
             const Text('Hiện không có đơn hàng nào đang xử lý', style: TextStyle(color: Colors.grey)),
             const SizedBox(height: 16),
             TextButton(
-              onPressed: () {
-                // Switch to explore tab if possible via some logic, 
-                // but for now just a hint.
-              },
+              onPressed: onSwitchToExplore,
               child: const Text('Khám phá món ngon ngay'),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const OrderHistoryScreen()),
+                );
+              },
+              icon: const Icon(Icons.history, size: 18),
+              label: const Text('Xem lịch sử đơn hàng'),
             ),
           ],
         ),
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: activeOrders.length,
-      itemBuilder: (context, index) {
-        final order = activeOrders[index];
-        return Card(
-          margin: const EdgeInsets.only(bottom: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          elevation: 2,
-          child: ListTile(
-            contentPadding: const EdgeInsets.all(12),
-            leading: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
-                shape: BoxShape.circle,
+    return Column(
+      children: [
+        // History button
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '${activeOrders.length} đơn đang xử lý',
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
-              child: const Icon(Icons.delivery_dining, color: AppColors.primary),
-            ),
-            title: Text(
-              'Đơn hàng: #${order.orderId.substring(0, 8)}',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 4),
-                Text('Trạng thái: ${order.status.displayName}', 
-                  style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w500)),
-                Text(order.itemsSummary, maxLines: 1, overflow: TextOverflow.ellipsis),
-              ],
-            ),
-            trailing: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(FormatUtils.formatCurrency(order.finalAmount), 
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
-                const Icon(Icons.chevron_right, size: 16, color: Colors.grey),
-              ],
-            ),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => TrackingOrderScreen(orderId: order.orderId),
+              TextButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const OrderHistoryScreen()),
+                  );
+                },
+                icon: const Icon(Icons.history, size: 18),
+                label: const Text('Lịch sử'),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            itemCount: activeOrders.length,
+            itemBuilder: (context, index) {
+              final order = activeOrders[index];
+              return Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.all(12),
+                  leading: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.delivery_dining, color: AppColors.primary),
+                  ),
+                  title: Text(
+                    'Đơn hàng: #${order.orderId.substring(0, 8)}',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 4),
+                      Text('Trạng thái: ${order.status.displayName}', 
+                        style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w500)),
+                      Text(order.itemsSummary, maxLines: 1, overflow: TextOverflow.ellipsis),
+                    ],
+                  ),
+                  trailing: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(FormatUtils.formatCurrency(order.finalAmount), 
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                      const Icon(Icons.chevron_right, size: 16, color: Colors.grey),
+                    ],
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TrackingOrderScreen(orderId: order.orderId),
+                      ),
+                    );
+                  },
                 ),
               );
             },
           ),
-        );
-      },
+        ),
+      ],
     );
   }
 }

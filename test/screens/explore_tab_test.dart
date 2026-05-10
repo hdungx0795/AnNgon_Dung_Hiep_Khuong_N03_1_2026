@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:pka_food/models/enums/category.dart';
 import 'package:pka_food/models/product_model.dart';
 import 'package:pka_food/providers/product_provider.dart';
 import 'package:pka_food/screens/home/tabs/explore_tab.dart';
@@ -18,15 +19,23 @@ void main() {
   setUp(() async {
     hiveDirectory = await setUpTestHive();
     final productsBox = Hive.box<ProductModel>(DatabaseService.productsBoxName);
-    await productsBox.put(1, testProduct(id: 1, name: 'Test Burger', price: 30000));
-    await productsBox.put(2, testProduct(id: 2, name: 'Test Drink', price: 15000));
+    await productsBox.put(
+      1,
+      testProduct(id: 1, name: 'Test Burger', price: 30000),
+    );
+    await productsBox.put(
+      2,
+      testProduct(id: 2, name: 'Test Drink', price: 15000),
+    );
   });
 
   tearDown(() async {
     await tearDownTestHive(hiveDirectory);
   });
 
-  testWidgets('ExploreTab renders search and seeded product grid', (tester) async {
+  testWidgets('ExploreTab renders search and seeded product grid', (
+    tester,
+  ) async {
     final provider = ProductProvider(ProductService());
     await provider.loadProducts();
 
@@ -40,5 +49,10 @@ void main() {
     expect(find.byType(TextField), findsOneWidget);
     expect(find.text('Test Burger'), findsOneWidget);
     expect(find.text('Test Drink'), findsOneWidget);
+
+    await tester.tap(find.text('Xem ngay'));
+    await tester.pump();
+
+    expect(provider.selectedCategory, Category.combo);
   });
 }
