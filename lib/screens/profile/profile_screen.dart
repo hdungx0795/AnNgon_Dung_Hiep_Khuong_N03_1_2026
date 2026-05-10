@@ -8,6 +8,8 @@ import '../../core/constants/app_colors.dart';
 import '../order/order_history_screen.dart';
 import 'edit_profile_screen.dart';
 import 'change_password_screen.dart';
+import 'notification_settings_screen.dart';
+import 'help_center_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -90,9 +92,18 @@ class ProfileScreen extends StatelessWidget {
                 child: CircleAvatar(
                   radius: 18,
                   backgroundColor: Colors.white,
-                  child: IconButton(
-                    icon: const Icon(Icons.camera_alt, size: 18, color: AppColors.primary),
-                    onPressed: () {},
+                  child: Builder(
+                    builder: (context) => IconButton(
+                      icon: const Icon(Icons.camera_alt, size: 18, color: AppColors.primary),
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Tính năng đổi ảnh đại diện đang phát triển'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
@@ -133,7 +144,7 @@ class ProfileScreen extends StatelessWidget {
           _buildMenuItem(
             Icons.history, 
             'Lịch sử đơn hàng', 
-            () => Navigator.push(context, MaterialPageRoute(builder: (context) => OrderHistoryScreen()))
+            () => Navigator.push(context, MaterialPageRoute(builder: (context) => const OrderHistoryScreen()))
           ),
           const Divider(height: 1),
           _buildMenuItem(
@@ -145,13 +156,13 @@ class ProfileScreen extends StatelessWidget {
           _buildMenuItem(
             Icons.notifications_none, 
             'Thông báo', 
-            () {}
+            () => Navigator.push(context, MaterialPageRoute(builder: (context) => const NotificationSettingsScreen()))
           ),
           const Divider(height: 1),
           _buildMenuItem(
             Icons.help_outline, 
             'Trung tâm trợ giúp', 
-            () {}
+            () => Navigator.push(context, MaterialPageRoute(builder: (context) => const HelpCenterScreen()))
           ),
           const Divider(height: 1),
           Consumer<ThemeProvider>(
