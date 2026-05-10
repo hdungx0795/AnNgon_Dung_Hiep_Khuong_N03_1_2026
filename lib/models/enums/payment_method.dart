@@ -8,6 +8,8 @@ enum PaymentMethod {
   cod,      // Thanh toán khi nhận hàng
   @HiveField(1)
   ewallet,  // Ví điện tử
+  @HiveField(2)
+  bankTransfer, // Chuyển khoản ngân hàng
 }
 
 extension PaymentMethodExt on PaymentMethod {
@@ -15,6 +17,7 @@ extension PaymentMethodExt on PaymentMethod {
     switch (this) {
       case PaymentMethod.cod: return 'Thanh toán tiền mặt (COD)';
       case PaymentMethod.ewallet: return 'Ví điện tử';
+      case PaymentMethod.bankTransfer: return 'Chuyển khoản ngân hàng';
     }
   }
 }

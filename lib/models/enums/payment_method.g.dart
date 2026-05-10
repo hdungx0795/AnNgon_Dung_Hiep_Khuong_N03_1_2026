@@ -17,6 +17,8 @@ class PaymentMethodAdapter extends TypeAdapter<PaymentMethod> {
         return PaymentMethod.cod;
       case 1:
         return PaymentMethod.ewallet;
+      case 2:
+        return PaymentMethod.bankTransfer;
       default:
         return PaymentMethod.cod;
     }
@@ -30,6 +32,9 @@ class PaymentMethodAdapter extends TypeAdapter<PaymentMethod> {
         break;
       case PaymentMethod.ewallet:
         writer.writeByte(1);
+        break;
+      case PaymentMethod.bankTransfer:
+        writer.writeByte(2);
         break;
     }
   }
