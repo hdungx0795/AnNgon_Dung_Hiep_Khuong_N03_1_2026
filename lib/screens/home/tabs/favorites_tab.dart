@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../core/constants/app_colors.dart';
-import '../../../core/utils/format_utils.dart';
+
+import '../../../core/constants/app_sizes.dart';
 import '../../../models/product_model.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/favorites_provider.dart';
 import '../../../providers/product_provider.dart';
+import '../../../widgets/app_widgets.dart';
 import '../../product/product_detail_screen.dart';
+import '../widgets/discovery_product_card.dart';
 
 class FavoritesTab extends StatelessWidget {
   const FavoritesTab({super.key});
@@ -17,68 +19,63 @@ class FavoritesTab extends StatelessWidget {
     final productProvider = context.watch<ProductProvider>();
 
     final favoriteProducts = productProvider.products
-        .where((p) => favoritesProvider.isFavorite(p.id))
+        .where((product) => favoritesProvider.isFavorite(product.id))
         .toList();
 
-    if (favoriteProducts.isEmpty) return _buildEmptyState();
+    if (productProvider.isLoading) {
+      return const LoadingState(message: 'Đang tải món yêu thích...');
+    }
 
-    return GridView.builder(
-      padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 0.75,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-      ),
-      itemCount: favoriteProducts.length,
-      itemBuilder: (context, index) {
-        final product = favoriteProducts[index];
-        return _buildFavoriteCard(context, product);
-      },
-    );
-  }
+    if (favoriteProducts.isEmpty) {
+      return const EmptyState(
+        icon: Icons.favorite_border,
+        title: 'Chưa có món yêu thích',
+        message:
+            'Nhấn biểu tượng trái tim ở món bạn thích để lưu lại và đặt nhanh hơn.',
+      );
+    }
 
-  Widget _buildEmptyState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 88,
-              height: 88,
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.favorite_border,
-                size: 44,
-                color: AppColors.primary,
-              ),
+    return CustomScrollView(
+      slivers: [
+        const SliverPadding(
+          padding: EdgeInsets.fromLTRB(
+            AppSizes.md,
+            AppSizes.md,
+            AppSizes.md,
+            AppSizes.sm,
+          ),
+          sliver: SliverToBoxAdapter(
+            child: SectionHeader(
+              title: 'Món yêu thích',
+              subtitle: 'Các món bạn đã lưu để đặt lại nhanh hơn',
             ),
-            const SizedBox(height: 18),
-            const Text(
-              'Chưa có món yêu thích',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Nhấn biểu tượng trái tim ở món bạn thích để lưu lại và đặt nhanh hơn.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[600], height: 1.4),
-            ),
-          ],
+          ),
         ),
-      ),
+        SliverPadding(
+          padding: const EdgeInsets.all(AppSizes.md),
+          sliver: SliverGrid(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 0.72,
+              crossAxisSpacing: AppSizes.md,
+              mainAxisSpacing: AppSizes.md,
+            ),
+            delegate: SliverChildBuilderDelegate(
+              (context, index) =>
+                  _buildFavoriteCard(context, favoriteProducts[index]),
+              childCount: favoriteProducts.length,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildFavoriteCard(BuildContext context, ProductModel product) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(14),
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return DiscoveryProductCard(
+      product: product,
       onTap: () {
         Navigator.push(
           context,
@@ -87,92 +84,15 @@ class FavoritesTab extends StatelessWidget {
           ),
         );
       },
-      child: Card(
-        elevation: 2,
-        clipBehavior: Clip.antiAlias,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.asset(
-                    product.imagePath,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      color: Colors.grey[200],
-                      child: const Icon(
-                        Icons.fastfood,
-                        size: 50,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Material(
-                      color: Colors.white.withValues(alpha: 0.95),
-                      shape: const CircleBorder(),
-                      child: IconButton(
-                        constraints: const BoxConstraints.tightFor(
-                          width: 36,
-                          height: 36,
-                        ),
-                        padding: EdgeInsets.zero,
-                        icon: const Icon(
-                          Icons.favorite,
-                          color: Colors.red,
-                          size: 20,
-                        ),
-                        onPressed: () => _removeFavorite(context, product.id),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product.name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      height: 1.2,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    FormatUtils.formatCurrency(product.price),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      const Icon(Icons.star, size: 15, color: Colors.amber),
-                      const SizedBox(width: 3),
-                      Text(
-                        product.rating.toString(),
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
+      trailingAction: Material(
+        color: colorScheme.surface.withValues(alpha: 0.92),
+        shape: const CircleBorder(),
+        child: IconButton(
+          tooltip: 'Bỏ yêu thích',
+          constraints: const BoxConstraints.tightFor(width: 36, height: 36),
+          padding: EdgeInsets.zero,
+          icon: Icon(Icons.favorite, color: colorScheme.primary, size: 20),
+          onPressed: () => _removeFavorite(context, product.id),
         ),
       ),
     );
