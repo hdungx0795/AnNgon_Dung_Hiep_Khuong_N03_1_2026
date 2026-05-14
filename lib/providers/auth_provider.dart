@@ -111,7 +111,10 @@ class AuthProvider extends ChangeNotifier {
     final success = await _authService.changePassword(_currentUser!.id, oldPassword, newPassword);
     
     _isLoading = false;
-    if (!success) {
+    if (success) {
+      // Refresh _currentUser from Hive so in-memory state stays consistent
+      _currentUser = await _authService.getCurrentUser();
+    } else {
       _error = 'Mật khẩu cũ không chính xác';
     }
     notifyListeners();

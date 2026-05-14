@@ -1,14 +1,14 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../models/product_model.dart';
-import '../../providers/cart_provider.dart';
-import '../../providers/auth_provider.dart';
-import '../../providers/favorites_provider.dart';
-import '../../core/constants/app_colors.dart';
+
+import '../../core/constants/app_sizes.dart';
 import '../../core/constants/app_strings.dart';
-import '../../core/utils/format_utils.dart';
+import '../../models/enums/category.dart';
+import '../../models/product_model.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/cart_provider.dart';
+import '../../providers/favorites_provider.dart';
+import '../../widgets/app_widgets.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final ProductModel product;
@@ -21,8 +21,10 @@ class ProductDetailScreen extends StatefulWidget {
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   int _quantity = 1;
+  bool _isAddingToCart = false;
 
   void _increment() => setState(() => _quantity++);
+
   void _decrement() {
     if (_quantity > 1) setState(() => _quantity--);
   }
@@ -33,9 +35,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       body: CustomScrollView(
         slivers: [
           _buildAppBar(),
-          SliverToBoxAdapter(
-            child: _buildProductInfo(),
-          ),
+          SliverToBoxAdapter(child: _buildProductInfo()),
         ],
       ),
       bottomNavigationBar: _buildBottomBar(),
@@ -44,55 +44,42 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   Widget _buildAppBar() {
     return SliverAppBar(
-      expandedHeight: 300,
+      expandedHeight: 320,
       pinned: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      foregroundColor: Theme.of(context).colorScheme.onSurface,
       flexibleSpace: FlexibleSpaceBar(
         background: Hero(
           tag: 'product_${widget.product.id}',
-          child: Image.asset(
+          child: AppImage.asset(
             widget.product.imagePath,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) => Container(
-              color: Colors.grey[200],
-              child: const Icon(Icons.fastfood, size: 100, color: Colors.grey),
-            ),
+            width: double.infinity,
+            height: double.infinity,
+            borderRadius: BorderRadius.zero,
+            fallbackKind: AppImageFallbackKind.product,
+            semanticLabel: widget.product.name,
           ),
         ),
       ),
       leading: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: CircleAvatar(
-          backgroundColor: Colors.white.withOpacity(0.9),
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.black),
-            onPressed: () => Navigator.pop(context),
-          ),
+        padding: const EdgeInsets.all(AppSizes.sm),
+        child: _OverlayIconButton(
+          tooltip: 'Quay lại',
+          icon: Icons.arrow_back,
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       actions: [
         Consumer<FavoritesProvider>(
           builder: (context, favoritesProvider, child) {
-            final isFav = favoritesProvider.isFavorite(widget.product.id);
-            final user = context.read<AuthProvider>().currentUser;
+            final isFavorite = favoritesProvider.isFavorite(widget.product.id);
             return Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: CircleAvatar(
-                backgroundColor: Colors.white.withOpacity(0.9),
-                child: IconButton(
-                  icon: Icon(
-                    isFav ? Icons.favorite : Icons.favorite_border,
-                    color: isFav ? Colors.red : Colors.black,
-                  ),
-                  onPressed: () {
-                    if (user != null) {
-                      favoritesProvider.toggleFavorite(user.phone, widget.product.id);
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Vui lòng đăng nhập để yêu thích')),
-                      );
-                    }
-                  },
-                ),
+              padding: const EdgeInsets.all(AppSizes.sm),
+              child: _OverlayIconButton(
+                tooltip: isFavorite ? 'Bỏ yêu thích' : 'Thêm yêu thích',
+                icon: isFavorite ? Icons.favorite : Icons.favorite_border,
+                isActive: isFavorite,
+                onPressed: () => _handleFavoriteToggle(favoritesProvider),
               ),
             );
           },
@@ -102,113 +89,109 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   Widget _buildProductInfo() {
-    return Container(
-      padding: const EdgeInsets.all(20),
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.all(AppSizes.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: Text(
                   widget.product.name,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
-                      ),
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    color: colorScheme.onSurface,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: Colors.amber.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.star, color: Colors.amber, size: 20),
-                    const SizedBox(width: 5),
-                    Text(
-                      widget.product.rating.toString(),
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
+              const SizedBox(width: AppSizes.md),
+              _RatingBadge(rating: widget.product.rating),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: AppSizes.sm),
           Text(
-            FormatUtils.formatCurrency(widget.product.price),
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: AppColors.primary,
+            widget.product.category.label,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 25),
-          const Text(
+          const SizedBox(height: AppSizes.md),
+          PriceText(amount: widget.product.price),
+          const SizedBox(height: AppSizes.lg),
+          Text(
             AppStrings.description,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: colorScheme.onSurface,
+              fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: AppSizes.sm),
           Text(
             widget.product.description,
-            style: const TextStyle(
-              fontSize: 16,
-              color: AppColors.textSecondary,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: colorScheme.onSurfaceVariant,
               height: 1.5,
             ),
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: AppSizes.lg),
           Row(
             children: [
-              const Text(
+              Text(
                 'Số lượng',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: colorScheme.onSurface,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
               const Spacer(),
               _buildQuantitySelector(),
             ],
           ),
-          const SizedBox(height: 100), // Space for bottom bar
+          const SizedBox(height: 112),
         ],
       ),
     );
   }
 
   Widget _buildQuantitySelector() {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
+      key: const Key('product-detail-quantity-selector'),
       decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(15),
+        color: colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(AppSizes.radiusSm),
+        border: Border.all(color: colorScheme.outlineVariant),
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          IconButton(
+          _QuantityButton(
+            tooltip: 'Giảm số lượng',
+            icon: Icons.remove,
             onPressed: _decrement,
-            icon: const Icon(Icons.remove),
-            color: AppColors.primary,
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
+          SizedBox(
+            key: const Key('product-detail-quantity'),
+            width: 44,
             child: Text(
               _quantity.toString(),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
             ),
           ),
-          IconButton(
+          _QuantityButton(
+            tooltip: 'Tăng số lượng',
+            icon: Icons.add,
             onPressed: _increment,
-            icon: const Icon(Icons.add),
-            color: AppColors.primary,
           ),
         ],
       ),
@@ -216,76 +199,186 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   Widget _buildBottomBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
+        border: Border(top: BorderSide(color: colorScheme.outlineVariant)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
+            color: colorScheme.shadow.withValues(alpha: 0.08),
+            blurRadius: 18,
+            offset: const Offset(0, -8),
           ),
         ],
       ),
       child: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(
+          AppSizes.lg,
+          AppSizes.md,
+          AppSizes.lg,
+          AppSizes.md,
+        ),
         child: Row(
           children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Tổng tiền', style: TextStyle(color: Colors.grey)),
-                Text(
-                  FormatUtils.formatCurrency(widget.product.price * _quantity),
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(width: 20),
             Expanded(
-              child: ElevatedButton(
-                onPressed: () {
-                  final user = context.read<AuthProvider>().currentUser;
-                  if (user == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Vui lòng đăng nhập để mua hàng')),
-                    );
-                    return;
-                  }
-                  context.read<CartProvider>().addItem(
-                    user.phone, 
-                    widget.product, 
-                    _quantity,
-                  );
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Đã thêm vào giỏ hàng!'),
-                      backgroundColor: Colors.green,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Tổng tiền',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
                     ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
                   ),
-                ),
-                child: const Text(
-                  AppStrings.addToCart,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
+                  const SizedBox(height: AppSizes.xs),
+                  PriceText(
+                    key: const Key('product-detail-total-price'),
+                    amount: widget.product.price * _quantity,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: AppSizes.md),
+            Expanded(
+              child: PrimaryButton(
+                label: AppStrings.addToCart,
+                onPressed: _isAddingToCart ? null : _handleAddToCart,
+                isLoading: _isAddingToCart,
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> _handleAddToCart() async {
+    final user = context.read<AuthProvider>().currentUser;
+    if (user == null) {
+      _showSnackBar('Vui lòng đăng nhập để mua hàng');
+      return;
+    }
+
+    setState(() => _isAddingToCart = true);
+    await context.read<CartProvider>().addItem(
+      user.phone,
+      widget.product,
+      _quantity,
+    );
+
+    if (!mounted) return;
+    setState(() => _isAddingToCart = false);
+    _showSnackBar('Đã thêm vào giỏ hàng!');
+  }
+
+  void _handleFavoriteToggle(FavoritesProvider favoritesProvider) {
+    final user = context.read<AuthProvider>().currentUser;
+    if (user == null) {
+      _showSnackBar('Vui lòng đăng nhập để yêu thích');
+      return;
+    }
+
+    favoritesProvider.toggleFavorite(user.phone, widget.product.id);
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+}
+
+class _OverlayIconButton extends StatelessWidget {
+  const _OverlayIconButton({
+    required this.tooltip,
+    required this.icon,
+    required this.onPressed,
+    this.isActive = false,
+  });
+
+  final String tooltip;
+  final IconData icon;
+  final VoidCallback onPressed;
+  final bool isActive;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Material(
+      color: colorScheme.surface.withValues(alpha: 0.92),
+      shape: const CircleBorder(),
+      child: IconButton(
+        tooltip: tooltip,
+        icon: Icon(icon),
+        color: isActive ? colorScheme.primary : colorScheme.onSurface,
+        onPressed: onPressed,
+      ),
+    );
+  }
+}
+
+class _RatingBadge extends StatelessWidget {
+  const _RatingBadge({required this.rating});
+
+  final double rating;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSizes.sm,
+        vertical: AppSizes.xs,
+      ),
+      decoration: BoxDecoration(
+        color: colorScheme.secondaryContainer,
+        borderRadius: BorderRadius.circular(AppSizes.radiusSm),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.star, color: Colors.amber, size: 18),
+          const SizedBox(width: AppSizes.xs),
+          Text(
+            rating.toString(),
+            style: theme.textTheme.labelLarge?.copyWith(
+              color: colorScheme.onSecondaryContainer,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuantityButton extends StatelessWidget {
+  const _QuantityButton({
+    required this.tooltip,
+    required this.icon,
+    required this.onPressed,
+  });
+
+  final String tooltip;
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      tooltip: tooltip,
+      constraints: const BoxConstraints.tightFor(width: 42, height: 42),
+      icon: Icon(icon),
+      color: Theme.of(context).colorScheme.primary,
+      onPressed: onPressed,
     );
   }
 }
