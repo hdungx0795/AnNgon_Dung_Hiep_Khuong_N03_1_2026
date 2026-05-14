@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import '../models/order_model.dart';
 import '../models/cart_item_model.dart';
@@ -15,13 +17,18 @@ class OrderProvider extends ChangeNotifier {
 
   final OrderService _orderService;
   int? _currentUserId;
+  StreamSubscription<BoxEvent>? _ordersSubscription;
+  bool _isDisposed = false;
+  int _loadRequestId = 0;
 
   void _initListener() {
-    Hive.box<OrderModel>(DatabaseService.ordersBoxName).watch().listen((_) {
-      if (_currentUserId != null) {
-        loadOrders(_currentUserId!);
-      }
-    });
+    _ordersSubscription = Hive.box<OrderModel>(DatabaseService.ordersBoxName)
+        .watch()
+        .listen((_) {
+          if (_currentUserId != null) {
+            loadOrders(_currentUserId!);
+          }
+        });
   }
 
   List<OrderModel> _activeOrders = [];
@@ -33,15 +40,27 @@ class OrderProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
 
   Future<void> loadOrders(int userId) async {
+    if (_isDisposed) {
+      return;
+    }
+
+    final requestId = ++_loadRequestId;
     _currentUserId = userId;
     _isLoading = true;
-    notifyListeners();
+    _notifyIfActive();
 
-    _activeOrders = await _orderService.getActiveOrders(userId);
-    _orderHistory = await _orderService.getOrderHistory(userId);
+    final activeOrders = await _orderService.getActiveOrders(userId);
+    final orderHistory = await _orderService.getOrderHistory(userId);
+
+    if (_isDisposed || requestId != _loadRequestId) {
+      return;
+    }
+
+    _activeOrders = activeOrders;
+    _orderHistory = orderHistory;
 
     _isLoading = false;
-    notifyListeners();
+    _notifyIfActive();
   }
 
   Future<OrderModel> placeOrder({
@@ -60,7 +79,7 @@ class OrderProvider extends ChangeNotifier {
       note: note,
       voucher: voucher,
     );
-    
+
     await loadOrders(userId);
     return order;
   }
@@ -68,5 +87,18 @@ class OrderProvider extends ChangeNotifier {
   Future<void> completeOrder(String orderId, int userId) async {
     await _orderService.completeOrder(orderId);
     await loadOrders(userId);
+  }
+
+  void _notifyIfActive() {
+    if (!_isDisposed) {
+      notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    _ordersSubscription?.cancel();
+    super.dispose();
   }
 }
