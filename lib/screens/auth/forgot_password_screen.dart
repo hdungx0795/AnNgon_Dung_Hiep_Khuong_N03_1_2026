@@ -1,9 +1,11 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../../core/constants/app_sizes.dart';
+import '../../core/utils/validators.dart';
 import '../../providers/auth_provider.dart';
-import '../../core/constants/app_colors.dart';
+import '../../widgets/app_widgets.dart';
+import 'widgets/auth_layout.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -13,69 +15,140 @@ class ForgotPasswordScreen extends StatefulWidget {
 }
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
+  final _formKey = GlobalKey<FormState>();
   final _phoneController = TextEditingController();
   final _newPasswordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   bool _isResetting = false;
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+  String? _authStatus;
+  bool _statusIsError = true;
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Quên mật khẩu')),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            const Text('Nhập số điện thoại và mật khẩu mới để đặt lại.'),
-            const SizedBox(height: 20),
-            TextField(
-              controller: _phoneController,
-              decoration: const InputDecoration(labelText: 'Số điện thoại', border: OutlineInputBorder()),
-              keyboardType: TextInputType.phone,
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: _newPasswordController,
-              decoration: const InputDecoration(labelText: 'Mật khẩu mới', border: OutlineInputBorder()),
-              obscureText: true,
-            ),
-            const SizedBox(height: 30),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _isResetting ? null : _handleReset,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                ),
-                child: _isResetting 
-                    ? const CircularProgressIndicator(color: Colors.white) 
-                    : const Text('ĐẶT LẠI MẬT KHẨU', style: TextStyle(color: Colors.white)),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  void dispose() {
+    _phoneController.dispose();
+    _newPasswordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
   }
 
   Future<void> _handleReset() async {
-    final phone = _phoneController.text;
-    final newPassword = _newPasswordController.text;
+    FocusScope.of(context).unfocus();
+    setState(() => _authStatus = null);
 
-    if (phone.isEmpty || newPassword.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Vui lòng nhập đầy đủ thông tin')));
-      return;
-    }
+    if (!(_formKey.currentState?.validate() ?? false)) return;
 
     setState(() => _isResetting = true);
-    final success = await context.read<AuthProvider>().resetPassword(phone, newPassword);
-    setState(() => _isResetting = false);
+    final success = await context.read<AuthProvider>().resetPassword(
+      _phoneController.text.trim(),
+      _newPasswordController.text.trim(),
+    );
 
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đặt lại mật khẩu thành công!')));
-      Navigator.pop(context);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Số điện thoại không tồn tại')));
+    if (!mounted) return;
+
+    setState(() {
+      _isResetting = false;
+      _statusIsError = !success;
+      _authStatus = success
+          ? 'Đặt lại mật khẩu thành công. Bạn có thể quay lại đăng nhập.'
+          : 'Số điện thoại không tồn tại';
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AuthLayout(
+      title: 'Đặt lại mật khẩu',
+      subtitle: 'Nhập số điện thoại đã đăng ký và mật khẩu mới.',
+      children: [
+        Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              AppTextField(
+                controller: _phoneController,
+                labelText: 'Số điện thoại',
+                prefixIcon: Icons.phone_outlined,
+                keyboardType: TextInputType.phone,
+                textInputAction: TextInputAction.next,
+                validator: (value) => Validators.validatePhone(value?.trim()),
+              ),
+              const SizedBox(height: AppSizes.md),
+              AppTextField(
+                controller: _newPasswordController,
+                labelText: 'Mật khẩu mới',
+                prefixIcon: Icons.lock_outline,
+                obscureText: _obscurePassword,
+                textInputAction: TextInputAction.next,
+                validator: (value) =>
+                    Validators.validatePassword(value?.trim()),
+                suffixIcon: IconButton(
+                  tooltip: _obscurePassword ? 'Hiện mật khẩu' : 'Ẩn mật khẩu',
+                  icon: Icon(
+                    _obscurePassword
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
+                  ),
+                  onPressed: () {
+                    setState(() => _obscurePassword = !_obscurePassword);
+                  },
+                ),
+              ),
+              const SizedBox(height: AppSizes.md),
+              AppTextField(
+                controller: _confirmPasswordController,
+                labelText: 'Nhập lại mật khẩu mới',
+                prefixIcon: Icons.lock_reset_outlined,
+                obscureText: _obscureConfirmPassword,
+                textInputAction: TextInputAction.done,
+                validator: _validateConfirmPassword,
+                onSubmitted: (_) {
+                  if (!_isResetting) _handleReset();
+                },
+                suffixIcon: IconButton(
+                  tooltip: _obscureConfirmPassword
+                      ? 'Hiện mật khẩu'
+                      : 'Ẩn mật khẩu',
+                  icon: Icon(
+                    _obscureConfirmPassword
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
+                  ),
+                  onPressed: () {
+                    setState(
+                      () => _obscureConfirmPassword = !_obscureConfirmPassword,
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: AppSizes.md),
+              AuthStatusMessage(message: _authStatus, isError: _statusIsError),
+              const SizedBox(height: AppSizes.md),
+              PrimaryButton(
+                label: 'Đặt lại mật khẩu',
+                onPressed: _isResetting ? null : _handleReset,
+                isLoading: _isResetting,
+              ),
+              const SizedBox(height: AppSizes.sm),
+              SecondaryButton(
+                label: 'Quay lại đăng nhập',
+                onPressed: _isResetting ? null : () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  String? _validateConfirmPassword(String? value) {
+    final passwordError = Validators.validatePassword(value?.trim());
+    if (passwordError != null) return passwordError;
+    if (value?.trim() != _newPasswordController.text.trim()) {
+      return 'Mật khẩu nhập lại không khớp';
     }
+    return null;
   }
 }

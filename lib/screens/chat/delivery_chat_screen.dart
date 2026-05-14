@@ -1,6 +1,6 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import '../../core/constants/app_colors.dart';
+
+import '../../core/constants/app_sizes.dart';
 
 class DeliveryChatScreen extends StatefulWidget {
   final String shipperName;
@@ -12,189 +12,93 @@ class DeliveryChatScreen extends StatefulWidget {
 }
 
 class _DeliveryChatScreenState extends State<DeliveryChatScreen> {
-  final List<_ChatMessage> _messages = [
-    _ChatMessage(text: 'Chào bạn, tôi đang lấy hàng cho bạn.', isMe: false),
-  ];
+  final List<String> _messages = ['Chào bạn, tôi đang lấy hàng.'];
   final _controller = TextEditingController();
-  final _scrollController = ScrollController();
-
-  // Auto-reply templates
-  static const _autoReplies = [
-    'Vâng, tôi sẽ đến trong ít phút nữa ạ!',
-    'Được ạ, tôi ghi nhận rồi.',
-    'Hiện tôi đang trên đường đến ạ.',
-    'Khoảng 5-10 phút nữa tôi sẽ tới ạ!',
-    'Vâng ạ, bạn yên tâm nhé!',
-    'Tôi đã lấy hàng xong, đang đến chỗ bạn.',
-  ];
-
-  int _replyIndex = 0;
 
   @override
   void dispose() {
     _controller.dispose();
-    _scrollController.dispose();
     super.dispose();
   }
 
   void _sendMessage() {
-    final text = _controller.text.trim();
-    if (text.isEmpty) return;
+    final message = _controller.text.trim();
+    if (message.isEmpty) return;
 
     setState(() {
-      _messages.add(_ChatMessage(text: text, isMe: true));
+      _messages.add(message);
       _controller.clear();
-    });
-    _scrollToBottom();
-
-    // Auto-reply after 1-2 seconds
-    final delay = Duration(milliseconds: 1000 + (500 * (_replyIndex % 3)));
-    Timer(delay, () {
-      if (mounted) {
-        setState(() {
-          _messages.add(_ChatMessage(
-            text: _autoReplies[_replyIndex % _autoReplies.length],
-            isMe: false,
-          ));
-          _replyIndex++;
-        });
-        _scrollToBottom();
-      }
-    });
-  }
-
-  void _scrollToBottom() {
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Scaffold(
       appBar: AppBar(
+        titleSpacing: 0,
         title: Row(
           children: [
-            const CircleAvatar(
-              radius: 16,
-              backgroundColor: Colors.white24,
-              child: Icon(Icons.person, size: 18, color: Colors.white),
+            CircleAvatar(
+              radius: 18,
+              backgroundColor: colorScheme.primaryContainer,
+              child: Icon(
+                Icons.delivery_dining,
+                size: AppSizes.iconSm,
+                color: colorScheme.onPrimaryContainer,
+              ),
             ),
-            const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(widget.shipperName, style: const TextStyle(fontSize: 16)),
-                const Text('Đang hoạt động', style: TextStyle(fontSize: 11, fontWeight: FontWeight.normal)),
-              ],
+            const SizedBox(width: AppSizes.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    widget.shipperName,
+                    key: const Key('delivery-chat-shipper-name'),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  Text(
+                    'Tài xế giao hàng',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.all(16),
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final msg = _messages[index];
-                return _buildBubble(msg, isDark);
-              },
-            ),
-          ),
-          _buildInput(isDark),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBubble(_ChatMessage msg, bool isDark) {
-    final isMe = msg.isMe;
-    return Align(
-      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.75,
-        ),
-        decoration: BoxDecoration(
-          color: isMe
-              ? AppColors.primary
-              : (isDark ? const Color(0xFF2C2C2C) : Colors.grey[200]),
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(16),
-            topRight: const Radius.circular(16),
-            bottomLeft: isMe ? const Radius.circular(16) : const Radius.circular(4),
-            bottomRight: isMe ? const Radius.circular(4) : const Radius.circular(16),
-          ),
-        ),
-        child: Text(
-          msg.text,
-          style: TextStyle(
-            color: isMe ? Colors.white : (isDark ? Colors.white : Colors.black87),
-            fontSize: 15,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInput(bool isDark) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 8, 8, 12),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(13),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: Row(
+      body: SafeArea(
+        child: Column(
           children: [
             Expanded(
-              child: TextField(
-                controller: _controller,
-                textInputAction: TextInputAction.send,
-                onSubmitted: (_) => _sendMessage(),
-                decoration: InputDecoration(
-                  hintText: 'Nhập tin nhắn...',
-                  filled: true,
-                  fillColor: isDark ? const Color(0xFF2C2C2C) : Colors.grey[100],
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: ListView.builder(
+                key: const Key('delivery-chat-message-list'),
+                padding: const EdgeInsets.fromLTRB(
+                  AppSizes.md,
+                  AppSizes.md,
+                  AppSizes.md,
+                  AppSizes.sm,
                 ),
+                itemCount: _messages.length,
+                itemBuilder: (context, index) {
+                  return _MessageBubble(
+                    text: _messages[index],
+                    isMe: index % 2 == 1,
+                  );
+                },
               ),
             ),
-            const SizedBox(width: 8),
-            Container(
-              decoration: const BoxDecoration(
-                color: AppColors.primary,
-                shape: BoxShape.circle,
-              ),
-              child: IconButton(
-                icon: const Icon(Icons.send, color: Colors.white, size: 20),
-                onPressed: _sendMessage,
-              ),
-            ),
+            _ChatInput(controller: _controller, onSend: _sendMessage),
           ],
         ),
       ),
@@ -202,8 +106,115 @@ class _DeliveryChatScreenState extends State<DeliveryChatScreen> {
   }
 }
 
-class _ChatMessage {
+class _MessageBubble extends StatelessWidget {
+  const _MessageBubble({required this.text, required this.isMe});
+
   final String text;
   final bool isMe;
-  _ChatMessage({required this.text, required this.isMe});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Align(
+      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        key: Key(
+          isMe ? 'delivery-chat-message-me' : 'delivery-chat-message-shipper',
+        ),
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.sizeOf(context).width * 0.78,
+        ),
+        margin: const EdgeInsets.only(bottom: AppSizes.sm),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSizes.md,
+          vertical: AppSizes.sm,
+        ),
+        decoration: BoxDecoration(
+          color: isMe
+              ? colorScheme.primary
+              : colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(AppSizes.radiusMd),
+            topRight: const Radius.circular(AppSizes.radiusMd),
+            bottomLeft: Radius.circular(isMe ? AppSizes.radiusMd : AppSizes.xs),
+            bottomRight: Radius.circular(
+              isMe ? AppSizes.xs : AppSizes.radiusMd,
+            ),
+          ),
+        ),
+        child: Text(
+          text,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: isMe ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ChatInput extends StatelessWidget {
+  const _ChatInput({required this.controller, required this.onSend});
+
+  final TextEditingController controller;
+  final VoidCallback onSend;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        border: Border(top: BorderSide(color: colorScheme.outlineVariant)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSizes.md,
+          AppSizes.sm,
+          AppSizes.md,
+          AppSizes.md,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                key: const Key('delivery-chat-input'),
+                controller: controller,
+                minLines: 1,
+                maxLines: 3,
+                textInputAction: TextInputAction.send,
+                onSubmitted: (_) => onSend(),
+                decoration: InputDecoration(
+                  hintText: 'Nhập tin nhắn...',
+                  filled: true,
+                  fillColor: colorScheme.surfaceContainerHighest,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: AppSizes.md,
+                    vertical: AppSizes.sm,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+                style: theme.textTheme.bodyMedium,
+              ),
+            ),
+            const SizedBox(width: AppSizes.sm),
+            IconButton.filled(
+              key: const Key('delivery-chat-send-button'),
+              tooltip: 'Gửi tin nhắn',
+              onPressed: onSend,
+              icon: const Icon(Icons.send_rounded),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
