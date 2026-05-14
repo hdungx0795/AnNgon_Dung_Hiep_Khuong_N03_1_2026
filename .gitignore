@@ -54,6 +54,10 @@ analyze_output.txt
 
 # Excluded files folder
 _excluded_from_git/
+project_memory/
+CLAUDE.md
+*.md
+!README.md
 
 # OS-generated files
 Thumbs.db
