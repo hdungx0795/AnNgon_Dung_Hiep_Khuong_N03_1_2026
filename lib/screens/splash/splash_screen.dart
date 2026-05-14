@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import 'package:pka_food/core/constants/app_sizes.dart';
 import 'package:pka_food/providers/auth_provider.dart';
 import 'package:pka_food/providers/product_provider.dart';
 import 'package:pka_food/providers/cart_provider.dart';
 import 'package:pka_food/providers/favorites_provider.dart';
 import 'package:pka_food/providers/order_provider.dart';
-import 'package:pka_food/core/constants/app_colors.dart';
 import 'package:pka_food/services/prefs_service.dart';
+import 'package:pka_food/widgets/app_widgets.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -55,55 +57,82 @@ class _SplashScreenState extends State<SplashScreen> {
       return;
     }
 
-    Navigator.pushReplacementNamed(context, onboardingDone ? '/login' : '/onboarding');
+    Navigator.pushReplacementNamed(
+      context,
+      onboardingDone ? '/login' : '/onboarding',
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
-      backgroundColor: AppColors.primary,
-      body: Center(
+      body: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(AppSizes.xl),
+        decoration: BoxDecoration(color: colorScheme.primary),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
-              child: Image.asset(
-                'assets/images/products/PKA.png',
-                width: 100,
-                height: 100,
-                errorBuilder: (context, error, stackTrace) => const Icon(
-                  Icons.fastfood,
-                  size: 80,
-                  color: AppColors.primary,
+            const Spacer(),
+            Semantics(
+              label: 'PKA Food',
+              child: Container(
+                padding: const EdgeInsets.all(AppSizes.md),
+                decoration: BoxDecoration(
+                  color: colorScheme.onPrimary,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.16),
+                      blurRadius: 24,
+                      offset: const Offset(0, 12),
+                    ),
+                  ],
+                ),
+                child: AppImage.asset(
+                  'assets/images/products/PKA.png',
+                  width: 104,
+                  height: 104,
+                  fit: BoxFit.contain,
+                  fallbackKind: AppImageFallbackKind.generic,
                 ),
               ),
             ),
-            const SizedBox(height: 24),
-            const Text(
+            const SizedBox(height: AppSizes.lg),
+            Text(
               'PKA Food',
-              style: TextStyle(
-                fontSize: 32,
+              style: textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
-                letterSpacing: 1.5,
+                color: colorScheme.onPrimary,
               ),
             ),
-            const SizedBox(height: 8),
-            const Text(
+            const SizedBox(height: AppSizes.sm),
+            Text(
               'Ăn ngon - Sống khỏe',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.white70,
+              textAlign: TextAlign.center,
+              style: textTheme.bodyLarge?.copyWith(
+                color: colorScheme.onPrimary.withValues(alpha: 0.78),
               ),
             ),
-            const SizedBox(height: 48),
-            const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            const Spacer(),
+            SizedBox(
+              width: 28,
+              height: 28,
+              child: CircularProgressIndicator(
+                strokeWidth: 3,
+                color: colorScheme.onPrimary,
+              ),
+            ),
+            const SizedBox(height: AppSizes.md),
+            Text(
+              'Đang chuẩn bị trải nghiệm đặt món',
+              textAlign: TextAlign.center,
+              style: textTheme.bodySmall?.copyWith(
+                color: colorScheme.onPrimary.withValues(alpha: 0.72),
+              ),
             ),
           ],
         ),
