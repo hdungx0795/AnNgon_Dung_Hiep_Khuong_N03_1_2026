@@ -1,152 +1,71 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:pka_food/providers/order_provider.dart';
-import 'package:pka_food/providers/auth_provider.dart';
-import 'package:pka_food/core/constants/app_colors.dart';
-import 'package:pka_food/core/utils/format_utils.dart';
-import 'package:pka_food/models/enums/order_status.dart';
-import 'package:pka_food/screens/tracking/tracking_order_screen.dart';
-import 'package:pka_food/screens/order/order_history_screen.dart';
+
+import '../../../core/constants/app_sizes.dart';
+import '../../../providers/auth_provider.dart';
+import '../../../providers/order_provider.dart';
+import '../../../screens/order/widgets/order_summary_card.dart';
+import '../../../screens/tracking/tracking_order_screen.dart';
+import '../../../widgets/empty_state.dart';
+import '../../../widgets/loading_state.dart';
+import '../../../widgets/section_header.dart';
 
 class OrdersTab extends StatelessWidget {
-  final VoidCallback? onSwitchToExplore;
-
-  const OrdersTab({super.key, this.onSwitchToExplore});
+  const OrdersTab({super.key});
 
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthProvider>().currentUser;
     if (user == null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.shopping_bag_outlined, size: 80, color: Colors.grey),
-            const SizedBox(height: 16),
-            const Text('Vui lòng đăng nhập để xem đơn hàng'),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => Navigator.pushNamed(context, '/login'),
-              child: const Text('Đăng nhập'),
-            ),
-          ],
-        ),
+      return EmptyState(
+        icon: Icons.lock_outline,
+        title: 'Đăng nhập để xem đơn hàng',
+        message: 'Các đơn đang xử lý sẽ được lưu theo tài khoản của bạn.',
+        actionLabel: 'Đăng nhập',
+        onActionPressed: () => Navigator.pushNamed(context, '/login'),
       );
     }
 
     final orderProvider = context.watch<OrderProvider>();
-    final activeOrders = orderProvider.activeOrders;
+    if (orderProvider.isLoading) {
+      return const LoadingState(message: 'Đang tải đơn hàng...');
+    }
 
+    final activeOrders = orderProvider.activeOrders;
     if (activeOrders.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.restaurant, size: 80, color: Colors.grey[200]),
-            const SizedBox(height: 16),
-            const Text('Hiện không có đơn hàng nào đang xử lý', style: TextStyle(color: Colors.grey)),
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: onSwitchToExplore,
-              child: const Text('Khám phá món ngon ngay'),
-            ),
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const OrderHistoryScreen()),
-                );
-              },
-              icon: const Icon(Icons.history, size: 18),
-              label: const Text('Xem lịch sử đơn hàng'),
-            ),
-          ],
-        ),
+      return EmptyState(
+        icon: Icons.receipt_long_outlined,
+        title: 'Chưa có đơn đang xử lý',
+        message: 'Khi đặt món, trạng thái giao hàng sẽ hiển thị tại đây.',
+        actionLabel: 'Khám phá món ngon',
+        onActionPressed: () => Navigator.pushNamed(context, '/home'),
       );
     }
 
-    return Column(
+    return ListView(
+      padding: const EdgeInsets.all(AppSizes.md),
       children: [
-        // History button
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '${activeOrders.length} đơn đang xử lý',
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-              TextButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const OrderHistoryScreen()),
-                  );
-                },
-                icon: const Icon(Icons.history, size: 18),
-                label: const Text('Lịch sử'),
-              ),
-            ],
-          ),
+        SectionHeader(
+          title: 'Đơn đang xử lý',
+          subtitle: '${activeOrders.length} đơn cần theo dõi',
         ),
-        Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            itemCount: activeOrders.length,
-            itemBuilder: (context, index) {
-              final order = activeOrders[index];
-              return Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.all(12),
-                  leading: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.delivery_dining, color: AppColors.primary),
-                  ),
-                  title: Text(
-                    'Đơn hàng: #${order.orderId.substring(0, 8)}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 4),
-                      Text('Trạng thái: ${order.status.displayName}', 
-                        style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w500)),
-                      Text(order.itemsSummary, maxLines: 1, overflow: TextOverflow.ellipsis),
-                    ],
-                  ),
-                  trailing: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(FormatUtils.formatCurrency(order.finalAmount), 
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
-                      const Icon(Icons.chevron_right, size: 16, color: Colors.grey),
-                    ],
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TrackingOrderScreen(orderId: order.orderId),
-                      ),
-                    );
-                  },
-                ),
-              );
-            },
+        const SizedBox(height: AppSizes.md),
+        for (final order in activeOrders)
+          OrderSummaryCard(
+            order: order,
+            showProgress: true,
+            onTap: () => _openTracking(context, order.orderId),
           ),
-        ),
       ],
+    );
+  }
+
+  void _openTracking(BuildContext context, String orderId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TrackingOrderScreen(orderId: orderId),
+      ),
     );
   }
 }
