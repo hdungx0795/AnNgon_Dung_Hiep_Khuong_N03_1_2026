@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../../core/constants/app_sizes.dart';
+import '../../core/utils/validators.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/favorites_provider.dart';
 import '../../providers/order_provider.dart';
-import '../../core/constants/app_colors.dart';
+import '../../widgets/app_widgets.dart';
+import 'widgets/auth_layout.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,9 +18,11 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  String? _authStatus;
 
   @override
   void dispose() {
@@ -25,7 +31,12 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _handleLogin() async {
+  Future<void> _handleLogin() async {
+    FocusScope.of(context).unfocus();
+    setState(() => _authStatus = null);
+
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
     final phone = _phoneController.text.trim();
     final password = _passwordController.text.trim();
     final authProvider = context.read<AuthProvider>();
@@ -33,29 +44,21 @@ class _LoginScreenState extends State<LoginScreen> {
     final favoritesProvider = context.read<FavoritesProvider>();
     final orderProvider = context.read<OrderProvider>();
 
-    if (phone.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng nhập đầy đủ thông tin')),
-      );
-      return;
-    }
-
     final success = await authProvider.login(phone, password);
     if (!mounted) return;
 
     if (!success) {
-      final error = authProvider.error;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error ?? 'Đăng nhập thất bại')),
-      );
+      setState(() {
+        _authStatus = authProvider.error ?? 'Đăng nhập thất bại';
+      });
       return;
     }
 
     final user = authProvider.currentUser;
     if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Không thể tải phiên đăng nhập. Vui lòng thử lại.')),
-      );
+      setState(() {
+        _authStatus = 'Không thể tải phiên đăng nhập. Vui lòng thử lại.';
+      });
       return;
     }
 
@@ -69,78 +72,75 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 80),
-            const Icon(Icons.fastfood, size: 100, color: AppColors.primary),
-            const SizedBox(height: 24),
-            const Text(
-              'Chào mừng trở lại!',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Đăng nhập để tiếp tục khám phá món ngon',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.textSecondary),
-            ),
-            const SizedBox(height: 48),
-            TextField(
-              controller: _phoneController,
-              decoration: const InputDecoration(
-                labelText: 'Số điện thoại',
-                prefixIcon: Icon(Icons.phone),
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.phone,
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _passwordController,
-              decoration: InputDecoration(
-                labelText: 'Mật khẩu',
-                prefixIcon: const Icon(Icons.lock),
-                suffixIcon: IconButton(
-                  icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
-                  onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                ),
-                border: const OutlineInputBorder(),
-              ),
-              obscureText: _obscurePassword,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: context.watch<AuthProvider>().isLoading ? null : _handleLogin,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-              child: context.watch<AuthProvider>().isLoading
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text('ĐĂNG NHẬP', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: () => Navigator.pushNamed(context, '/forgot-password'),
-                child: const Text('Quên mật khẩu?'),
-              ),
-            ),
-            const SizedBox(height: 8),
-            TextButton(
-              onPressed: () => Navigator.pushNamed(context, '/register'),
-              child: const Text('Chưa có tài khoản? Đăng ký ngay'),
-            ),
-          ],
-        ),
+    final isLoading = context.watch<AuthProvider>().isLoading;
+
+    return AuthLayout(
+      title: 'Chào mừng trở lại',
+      subtitle: 'Đăng nhập bằng số điện thoại để tiếp tục đặt món.',
+      footer: TextButton(
+        onPressed: isLoading
+            ? null
+            : () => Navigator.pushNamed(context, '/register'),
+        child: const Text('Chưa có tài khoản? Đăng ký ngay'),
       ),
+      children: [
+        Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              AppTextField(
+                controller: _phoneController,
+                labelText: 'Số điện thoại',
+                prefixIcon: Icons.phone_outlined,
+                keyboardType: TextInputType.phone,
+                textInputAction: TextInputAction.next,
+                validator: (value) => Validators.validatePhone(value?.trim()),
+              ),
+              const SizedBox(height: AppSizes.md),
+              AppTextField(
+                controller: _passwordController,
+                labelText: 'Mật khẩu',
+                prefixIcon: Icons.lock_outline,
+                obscureText: _obscurePassword,
+                textInputAction: TextInputAction.done,
+                validator: (value) =>
+                    Validators.validatePassword(value?.trim()),
+                onSubmitted: (_) {
+                  if (!isLoading) _handleLogin();
+                },
+                suffixIcon: IconButton(
+                  tooltip: _obscurePassword ? 'Hiện mật khẩu' : 'Ẩn mật khẩu',
+                  icon: Icon(
+                    _obscurePassword
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
+                  ),
+                  onPressed: () {
+                    setState(() => _obscurePassword = !_obscurePassword);
+                  },
+                ),
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: isLoading
+                      ? null
+                      : () => Navigator.pushNamed(context, '/forgot-password'),
+                  child: const Text('Quên mật khẩu?'),
+                ),
+              ),
+              AuthStatusMessage(message: _authStatus),
+              const SizedBox(height: AppSizes.md),
+              PrimaryButton(
+                label: 'Đăng nhập',
+                onPressed: isLoading ? null : _handleLogin,
+                isLoading: isLoading,
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

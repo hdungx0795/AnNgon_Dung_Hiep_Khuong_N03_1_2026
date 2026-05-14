@@ -2,14 +2,18 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_sizes.dart';
+import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/theme_provider.dart';
-import '../../core/constants/app_colors.dart';
+import '../../widgets/app_widgets.dart';
 import '../order/order_history_screen.dart';
-import 'edit_profile_screen.dart';
 import 'change_password_screen.dart';
-import 'notification_settings_screen.dart';
-import 'help_center_screen.dart';
+import 'edit_profile_screen.dart';
+import 'widgets/help_center_dialog.dart';
+import 'widgets/notification_settings_dialog.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -21,160 +25,235 @@ class ProfileScreen extends StatelessWidget {
 
     if (user == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Hồ sơ')),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.person_outline, size: 100, color: Colors.grey),
-              const SizedBox(height: 20),
-              const Text('Vui lòng đăng nhập để xem hồ sơ'),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () => Navigator.pushNamed(context, '/login'),
-                child: const Text('Đăng nhập ngay'),
-              ),
-            ],
+        appBar: AppBar(title: const Text('Hồ sơ cá nhân')),
+        body: Padding(
+          padding: const EdgeInsets.all(AppSizes.lg),
+          child: EmptyState(
+            key: const Key('profile-guest-state'),
+            icon: Icons.person_outline,
+            title: 'Đăng nhập để xem hồ sơ',
+            message:
+                'Quản lý thông tin cá nhân, lịch sử đơn hàng và cài đặt giao diện tại đây.',
+            actionLabel: 'Đăng nhập ngay',
+            onActionPressed: () => Navigator.pushNamed(context, '/login'),
           ),
         ),
       );
     }
 
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        title: const Text('Hồ sơ cá nhân'),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: const Text('Hồ sơ cá nhân'), elevation: 0),
       body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(
+          AppSizes.md,
+          AppSizes.md,
+          AppSizes.md,
+          AppSizes.xl,
+        ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildProfileHeader(user),
-            const SizedBox(height: 20),
-            _buildMenuSection(context, auth),
-            const SizedBox(height: 30),
+            _ProfileHeader(user: user),
+            const SizedBox(height: AppSizes.lg),
+            _ProfileMenuSection(auth: auth),
+            const SizedBox(height: AppSizes.lg),
             _buildLogoutButton(context, auth),
-            const SizedBox(height: 50),
+            const SizedBox(height: AppSizes.sm),
+            Text(
+              'Dữ liệu tài khoản được lưu cục bộ trên thiết bị cho phạm vi demo.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildProfileHeader(dynamic user) {
+  Widget _buildLogoutButton(BuildContext context, AuthProvider auth) {
+    return SecondaryButton(
+      label: 'Đăng xuất',
+      icon: Icons.logout,
+      onPressed: () async {
+        await auth.logout();
+        if (!context.mounted) return;
+        Navigator.pushReplacementNamed(context, '/login');
+      },
+    );
+  }
+}
+
+class _ProfileHeader extends StatelessWidget {
+  const _ProfileHeader({required this.user});
+
+  final UserModel user;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 30),
-      decoration: const BoxDecoration(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(30),
-          bottomRight: Radius.circular(30),
-        ),
+      key: const Key('profile-authenticated-header'),
+      padding: const EdgeInsets.all(AppSizes.lg),
+      decoration: BoxDecoration(
+        color: colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+        border: Border.all(color: colorScheme.outlineVariant),
       ),
-      child: Column(
+      child: Row(
         children: [
-          Stack(
-            children: [
-              CircleAvatar(
-                radius: 50,
-                backgroundColor: Colors.white,
-                backgroundImage: user.avatarPath != null 
-                    ? AssetImage(user.avatarPath!) 
-                    : null,
-                child: user.avatarPath == null 
-                    ? const Icon(Icons.person, size: 60, color: AppColors.primary) 
-                    : null,
-              ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: CircleAvatar(
-                  radius: 18,
-                  backgroundColor: Colors.white,
-                  child: Builder(
-                    builder: (context) => IconButton(
-                      icon: const Icon(Icons.camera_alt, size: 18, color: AppColors.primary),
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Tính năng đổi ảnh đại diện đang phát triển'),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-                      },
-                    ),
+          CircleAvatar(
+            radius: 34,
+            backgroundColor: colorScheme.surface,
+            backgroundImage: user.avatarPath == null
+                ? null
+                : AssetImage(user.avatarPath!),
+            child: user.avatarPath == null
+                ? Icon(
+                    Icons.person,
+                    size: AppSizes.iconLg,
+                    color: colorScheme.primary,
+                  )
+                : null,
+          ),
+          const SizedBox(width: AppSizes.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  user.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: colorScheme.onPrimaryContainer,
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 15),
-          Text(
-            user.name,
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
-          ),
-          Text(
-            user.phone,
-            style: TextStyle(fontSize: 16, color: Colors.white.withOpacity(0.8)),
+                const SizedBox(height: AppSizes.xs),
+                Text(
+                  user.phone,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onPrimaryContainer.withOpacity(0.78),
+                  ),
+                ),
+                const SizedBox(height: AppSizes.xs),
+                Text(
+                  user.email,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onPrimaryContainer.withOpacity(0.72),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildMenuSection(BuildContext context, AuthProvider auth) {
+class _ProfileMenuSection extends StatelessWidget {
+  const _ProfileMenuSection({required this.auth});
+
+  final AuthProvider auth;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
+      key: const Key('profile-menu-section'),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
-        ],
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+        border: Border.all(color: colorScheme.outlineVariant),
       ),
       child: Column(
         children: [
-          _buildMenuItem(
-            Icons.person_outline, 
-            'Thông tin cá nhân', 
-            () => Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfileScreen()))
+          _ProfileMenuItem(
+            icon: Icons.person_outline,
+            title: 'Thông tin cá nhân',
+            subtitle: 'Cập nhật tên và email',
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const EditProfileScreen(),
+              ),
+            ),
           ),
           const Divider(height: 1),
-          _buildMenuItem(
-            Icons.history, 
-            'Lịch sử đơn hàng', 
-            () => Navigator.push(context, MaterialPageRoute(builder: (context) => const OrderHistoryScreen()))
+          _ProfileMenuItem(
+            icon: Icons.history,
+            title: 'Lịch sử đơn hàng',
+            subtitle: 'Xem lại các đơn đã hoàn tất',
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => OrderHistoryScreen()),
+            ),
           ),
           const Divider(height: 1),
-          _buildMenuItem(
-            Icons.lock_outline, 
-            'Đổi mật khẩu', 
-            () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ChangePasswordScreen()))
+          _ProfileMenuItem(
+            icon: Icons.lock_outline,
+            title: 'Đổi mật khẩu',
+            subtitle: 'Bảo vệ tài khoản cục bộ',
+            onTap: () async {
+              final result = await Navigator.push<bool>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ChangePasswordScreen(),
+                ),
+              );
+              if (result == true && context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Đổi mật khẩu thành công!')),
+                );
+              }
+            },
           ),
           const Divider(height: 1),
-          _buildMenuItem(
-            Icons.notifications_none, 
-            'Thông báo', 
-            () => Navigator.push(context, MaterialPageRoute(builder: (context) => const NotificationSettingsScreen()))
+          _ProfileMenuItem(
+            icon: Icons.notifications_none,
+            title: 'Thông báo',
+            subtitle: 'Cài đặt thông báo đơn hàng và ưu đãi',
+            onTap: () => showDialog(
+              context: context,
+              builder: (_) => const NotificationSettingsDialog(),
+            ),
           ),
           const Divider(height: 1),
-          _buildMenuItem(
-            Icons.help_outline, 
-            'Trung tâm trợ giúp', 
-            () => Navigator.push(context, MaterialPageRoute(builder: (context) => const HelpCenterScreen()))
+          _ProfileMenuItem(
+            icon: Icons.help_outline,
+            title: 'Trung tâm trợ giúp',
+            subtitle: 'Hotline, email và câu hỏi thường gặp',
+            onTap: () => showDialog(
+              context: context,
+              builder: (_) => const HelpCenterDialog(),
+            ),
           ),
           const Divider(height: 1),
           Consumer<ThemeProvider>(
             builder: (context, themeProvider, child) {
               return SwitchListTile(
+                key: const Key('profile-theme-switch'),
                 secondary: Icon(
                   themeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode,
                   color: AppColors.primary,
                 ),
-                title: const Text('Chế độ tối', style: TextStyle(fontWeight: FontWeight.w500)),
+                title: const Text(
+                  'Chế độ tối',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: const Text('Áp dụng giao diện tối cho toàn ứng dụng'),
                 value: themeProvider.isDarkMode,
-                onChanged: (val) => themeProvider.toggleTheme(),
+                onChanged: (_) => themeProvider.toggleTheme(),
               );
             },
           ),
@@ -183,32 +262,43 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuItem(IconData icon, String title, VoidCallback onTap) {
-    return ListTile(
-      leading: Icon(icon, color: AppColors.primary),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
-      trailing: const Icon(Icons.chevron_right, size: 20),
-      onTap: onTap,
-    );
-  }
 
-  Widget _buildLogoutButton(BuildContext context, AuthProvider auth) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: OutlinedButton(
-        onPressed: () {
-          auth.logout();
-          Navigator.pushReplacementNamed(context, '/login');
-        },
-        style: OutlinedButton.styleFrom(
-          foregroundColor: Colors.red,
-          side: const BorderSide(color: Colors.red),
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          minimumSize: const Size(double.infinity, 50),
-        ),
-        child: const Text('ĐĂNG XUẤT', style: TextStyle(fontWeight: FontWeight.bold)),
+}
+
+class _ProfileMenuItem extends StatelessWidget {
+  const _ProfileMenuItem({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: AppSizes.md,
+        vertical: AppSizes.xs,
       ),
+      leading: CircleAvatar(
+        backgroundColor: colorScheme.primaryContainer,
+        child: Icon(icon, color: colorScheme.primary),
+      ),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+      subtitle: Text(subtitle),
+      trailing: Icon(
+        Icons.chevron_right,
+        size: AppSizes.iconSm,
+        color: colorScheme.onSurfaceVariant,
+      ),
+      onTap: onTap,
     );
   }
 }

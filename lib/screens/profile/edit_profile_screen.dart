@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/auth_provider.dart';
-import '../../core/constants/app_colors.dart';
+
+import '../../core/constants/app_sizes.dart';
 import '../../core/utils/validators.dart';
+import '../../providers/auth_provider.dart';
+import '../../widgets/app_widgets.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -58,66 +60,87 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final user = context.watch<AuthProvider>().currentUser;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Chỉnh sửa hồ sơ')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppSizes.md),
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 20),
-              _buildTextField(
-                controller: _nameController,
-                label: 'Họ và tên',
-                icon: Icons.person_outline,
-                validator: (val) => (val == null || val.isEmpty) ? 'Vui lòng nhập tên' : null,
-              ),
-              const SizedBox(height: 20),
-              _buildTextField(
-                controller: _emailController,
-                label: 'Email',
-                icon: Icons.mail_outline,
-                validator: (val) => !Validators.isValidEmail(val ?? '') ? 'Email không hợp lệ' : null,
-              ),
-              const SizedBox(height: 40),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _saveProfile,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                  ),
-                  child: _isLoading 
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text('LƯU THAY ĐỔI', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              Container(
+                padding: const EdgeInsets.all(AppSizes.md),
+                decoration: BoxDecoration(
+                  color: colorScheme.surface,
+                  borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+                  border: Border.all(color: colorScheme.outlineVariant),
                 ),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: colorScheme.primaryContainer,
+                      child: Icon(
+                        Icons.person_outline,
+                        color: colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(width: AppSizes.md),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            user?.phone ?? 'Chưa đăng nhập',
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w700),
+                          ),
+                          const SizedBox(height: AppSizes.xs),
+                          Text(
+                            'Số điện thoại là định danh đăng nhập và không đổi trong bản demo.',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: colorScheme.onSurfaceVariant),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSizes.lg),
+              AppTextField(
+                controller: _nameController,
+                labelText: 'Họ và tên',
+                prefixIcon: Icons.person_outline,
+                textInputAction: TextInputAction.next,
+                validator: (val) => (val == null || val.trim().isEmpty)
+                    ? 'Vui lòng nhập tên'
+                    : null,
+              ),
+              const SizedBox(height: AppSizes.md),
+              AppTextField(
+                controller: _emailController,
+                labelText: 'Email',
+                prefixIcon: Icons.mail_outline,
+                keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.done,
+                validator: (val) => !Validators.isValidEmail(val?.trim() ?? '')
+                    ? 'Email không hợp lệ'
+                    : null,
+              ),
+              const SizedBox(height: AppSizes.xl),
+              PrimaryButton(
+                key: const Key('edit-profile-save-button'),
+                label: 'Lưu thay đổi',
+                icon: Icons.check,
+                isLoading: _isLoading,
+                onPressed: _saveProfile,
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      validator: validator,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon, color: AppColors.primary),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
       ),
     );
