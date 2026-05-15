@@ -32,7 +32,7 @@ class _ExploreTabState extends State<ExploreTab> {
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(
             AppSizes.md,
-            AppSizes.md,
+            AppSizes.sm,
             AppSizes.md,
             AppSizes.sm,
           ),
@@ -55,9 +55,9 @@ class _ExploreTabState extends State<ExploreTab> {
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(
             AppSizes.md,
-            AppSizes.sm,
+            AppSizes.xs,
             AppSizes.md,
-            AppSizes.sm,
+            AppSizes.xs,
           ),
           sliver: SliverToBoxAdapter(
             child: SectionHeader(
@@ -80,7 +80,12 @@ class _ExploreTabState extends State<ExploreTab> {
           )
         else
           SliverPadding(
-            padding: const EdgeInsets.all(AppSizes.md),
+            padding: const EdgeInsets.fromLTRB(
+              AppSizes.md,
+              AppSizes.sm,
+              AppSizes.md,
+              96,
+            ),
             sliver: SliverLayoutBuilder(
               builder: (context, constraints) {
                 final width = constraints.crossAxisExtent;
@@ -142,55 +147,28 @@ class _DiscoveryHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Container(
-          padding: const EdgeInsets.all(AppSizes.lg),
+          padding: const EdgeInsets.fromLTRB(
+            AppSizes.md,
+            AppSizes.sm,
+            AppSizes.md,
+            AppSizes.md,
+          ),
           decoration: BoxDecoration(
             color: colorScheme.surface,
-            borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+            borderRadius: BorderRadius.circular(AppSizes.radiusMd),
             border: Border.all(color: colorScheme.outlineVariant),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Bạn muốn ăn gì hôm nay?',
-                          style: theme.textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        const SizedBox(height: AppSizes.sm),
-                        Text(
-                          'Tìm món, lọc danh mục và đặt nhanh từ thực đơn PKA Food.',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                            height: 1.35,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: AppSizes.md),
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(AppSizes.radiusSm),
-                    ),
-                    child: Icon(
-                      Icons.restaurant_menu_rounded,
-                      color: colorScheme.onPrimaryContainer,
-                    ),
-                  ),
-                ],
+              Text(
+                'Bạn muốn ăn gì hôm nay?',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  height: 1.15,
+                ),
               ),
-              const SizedBox(height: AppSizes.md),
+              const SizedBox(height: AppSizes.sm),
               AppTextField(
                 key: const Key('explore-search-field'),
                 labelText: 'Tìm kiếm món ngon',
@@ -201,12 +179,14 @@ class _DiscoveryHeader extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: AppSizes.md),
+        const SizedBox(height: AppSizes.sm),
         Container(
           key: const Key('explore-promo-banner'),
-          padding: const EdgeInsets.all(AppSizes.lg),
+          padding: const EdgeInsets.all(AppSizes.md),
           decoration: BoxDecoration(
             gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
               colors: [
                 colorScheme.primaryContainer,
                 colorScheme.secondaryContainer,
@@ -221,34 +201,86 @@ class _DiscoveryHeader extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Ưu đãi hôm nay',
-                      style: theme.textTheme.titleLarge?.copyWith(
+                      'Combo burger hôm nay',
+                      style: theme.textTheme.titleMedium?.copyWith(
                         color: colorScheme.onPrimaryContainer,
                         fontWeight: FontWeight.w800,
+                        height: 1.18,
                       ),
                     ),
                     const SizedBox(height: AppSizes.xs),
                     Text(
-                      'Khám phá combo tiết kiệm cho nhóm bạn.',
-                      style: theme.textTheme.bodyMedium?.copyWith(
+                      'Burger + nước, tiết kiệm cho bữa trưa nhanh.',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodySmall?.copyWith(
                         color: colorScheme.onSurface,
-                        height: 1.35,
+                        height: 1.3,
                       ),
                     ),
-                    const SizedBox(height: AppSizes.md),
-                    SecondaryButton(
-                      label: 'Xem ngay',
-                      onPressed: onComboPressed,
-                      fullWidth: false,
+                    const SizedBox(height: AppSizes.sm),
+                    SizedBox(
+                      height: 40,
+                      child: FilledButton(
+                        onPressed: onComboPressed,
+                        style: FilledButton.styleFrom(
+                          backgroundColor: colorScheme.primary,
+                          foregroundColor: colorScheme.onPrimary,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSizes.md,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              AppSizes.radiusSm,
+                            ),
+                          ),
+                        ),
+                        child: const Text('Xem ngay'),
+                      ),
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: AppSizes.md),
-              Icon(
-                Icons.local_offer_outlined,
-                size: 56,
-                color: colorScheme.primary,
+              SizedBox(
+                width: 104,
+                height: 92,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Positioned.fill(
+                      child: AppImage.asset(
+                        'assets/images/products/comboBurgerCoca.jpg',
+                        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+                        fallbackKind: AppImageFallbackKind.product,
+                        semanticLabel: 'Combo burger ưu đãi',
+                      ),
+                    ),
+                    Positioned(
+                      right: -6,
+                      top: -8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSizes.sm,
+                          vertical: AppSizes.xs,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary,
+                          borderRadius: BorderRadius.circular(
+                            AppSizes.radiusSm,
+                          ),
+                        ),
+                        child: Text(
+                          '-15%',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: colorScheme.onPrimary,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -275,7 +307,7 @@ class _CategoryScroller extends StatelessWidget {
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(
         horizontal: AppSizes.md,
-        vertical: AppSizes.sm,
+        vertical: AppSizes.xs,
       ),
       child: Row(
         children: Category.values.map((category) {
@@ -296,6 +328,13 @@ class _CategoryScroller extends StatelessWidget {
               onSelected: (_) => onSelected(category),
               selectedColor: colorScheme.primary,
               backgroundColor: colorScheme.surface,
+              visualDensity: VisualDensity.compact,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              labelPadding: const EdgeInsets.symmetric(horizontal: AppSizes.xs),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSizes.sm,
+                vertical: AppSizes.xs,
+              ),
               side: BorderSide(
                 color: isSelected
                     ? colorScheme.primary
