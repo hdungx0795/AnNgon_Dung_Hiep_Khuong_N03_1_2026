@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../core/constants/app_sizes.dart';
 import 'tabs/explore_tab.dart';
 import 'tabs/cart_tab.dart';
 import 'tabs/favorites_tab.dart';
@@ -37,14 +36,15 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         key: const Key('home-shell-app-bar'),
+        toolbarHeight: 48,
         leading: IconButton(
           tooltip: 'Hồ sơ',
           icon: CircleAvatar(
             backgroundColor: colorScheme.primaryContainer,
-            radius: 18,
+            radius: 16,
             child: Icon(
               Icons.person_outline,
-              size: AppSizes.iconSm,
+              size: 18,
               color: colorScheme.primary,
             ),
           ),
@@ -52,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         title: Text(
           _titles[_currentIndex],
-          style: const TextStyle(fontWeight: FontWeight.w800),
+          style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 20),
         ),
       ),
       body: IndexedStack(
