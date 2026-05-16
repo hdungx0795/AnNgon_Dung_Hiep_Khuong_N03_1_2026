@@ -144,33 +144,21 @@ class DiscoveryProductCard extends StatelessWidget {
                   Positioned(
                     right: 0,
                     bottom: 0,
-                    child: Container(
-                      decoration: BoxDecoration(
+                    child: IconButton(
+                      key: Key('quick-buy-${product.id}'),
+                      tooltip: 'Mua nhanh',
+                      constraints: const BoxConstraints.tightFor(
+                        width: 30,
+                        height: 30,
+                      ),
+                      padding: EdgeInsets.zero,
+                      visualDensity: VisualDensity.compact,
+                      icon: Icon(
+                        Icons.add_shopping_cart_rounded,
+                        size: 19,
                         color: colorScheme.primary,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: colorScheme.primary.withValues(alpha: 0.28),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
                       ),
-                      child: IconButton(
-                        key: Key('quick-buy-${product.id}'),
-                        tooltip: 'Mua nhanh',
-                        constraints: const BoxConstraints.tightFor(
-                          width: 32,
-                          height: 32,
-                        ),
-                        padding: EdgeInsets.zero,
-                        icon: Icon(
-                          Icons.add_shopping_cart_rounded,
-                          size: 17,
-                          color: colorScheme.onPrimary,
-                        ),
-                        onPressed: () => _handleQuickBuy(context),
-                      ),
+                      onPressed: () => _handleQuickBuy(context),
                     ),
                   ),
                 ],

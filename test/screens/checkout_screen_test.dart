@@ -95,15 +95,20 @@ void main() {
     expect(find.byKey(const Key('checkout-applied-voucher')), findsNothing);
   });
 
-  testWidgets('CheckoutScreen selects e-wallet payment', (tester) async {
+  testWidgets('CheckoutScreen confirms QR bank transfer before placing order', (
+    tester,
+  ) async {
     await _pumpCheckout(tester, cartProvider, orderProvider);
 
     await tester.enterText(
       find.byKey(const Key('checkout-address-field')),
       'Phenikaa',
     );
-    await _scrollTo(tester, find.byKey(const Key('checkout-payment-ewallet')));
-    _selectEwallet();
+    await _scrollTo(
+      tester,
+      find.byKey(const Key('checkout-payment-bank-transfer')),
+    );
+    _selectBankTransfer();
     await _scrollTo(
       tester,
       find.byKey(const Key('checkout-place-order-button')),
@@ -111,8 +116,17 @@ void main() {
     await _pressPlaceOrder(tester);
     await tester.pumpAndSettle();
 
-    expect(orderProvider.lastPaymentMethod, PaymentMethod.ewallet);
-    expect(find.text('Ví điện tử'), findsWidgets);
+    expect(orderProvider.placeOrderCallCount, 0);
+    expect(find.byKey(const Key('qr-payment-image')), findsOneWidget);
+    expect(find.byKey(const Key('qr-payment-amount')), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('qr-payment-confirm-button')));
+    await tester.pumpAndSettle();
+
+    expect(orderProvider.lastPaymentMethod, PaymentMethod.bankTransfer);
+    expect(find.byKey(const Key('checkout-success-title')), findsOneWidget);
   });
 
   testWidgets('CheckoutScreen renders order review totals', (tester) async {
@@ -263,9 +277,9 @@ Future<void> _pressPlaceOrder(WidgetTester tester) async {
   await tester.pump();
 }
 
-void _selectEwallet() {
+void _selectBankTransfer() {
   final inkWellFinder = find.ancestor(
-    of: find.text('Ví điện tử'),
+    of: find.text('Chuyển khoản ngân hàng'),
     matching: find.byType(InkWell),
   );
   final inkWell = inkWellFinder.evaluate().last.widget as InkWell;
