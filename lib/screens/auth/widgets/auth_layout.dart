@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_sizes.dart';
 
+const _authBackgroundAsset = 'assets/images/log_themes/2.jpeg';
+const _authLogoAsset = 'assets/images/logo/logo1.jpeg';
+
 class AuthLayout extends StatelessWidget {
   const AuthLayout({
     super.key,
@@ -20,60 +23,117 @@ class AuthLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final authTextButtonStyle = TextButton.styleFrom(
+      foregroundColor: colorScheme.onSurface,
+      textStyle: theme.textTheme.labelLarge?.copyWith(
+        fontStyle: FontStyle.italic,
+        fontWeight: FontWeight.w500,
+      ),
+    );
 
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 460),
-            child: ListView(
-              padding: const EdgeInsets.all(AppSizes.lg),
-              children: [
-                const SizedBox(height: AppSizes.md),
-                Container(
-                  padding: const EdgeInsets.all(AppSizes.lg),
-                  decoration: BoxDecoration(
-                    color: colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-                  ),
-                  child: Column(
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            _authBackgroundAsset,
+            fit: BoxFit.cover,
+            alignment: Alignment.center,
+          ),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black.withValues(alpha: 0.28),
+                  const Color(0xFF2A0705).withValues(alpha: 0.42),
+                  Colors.black.withValues(alpha: 0.5),
+                ],
+              ),
+            ),
+          ),
+          SafeArea(
+            child: TextButtonTheme(
+              data: TextButtonThemeData(style: authTextButtonStyle),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 460),
+                  child: ListView(
+                    padding: const EdgeInsets.all(AppSizes.lg),
                     children: [
-                      CircleAvatar(
-                        radius: 34,
-                        backgroundColor: colorScheme.primary,
-                        foregroundColor: colorScheme.onPrimary,
-                        child: const Icon(Icons.fastfood, size: 34),
+                      SizedBox(
+                        height: MediaQuery.sizeOf(context).height * 0.05,
                       ),
-                      const SizedBox(height: AppSizes.md),
-                      Text(
-                        title,
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.headlineSmall?.copyWith(
-                          color: colorScheme.onPrimaryContainer,
-                          fontWeight: FontWeight.w800,
+                      Container(
+                        padding: const EdgeInsets.all(AppSizes.lg),
+                        decoration: BoxDecoration(
+                          color: colorScheme.surface.withValues(alpha: 0.94),
+                          borderRadius: BorderRadius.circular(
+                            AppSizes.radiusLg,
+                          ),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.28),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.22),
+                              blurRadius: 24,
+                              offset: const Offset(0, 14),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Center(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(
+                                  AppSizes.radiusMd,
+                                ),
+                                child: Image.asset(
+                                  _authLogoAsset,
+                                  width: 88,
+                                  height: 88,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: AppSizes.md),
+                            Text(
+                              title,
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.headlineSmall?.copyWith(
+                                color: colorScheme.onSurface,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            const SizedBox(height: AppSizes.sm),
+                            Text(
+                              subtitle,
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: AppSizes.lg),
+                            ...children,
+                            if (footer != null) ...[
+                              const SizedBox(height: AppSizes.md),
+                              footer!,
+                            ],
+                          ],
                         ),
                       ),
-                      const SizedBox(height: AppSizes.sm),
-                      Text(
-                        subtitle,
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.onPrimaryContainer,
-                        ),
-                      ),
+                      const SizedBox(height: AppSizes.lg),
                     ],
                   ),
                 ),
-                const SizedBox(height: AppSizes.lg),
-                ...children,
-                if (footer != null) ...[
-                  const SizedBox(height: AppSizes.md),
-                  footer!,
-                ],
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

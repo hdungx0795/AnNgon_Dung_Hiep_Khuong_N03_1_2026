@@ -111,13 +111,16 @@ class DiscoveryProductCard extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        product.name,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          height: 1.2,
+                      Padding(
+                        padding: const EdgeInsets.only(right: 38),
+                        child: Text(
+                          product.name,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            height: 1.2,
+                          ),
                         ),
                       ),
                       const SizedBox(height: AppSizes.xs),
@@ -144,19 +147,26 @@ class DiscoveryProductCard extends StatelessWidget {
                     child: Container(
                       decoration: BoxDecoration(
                         color: colorScheme.primary,
-                        borderRadius: BorderRadius.circular(AppSizes.radiusSm),
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: colorScheme.primary.withValues(alpha: 0.28),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
                       child: IconButton(
                         key: Key('quick-buy-${product.id}'),
                         tooltip: 'Mua nhanh',
                         constraints: const BoxConstraints.tightFor(
-                          width: 36,
-                          height: 36,
+                          width: 32,
+                          height: 32,
                         ),
                         padding: EdgeInsets.zero,
                         icon: Icon(
                           Icons.add_shopping_cart_rounded,
-                          size: 18,
+                          size: 17,
                           color: colorScheme.onPrimary,
                         ),
                         onPressed: () => _handleQuickBuy(context),
