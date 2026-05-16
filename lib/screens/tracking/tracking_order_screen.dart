@@ -9,6 +9,7 @@ import '../../widgets/empty_state.dart';
 import '../../widgets/primary_button.dart';
 import '../chat/delivery_call_screen.dart';
 import '../chat/delivery_chat_screen.dart';
+import '../order/invoice_screen.dart';
 import 'widgets/order_status_timeline.dart';
 import 'widgets/tracking_header.dart';
 
@@ -38,6 +39,20 @@ class TrackingOrderScreen extends StatelessWidget {
                 OrderStatusTimeline(currentStatus: order.status),
                 const SizedBox(height: AppSizes.md),
                 _ShipperStatusCard(order: order),
+                const SizedBox(height: AppSizes.md),
+                SecondaryButton(
+                  key: const Key('tracking-view-invoice-button'),
+                  label: 'Xem hóa đơn',
+                  icon: Icons.receipt_long_outlined,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => InvoiceScreen(order: order),
+                      ),
+                    );
+                  },
+                ),
                 _CompleteOrderSection(
                   order: order,
                   onComplete: () =>
