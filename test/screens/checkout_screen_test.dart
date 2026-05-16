@@ -160,6 +160,10 @@ void main() {
     expect(cartProvider.clearSelectedCallCount, 1);
     expect(find.byKey(const Key('checkout-success-title')), findsOneWidget);
     expect(find.text('Đặt hàng thành công'), findsOneWidget);
+    expect(
+      find.byKey(const Key('checkout-view-invoice-button')),
+      findsOneWidget,
+    );
 
     await tester.tap(find.byKey(const Key('checkout-track-order-button')));
     await tester.pumpAndSettle();
