@@ -1,6 +1,7 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/product_model.dart';
 import '../models/enums/category.dart';
+import '../models/admin_product_model.dart';
 import 'database_service.dart';
 
 class ProductService {
@@ -8,9 +9,22 @@ class ProductService {
   factory ProductService() => _instance;
   ProductService._();
 
-  final Box<ProductModel> _productBox = Hive.box<ProductModel>(DatabaseService.productsBoxName);
+  Box<ProductModel> get _productBox =>
+      Hive.box<ProductModel>(DatabaseService.productsBoxName);
+
+  Box<AdminProductModel> get _adminProductBox =>
+      Hive.box<AdminProductModel>(DatabaseService.adminProductsBoxName);
 
   List<ProductModel> getAllProducts() {
+    return [
+      ..._productBox.values,
+      ..._adminProductBox.values
+          .where((product) => product.isActive)
+          .map((product) => product.toProductModel()),
+    ];
+  }
+
+  List<ProductModel> getSeedProducts() {
     return _productBox.values.toList();
   }
 
@@ -27,6 +41,11 @@ class ProductService {
   }
 
   Future<ProductModel?> getProductById(int id) async {
-    return _productBox.get(id);
+    final seedProduct = _productBox.get(id);
+    if (seedProduct != null) return seedProduct;
+
+    final adminProduct = _adminProductBox.get(id.toString());
+    if (adminProduct == null || !adminProduct.isActive) return null;
+    return adminProduct.toProductModel();
   }
 }
