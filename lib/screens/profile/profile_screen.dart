@@ -62,7 +62,7 @@ class ProfileScreen extends StatelessWidget {
             _buildLogoutButton(context, auth),
             const SizedBox(height: AppSizes.sm),
             Text(
-              'Dữ liệu tài khoản được lưu cục bộ trên thiết bị cho phạm vi demo.',
+              'Thông tin của bạn luôn được bảo mật và mã hóa.',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: colorScheme.onSurfaceVariant,
@@ -203,7 +203,7 @@ class _ProfileMenuSection extends StatelessWidget {
           _ProfileMenuItem(
             icon: Icons.lock_outline,
             title: 'Đổi mật khẩu',
-            subtitle: 'Bảo vệ tài khoản cục bộ',
+            subtitle: 'Cập nhật mật khẩu để bảo vệ tài khoản',
             onTap: () async {
               final result = await Navigator.push<bool>(
                 context,

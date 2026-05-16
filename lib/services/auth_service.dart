@@ -8,15 +8,18 @@ class AuthService {
   factory AuthService() => _instance;
   AuthService._();
 
-  final Box<UserModel> _userBox = Hive.box<UserModel>(DatabaseService.usersBoxName);
-  final Box _sessionBox = Hive.box(DatabaseService.sessionBoxName);
+  Box<UserModel> get _userBox =>
+      Hive.box<UserModel>(DatabaseService.usersBoxName);
+  Box get _sessionBox => Hive.box(DatabaseService.sessionBoxName);
 
   Future<UserModel?> login(String phone, String password) async {
     try {
       final user = _userBox.values.firstWhere(
-        (u) => u.phone == phone && HashUtils.verifyPassword(password, u.passwordHash),
+        (u) =>
+            u.phone == phone &&
+            HashUtils.verifyPassword(password, u.passwordHash),
       );
-      
+
       await _sessionBox.put('current_user_phone', phone);
       return user;
     } catch (e) {
@@ -45,7 +48,7 @@ class AuthService {
       createdAt: DateTime.now(),
     );
 
-    await _userBox.put(newUser.id, newUser);
+    await _userBox.put(newUser.phone, newUser);
     return true;
   }
 
@@ -66,24 +69,34 @@ class AuthService {
 
   Future<bool> updateUser(UserModel updatedUser) async {
     try {
-      await _userBox.put(updatedUser.id, updatedUser);
+      final key = _findUserKey(updatedUser.id, updatedUser.phone);
+      await _userBox.put(key ?? updatedUser.phone, updatedUser);
       return true;
     } catch (e) {
       return false;
     }
   }
 
-  Future<bool> changePassword(int userId, String oldPassword, String newPassword) async {
+  Future<bool> changePassword(
+    int userId,
+    String oldPassword,
+    String newPassword,
+  ) async {
     try {
-      final user = _userBox.get(userId);
+      final key = _findUserKey(userId);
+      if (key == null) return false;
+
+      final user = _userBox.get(key);
       if (user == null) return false;
 
       if (!HashUtils.verifyPassword(oldPassword, user.passwordHash)) {
         return false;
       }
 
-      final updatedUser = user.copyWith(passwordHash: HashUtils.hashPassword(newPassword));
-      await _userBox.put(userId, updatedUser);
+      final updatedUser = user.copyWith(
+        passwordHash: HashUtils.hashPassword(newPassword),
+      );
+      await _userBox.put(key, updatedUser);
       return true;
     } catch (e) {
       return false;
@@ -92,15 +105,34 @@ class AuthService {
 
   Future<bool> resetPassword(String phone, String newPassword) async {
     try {
-      final userIndex = _userBox.values.toList().indexWhere((u) => u.phone == phone);
+      final userIndex = _userBox.values.toList().indexWhere(
+        (u) => u.phone == phone,
+      );
       if (userIndex == -1) return false;
 
       final user = _userBox.getAt(userIndex)!;
-      final updatedUser = user.copyWith(passwordHash: HashUtils.hashPassword(newPassword));
+      final updatedUser = user.copyWith(
+        passwordHash: HashUtils.hashPassword(newPassword),
+      );
       await _userBox.putAt(userIndex, updatedUser);
       return true;
     } catch (e) {
       return false;
     }
+  }
+
+  dynamic _findUserKey(int userId, [String? phone]) {
+    final directUser = _userBox.get(userId);
+    if (directUser != null) return userId;
+
+    for (final key in _userBox.keys) {
+      final user = _userBox.get(key);
+      if (user == null) continue;
+      if (user.id == userId || (phone != null && user.phone == phone)) {
+        return key;
+      }
+    }
+
+    return null;
   }
 }

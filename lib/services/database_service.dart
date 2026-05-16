@@ -1,6 +1,7 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'seeding_service.dart';
 import '../models/user_model.dart';
+import '../models/admin_product_model.dart';
 import '../models/product_model.dart';
 import '../models/order_model.dart';
 import '../models/order_item_model.dart';
@@ -10,6 +11,7 @@ import '../models/voucher_model.dart';
 import '../models/chat_message_model.dart';
 import '../models/user_prefs_model.dart';
 import '../models/enums/category.dart';
+import '../models/enums/admin_image_preset.dart';
 import '../models/enums/order_status.dart';
 import '../models/enums/payment_method.dart';
 
@@ -27,6 +29,7 @@ class DatabaseService {
   static const String vouchersBoxName = 'vouchers';
   static const String userPrefsBoxName = 'userPrefs';
   static const String sessionBoxName = 'session';
+  static const String adminProductsBoxName = 'admin_products';
 
   Future<void> init() async {
     await Hive.initFlutter();
@@ -34,6 +37,8 @@ class DatabaseService {
     // Register Adapters
     Hive.registerAdapter(UserModelAdapter());
     Hive.registerAdapter(ProductModelAdapter());
+    Hive.registerAdapter(AdminProductModelAdapter());
+    Hive.registerAdapter(AdminImagePresetAdapter());
     Hive.registerAdapter(CategoryAdapter());
     Hive.registerAdapter(OrderStatusAdapter());
     Hive.registerAdapter(PaymentMethodAdapter());
@@ -48,6 +53,7 @@ class DatabaseService {
     // Open Boxes
     await Hive.openBox<UserModel>(usersBoxName);
     await Hive.openBox<ProductModel>(productsBoxName);
+    await Hive.openBox<AdminProductModel>(adminProductsBoxName);
     await Hive.openBox<OrderModel>(ordersBoxName);
     await Hive.openBox(cartBoxName);
     await Hive.openBox<ReviewModel>(reviewsBoxName);

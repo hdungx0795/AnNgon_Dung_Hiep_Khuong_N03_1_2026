@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../core/constants/app_sizes.dart';
+import '../../models/chat_message_model.dart';
 
 class DeliveryChatScreen extends StatefulWidget {
   final String shipperName;
@@ -12,22 +15,88 @@ class DeliveryChatScreen extends StatefulWidget {
 }
 
 class _DeliveryChatScreenState extends State<DeliveryChatScreen> {
-  final List<String> _messages = ['Chào bạn, tôi đang lấy hàng.'];
+  final List<ChatMessageModel> _messages = [
+    ChatMessageModel(
+      id: const Uuid().v4(),
+      text: 'Chào bạn, tôi đang lấy hàng.',
+      isMe: false,
+      timestamp: DateTime.now(),
+    ),
+  ];
+
   final _controller = TextEditingController();
+  final _scrollController = ScrollController();
+  Timer? _autoReplyTimer;
+
+  final List<String> _quickReplies = [
+    'Giao đến đâu rồi bạn?',
+    'Để ở cổng giúp mình nhé.',
+    'Mình xuống ngay đây.',
+    'Cảm ơn bạn nhiều!',
+  ];
 
   @override
   void dispose() {
+    _autoReplyTimer?.cancel();
     _controller.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
-  void _sendMessage() {
-    final message = _controller.text.trim();
-    if (message.isEmpty) return;
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  void _sendMessage(String text, {bool isMe = true}) {
+    final messageText = text.trim();
+    if (messageText.isEmpty) return;
 
     setState(() {
-      _messages.add(message);
-      _controller.clear();
+      _messages.add(
+        ChatMessageModel(
+          id: const Uuid().v4(),
+          text: messageText,
+          isMe: isMe,
+          timestamp: DateTime.now(),
+        ),
+      );
+      if (isMe) _controller.clear();
+    });
+
+    _scrollToBottom();
+
+    if (isMe) {
+      _handleAutoReply(messageText);
+    }
+  }
+
+  void _handleAutoReply(String userMessage) {
+    String reply = 'Vâng ạ, tôi sẽ giao sớm.';
+    final lowerMsg = userMessage.toLowerCase();
+
+    if (lowerMsg.contains('đến đâu') || lowerMsg.contains('ở đâu')) {
+      reply = 'Tôi đang ở gần đường Phan Xích Long, khoảng 5 phút nữa đến nhé.';
+    } else if (lowerMsg.contains('cổng')) {
+      reply = 'Dạ vâng, tôi sẽ để ở cổng và chụp hình gửi bạn.';
+    } else if (lowerMsg.contains('xuống ngay')) {
+      reply = 'Dạ vâng, tôi đang đứng trước sảnh rồi ạ.';
+    } else if (lowerMsg.contains('cảm ơn')) {
+      reply = 'Không có gì ạ, chúc bạn ngon miệng!';
+    }
+
+    _autoReplyTimer?.cancel();
+    _autoReplyTimer = Timer(const Duration(seconds: 1), () {
+      if (mounted) {
+        _sendMessage(reply, isMe: false);
+      }
     });
   }
 
@@ -82,6 +151,7 @@ class _DeliveryChatScreenState extends State<DeliveryChatScreen> {
           children: [
             Expanded(
               child: ListView.builder(
+                controller: _scrollController,
                 key: const Key('delivery-chat-message-list'),
                 padding: const EdgeInsets.fromLTRB(
                   AppSizes.md,
@@ -91,16 +161,70 @@ class _DeliveryChatScreenState extends State<DeliveryChatScreen> {
                 ),
                 itemCount: _messages.length,
                 itemBuilder: (context, index) {
-                  return _MessageBubble(
-                    text: _messages[index],
-                    isMe: index % 2 == 1,
-                  );
+                  final message = _messages[index];
+                  return _MessageBubble(text: message.text, isMe: message.isMe);
                 },
               ),
             ),
-            _ChatInput(controller: _controller, onSend: _sendMessage),
+            _QuickReplyBar(
+              replies: _quickReplies,
+              onSelected: (text) => _sendMessage(text),
+            ),
+            _ChatInput(
+              controller: _controller,
+              onSend: () => _sendMessage(_controller.text),
+            ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _QuickReplyBar extends StatelessWidget {
+  const _QuickReplyBar({required this.replies, required this.onSelected});
+
+  final List<String> replies;
+  final ValueChanged<String> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      height: 48,
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        border: Border(top: BorderSide(color: colorScheme.outlineVariant)),
+      ),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: AppSizes.md),
+        itemCount: replies.length,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.only(right: AppSizes.sm),
+            child: ActionChip(
+              label: Text(replies[index]),
+              onPressed: () => onSelected(replies[index]),
+              padding: EdgeInsets.zero,
+              labelStyle: TextStyle(
+                fontSize: 12,
+                color: colorScheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+              backgroundColor: colorScheme.primaryContainer.withValues(
+                alpha: 0.3,
+              ),
+              side: BorderSide(
+                color: colorScheme.primary.withValues(alpha: 0.2),
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -168,10 +292,7 @@ class _ChatInput extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return DecoratedBox(
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        border: Border(top: BorderSide(color: colorScheme.outlineVariant)),
-      ),
+      decoration: BoxDecoration(color: colorScheme.surface),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(
           AppSizes.md,
