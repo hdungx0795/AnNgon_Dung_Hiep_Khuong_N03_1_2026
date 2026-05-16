@@ -36,18 +36,15 @@ class DiscoveryProductCard extends StatelessWidget {
     await cart.addItem(auth.currentUser!.phone, product, 1);
 
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Đã thêm ${product.name} vào giỏ hàng'),
-          duration: const Duration(seconds: 2),
-          action: SnackBarAction(
-            label: 'Xem giỏ',
-            onPressed: () {
-              // Có thể điều hướng đến tab giỏ hàng nếu cần
-            },
+      final messenger = ScaffoldMessenger.of(context);
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text('Đã thêm ${product.name} vào giỏ hàng'),
+            duration: const Duration(seconds: 2),
           ),
-        ),
-      );
+        );
     }
   }
 
