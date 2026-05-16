@@ -14,6 +14,7 @@ import '../../providers/cart_provider.dart';
 import '../../providers/order_provider.dart';
 import '../../services/voucher_service.dart';
 import '../../widgets/app_widgets.dart';
+import 'qr_payment_screen.dart';
 import '../tracking/tracking_order_screen.dart';
 
 class CheckoutScreen extends StatefulWidget {
@@ -244,6 +245,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     }
 
     VoucherModel? voucher = _appliedVoucher;
+    var discount = 0;
     if (voucher != null) {
       voucher = context.read<VoucherService>().validateVoucher(
         voucher.code,
@@ -254,6 +256,23 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           _appliedVoucher = null;
           _voucherError = 'Mã không hợp lệ hoặc chưa đủ điều kiện';
         });
+        return;
+      }
+      discount = voucher.calculateDiscount(total);
+    }
+
+    if (_paymentMethod == PaymentMethod.bankTransfer) {
+      final confirmed = await Navigator.push<bool>(
+        context,
+        MaterialPageRoute(
+          builder: (qrContext) => QrPaymentScreen(
+            amount: total - discount,
+            onPaymentConfirmed: () => Navigator.pop(qrContext, true),
+          ),
+        ),
+      );
+
+      if (confirmed != true || !mounted) {
         return;
       }
     }
@@ -575,12 +594,12 @@ class _PaymentSection extends StatelessWidget {
         ),
         const SizedBox(height: AppSizes.sm),
         _PaymentMethodCard(
-          key: const Key('checkout-payment-ewallet'),
-          method: PaymentMethod.ewallet,
-          icon: Icons.account_balance_wallet_outlined,
-          description: 'Ví điện tử mô phỏng, không lưu thông tin thật.',
-          selected: selectedMethod == PaymentMethod.ewallet,
-          onTap: () => onSelected(PaymentMethod.ewallet),
+          key: const Key('checkout-payment-bank-transfer'),
+          method: PaymentMethod.bankTransfer,
+          icon: Icons.qr_code_2_outlined,
+          description: 'Quét mã QR và xác nhận đã chuyển khoản.',
+          selected: selectedMethod == PaymentMethod.bankTransfer,
+          onTap: () => onSelected(PaymentMethod.bankTransfer),
         ),
       ],
     );
