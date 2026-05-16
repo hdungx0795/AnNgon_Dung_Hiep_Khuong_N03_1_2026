@@ -91,18 +91,15 @@ class OrderHistoryScreen extends StatelessWidget {
 
     if (!context.mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(result.feedbackMessage),
-        action: result.addedCount > 0
-            ? SnackBarAction(
-                label: 'XEM GIỎ',
-                onPressed: () =>
-                    Navigator.popUntil(context, (route) => route.isFirst),
-              )
-            : null,
-      ),
-    );
+    final messenger = ScaffoldMessenger.of(context);
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(result.feedbackMessage),
+          duration: const Duration(seconds: 2),
+        ),
+      );
   }
 
   void _openTracking(BuildContext context, String orderId) {
