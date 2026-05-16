@@ -137,6 +137,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 onPressed: isLoading ? null : _handleLogin,
                 isLoading: isLoading,
               ),
+              const SizedBox(height: AppSizes.sm),
+              TextButton.icon(
+                key: const Key('admin-portal-entry'),
+                onPressed: isLoading
+                    ? null
+                    : () => Navigator.pushNamed(context, '/admin-login'),
+                icon: const Icon(Icons.admin_panel_settings_outlined),
+                label: const Text('Cổng quản trị'),
+              ),
             ],
           ),
         ),

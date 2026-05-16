@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_sizes.dart';
 import '../../../models/enums/category.dart';
 import '../../../models/product_model.dart';
+import '../../../providers/auth_provider.dart';
+import '../../../providers/cart_provider.dart';
 import '../../../widgets/app_widgets.dart';
 
 class DiscoveryProductCard extends StatelessWidget {
@@ -18,6 +21,35 @@ class DiscoveryProductCard extends StatelessWidget {
   final VoidCallback onTap;
   final Widget? trailingAction;
   final bool showHero;
+
+  Future<void> _handleQuickBuy(BuildContext context) async {
+    final auth = context.read<AuthProvider>();
+    final cart = context.read<CartProvider>();
+
+    if (auth.currentUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng đăng nhập để mua hàng')),
+      );
+      return;
+    }
+
+    await cart.addItem(auth.currentUser!.phone, product, 1);
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Đã thêm ${product.name} vào giỏ hàng'),
+          duration: const Duration(seconds: 2),
+          action: SnackBarAction(
+            label: 'Xem giỏ',
+            onPressed: () {
+              // Có thể điều hướng đến tab giỏ hàng nếu cần
+            },
+          ),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,33 +106,62 @@ class DiscoveryProductCard extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(AppSizes.sm),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Stack(
                 children: [
-                  Text(
-                    product.name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      height: 1.2,
-                    ),
-                  ),
-                  const SizedBox(height: AppSizes.xs),
-                  PriceText(amount: product.price),
-                  const SizedBox(height: AppSizes.xs),
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.star, size: 15, color: Colors.amber),
-                      const SizedBox(width: AppSizes.xs),
                       Text(
-                        product.rating.toString(),
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w600,
+                        product.name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          height: 1.2,
                         ),
                       ),
+                      const SizedBox(height: AppSizes.xs),
+                      PriceText(amount: product.price),
+                      const SizedBox(height: AppSizes.xs),
+                      Row(
+                        children: [
+                          const Icon(Icons.star, size: 15, color: Colors.amber),
+                          const SizedBox(width: AppSizes.xs),
+                          Text(
+                            product.rating.toString(),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
+                  ),
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: colorScheme.primary,
+                        borderRadius: BorderRadius.circular(AppSizes.radiusSm),
+                      ),
+                      child: IconButton(
+                        key: Key('quick-buy-${product.id}'),
+                        tooltip: 'Mua nhanh',
+                        constraints: const BoxConstraints.tightFor(
+                          width: 36,
+                          height: 36,
+                        ),
+                        padding: EdgeInsets.zero,
+                        icon: Icon(
+                          Icons.add_shopping_cart_rounded,
+                          size: 18,
+                          color: colorScheme.onPrimary,
+                        ),
+                        onPressed: () => _handleQuickBuy(context),
+                      ),
+                    ),
                   ),
                 ],
               ),

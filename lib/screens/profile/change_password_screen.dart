@@ -80,7 +80,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     const SizedBox(width: AppSizes.md),
                     Expanded(
                       child: Text(
-                        'Mật khẩu mới chỉ cập nhật cho tài khoản cục bộ trên thiết bị này.',
+                        'Bạn nên sử dụng mật khẩu mạnh (ít nhất 8 ký tự, bao gồm cả chữ và số) để bảo vệ tài khoản AnNgon tốt hơn.',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: colorScheme.onSurfaceVariant,
                         ),
