@@ -79,6 +79,8 @@ flutter:
   assets:
     - assets/images/products/
     - assets/images/onboarding/
+    - assets/images/log_themes/
+    - assets/images/logo/
     - assets/seeddata.json
 
   # An image asset can refer to one or more resolution-specific "variants", see

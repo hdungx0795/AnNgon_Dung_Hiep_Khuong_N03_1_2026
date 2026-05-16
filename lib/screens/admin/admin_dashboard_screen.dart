@@ -89,13 +89,15 @@ class _AdminOverviewTab extends StatelessWidget {
     final adminProductService = context.read<AdminProductService>();
     final orderService = context.read<AdminOrderReadService>();
     final allOrders = orderService.getAllOrders();
+    final processingOrders = allOrders
+        .where((order) => order.status != OrderStatus.completed)
+        .length;
 
     return RefreshIndicator(
       onRefresh: () async => onRefresh(),
       child: ListView(
         padding: const EdgeInsets.all(AppSizes.md),
         children: [
-          // 1. Stat Cards Row
           Row(
             children: [
               Expanded(
@@ -134,11 +136,11 @@ class _AdminOverviewTab extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: AppSizes.md),
-              const Expanded(
+              Expanded(
                 child: _StatCard(
-                  label: 'Người dùng',
-                  value: 'Demo Mode',
-                  icon: Icons.people_outline,
+                  label: 'Đang xử lý',
+                  value: processingOrders.toString(),
+                  icon: Icons.pending_actions_outlined,
                   color: Colors.purple,
                 ),
               ),
@@ -345,15 +347,15 @@ class _AdminProductsTab extends StatelessWidget {
         ),
         children: [
           const SectionHeader(
-            title: 'Sản phẩm hệ thống',
-            subtitle: 'Chỉ xem, không chỉnh sửa từ cổng quản trị.',
+            title: 'Món có sẵn',
+            subtitle: 'Danh sách mặc định của hệ thống, chỉ dùng để hiển thị.',
           ),
           const SizedBox(height: AppSizes.sm),
           ...seedProducts.map((product) => _SeedProductTile(product: product)),
           const SizedBox(height: AppSizes.lg),
           const SectionHeader(
-            title: 'Sản phẩm quản trị',
-            subtitle: 'Ẩn sản phẩm thay cho xóa cứng.',
+            title: 'Món tự thêm',
+            subtitle: 'Bật/tắt món để kiểm soát hiển thị trong thực đơn.',
           ),
           const SizedBox(height: AppSizes.sm),
           if (adminProducts.isEmpty)
@@ -403,7 +405,8 @@ class _SeedProductTile extends StatelessWidget {
       title: product.name,
       subtitle:
           '${product.category.label} · ${FormatUtils.formatCurrency(product.price)}',
-      badge: 'System Product / Read Only',
+      badge: 'Món mặc định',
+      badgeColor: Theme.of(context).colorScheme.onSurfaceVariant,
       isDimmed: false,
       trailing: const Icon(Icons.lock_outline),
     );
@@ -424,6 +427,7 @@ class _AdminProductTile extends StatelessWidget {
       subtitle:
           '${product.category.label} · ${FormatUtils.formatCurrency(product.price)}',
       badge: product.isActive ? 'Đang hiển thị' : 'Đang ẩn',
+      badgeColor: Theme.of(context).colorScheme.primary,
       isDimmed: !product.isActive,
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
@@ -469,6 +473,7 @@ class _ProductTileShell extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.badge,
+    required this.badgeColor,
     required this.trailing,
     required this.isDimmed,
   });
@@ -477,6 +482,7 @@ class _ProductTileShell extends StatelessWidget {
   final String title;
   final String subtitle;
   final String badge;
+  final Color badgeColor;
   final Widget trailing;
   final bool isDimmed;
 
@@ -516,7 +522,7 @@ class _ProductTileShell extends StatelessWidget {
             Text(
               badge,
               style: TextStyle(
-                color: colorScheme.primary,
+                color: badgeColor,
                 fontWeight: FontWeight.w700,
                 fontSize: 12,
               ),
