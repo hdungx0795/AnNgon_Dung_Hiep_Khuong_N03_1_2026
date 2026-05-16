@@ -133,6 +133,24 @@ void main() {
     expect(find.text('Đơn đã hoàn tất. Cảm ơn bạn đã đặt món.'), findsWidgets);
     expect(find.byKey(const Key('tracking-completed-copy')), findsOneWidget);
   });
+
+  testWidgets('opens invoice from tracking screen', (tester) async {
+    orderProvider.setActiveOrders([_order(status: OrderStatus.confirmed)]);
+
+    await _pumpTracking(tester, orderProvider, 'order-123456789');
+
+    await tester.ensureVisible(
+      find.byKey(const Key('tracking-view-invoice-button')),
+    );
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('tracking-view-invoice-button')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Hóa đơn'), findsOneWidget);
+    expect(find.byKey(const Key('invoice-summary-card')), findsOneWidget);
+    expect(find.text('PHENIKAA FOOD APP'), findsOneWidget);
+    expect(find.byKey(const Key('invoice-final-total')), findsOneWidget);
+  });
 }
 
 Future<void> _pumpTracking(

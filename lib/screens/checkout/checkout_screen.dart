@@ -15,6 +15,7 @@ import '../../providers/order_provider.dart';
 import '../../services/voucher_service.dart';
 import '../../widgets/app_widgets.dart';
 import 'qr_payment_screen.dart';
+import '../order/invoice_screen.dart';
 import '../tracking/tracking_order_screen.dart';
 
 class CheckoutScreen extends StatefulWidget {
@@ -316,6 +317,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       builder: (sheetContext) {
         return _OrderSuccessSheet(
           order: order,
+          onViewInvoice: () {
+            Navigator.pop(sheetContext);
+            Navigator.pushReplacement(
+              parentContext,
+              MaterialPageRoute(
+                builder: (context) => InvoiceScreen(order: order),
+              ),
+            );
+          },
           onTrackOrder: () {
             Navigator.pop(sheetContext);
             Navigator.pushReplacement(
@@ -818,9 +828,14 @@ class _InlineWarning extends StatelessWidget {
 }
 
 class _OrderSuccessSheet extends StatelessWidget {
-  const _OrderSuccessSheet({required this.order, required this.onTrackOrder});
+  const _OrderSuccessSheet({
+    required this.order,
+    required this.onViewInvoice,
+    required this.onTrackOrder,
+  });
 
   final OrderModel order;
+  final VoidCallback onViewInvoice;
   final VoidCallback onTrackOrder;
 
   @override
@@ -879,6 +894,13 @@ class _OrderSuccessSheet extends StatelessWidget {
                 value: OrderStatus.created.displayName,
               ),
               const SizedBox(height: AppSizes.md),
+              SecondaryButton(
+                key: const Key('checkout-view-invoice-button'),
+                label: 'Xem hóa đơn',
+                icon: Icons.receipt_long_outlined,
+                onPressed: onViewInvoice,
+              ),
+              const SizedBox(height: AppSizes.sm),
               PrimaryButton(
                 key: const Key('checkout-track-order-button'),
                 label: 'Theo dõi đơn hàng',
