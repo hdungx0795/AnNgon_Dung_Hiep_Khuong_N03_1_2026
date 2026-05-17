@@ -68,8 +68,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final isLoading = context.watch<AuthProvider>().isLoading;
 
     return AuthLayout(
+      eyebrow: 'Tạo hồ sơ mới',
       title: 'Tạo tài khoản',
       subtitle: 'Dùng số điện thoại và mật khẩu để lưu giỏ hàng, đơn hàng.',
+      highlights: const [
+        AuthHighlight(icon: Icons.person_add_alt_1_outlined, label: 'Hồ sơ'),
+        AuthHighlight(icon: Icons.local_dining_outlined, label: 'Đặt món'),
+        AuthHighlight(icon: Icons.delivery_dining_outlined, label: 'Theo dõi'),
+      ],
       footer: TextButton(
         onPressed: isLoading ? null : () => Navigator.pop(context),
         child: const Text('Đã có tài khoản? Đăng nhập'),

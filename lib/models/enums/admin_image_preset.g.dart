@@ -25,6 +25,26 @@ class AdminImagePresetAdapter extends TypeAdapter<AdminImagePreset> {
         return AdminImagePreset.dessert;
       case 5:
         return AdminImagePreset.combo;
+      case 6:
+        return AdminImagePreset.superBurger;
+      case 7:
+        return AdminImagePreset.noodle;
+      case 8:
+        return AdminImagePreset.ramen;
+      case 9:
+        return AdminImagePreset.coffee;
+      case 10:
+        return AdminImagePreset.soju;
+      case 11:
+        return AdminImagePreset.cake;
+      case 12:
+        return AdminImagePreset.cupcake;
+      case 13:
+        return AdminImagePreset.superCombo;
+      case 14:
+        return AdminImagePreset.chubbyCombo;
+      case 15:
+        return AdminImagePreset.matchaCombo;
       default:
         return AdminImagePreset.burger;
     }
@@ -50,6 +70,36 @@ class AdminImagePresetAdapter extends TypeAdapter<AdminImagePreset> {
         break;
       case AdminImagePreset.combo:
         writer.writeByte(5);
+        break;
+      case AdminImagePreset.superBurger:
+        writer.writeByte(6);
+        break;
+      case AdminImagePreset.noodle:
+        writer.writeByte(7);
+        break;
+      case AdminImagePreset.ramen:
+        writer.writeByte(8);
+        break;
+      case AdminImagePreset.coffee:
+        writer.writeByte(9);
+        break;
+      case AdminImagePreset.soju:
+        writer.writeByte(10);
+        break;
+      case AdminImagePreset.cake:
+        writer.writeByte(11);
+        break;
+      case AdminImagePreset.cupcake:
+        writer.writeByte(12);
+        break;
+      case AdminImagePreset.superCombo:
+        writer.writeByte(13);
+        break;
+      case AdminImagePreset.chubbyCombo:
+        writer.writeByte(14);
+        break;
+      case AdminImagePreset.matchaCombo:
+        writer.writeByte(15);
         break;
     }
   }
