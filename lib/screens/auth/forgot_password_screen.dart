@@ -59,8 +59,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return AuthLayout(
+      eyebrow: 'Bảo mật tài khoản',
       title: 'Đặt lại mật khẩu',
       subtitle: 'Nhập số điện thoại đã đăng ký và mật khẩu mới.',
+      highlights: const [
+        AuthHighlight(
+          icon: Icons.phone_iphone_outlined,
+          label: 'Số đã đăng ký',
+        ),
+        AuthHighlight(icon: Icons.lock_reset_outlined, label: 'Mật khẩu mới'),
+      ],
       children: [
         Form(
           key: _formKey,

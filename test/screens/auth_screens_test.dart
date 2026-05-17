@@ -31,7 +31,14 @@ void main() {
   testWidgets('login uses inline field validation', (tester) async {
     await tester.pumpWidget(_authTestApp(const LoginScreen()));
 
-    await tester.tap(find.text('Đăng nhập'));
+    final loginButton = find.widgetWithText(FilledButton, 'Đăng nhập');
+    await tester.scrollUntilVisible(
+      loginButton,
+      240,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(loginButton);
     await tester.pump();
 
     expect(find.text('Vui lòng nhập số điện thoại'), findsOneWidget);

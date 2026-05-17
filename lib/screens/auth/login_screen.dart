@@ -75,8 +75,14 @@ class _LoginScreenState extends State<LoginScreen> {
     final isLoading = context.watch<AuthProvider>().isLoading;
 
     return AuthLayout(
+      eyebrow: 'Tài khoản khách hàng',
       title: 'Chào mừng trở lại',
       subtitle: 'Đăng nhập bằng số điện thoại để tiếp tục đặt món.',
+      highlights: const [
+        AuthHighlight(icon: Icons.shopping_bag_outlined, label: 'Giỏ hàng'),
+        AuthHighlight(icon: Icons.receipt_long_outlined, label: 'Đơn hàng'),
+        AuthHighlight(icon: Icons.favorite_border, label: 'Yêu thích'),
+      ],
       footer: TextButton(
         onPressed: isLoading
             ? null
