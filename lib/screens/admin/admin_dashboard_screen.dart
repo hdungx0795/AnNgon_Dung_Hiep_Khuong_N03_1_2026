@@ -14,6 +14,7 @@ import '../../services/admin_order_read_service.dart';
 import '../../services/admin_product_service.dart';
 import '../../services/product_service.dart';
 import '../../widgets/app_widgets.dart';
+import '../order/invoice_screen.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -348,7 +349,7 @@ class _AdminProductsTab extends StatelessWidget {
         children: [
           const SectionHeader(
             title: 'Món có sẵn',
-            subtitle: 'Danh sách mặc định của hệ thống, chỉ dùng để hiển thị.',
+            subtitle: 'Danh sách mặc định của hệ thống, không thể chỉnh sửa.',
           ),
           const SizedBox(height: AppSizes.sm),
           ...seedProducts.map((product) => _SeedProductTile(product: product)),
@@ -564,15 +565,23 @@ class _AdminProductDialogState extends State<_AdminProductDialog> {
       text: product == null ? '' : product.price.toString(),
     );
     _category = product?.category ?? Category.food;
-    _imagePreset = product?.imagePreset ?? AdminImagePreset.burger;
+    _imagePreset = product?.imagePreset ?? AdminImagePreset.superBurger;
+    _nameController.addListener(_refreshPreview);
+    _priceController.addListener(_refreshPreview);
   }
 
   @override
   void dispose() {
+    _nameController.removeListener(_refreshPreview);
+    _priceController.removeListener(_refreshPreview);
     _nameController.dispose();
     _descriptionController.dispose();
     _priceController.dispose();
     super.dispose();
+  }
+
+  void _refreshPreview() {
+    if (mounted) setState(() {});
   }
 
   @override
@@ -638,20 +647,16 @@ class _AdminProductDialogState extends State<_AdminProductDialog> {
                 },
               ),
               const SizedBox(height: AppSizes.md),
-              DropdownButtonFormField<AdminImagePreset>(
-                initialValue: _imagePreset,
-                decoration: const InputDecoration(labelText: 'Ảnh mẫu'),
-                items: AdminImagePreset.values
-                    .map(
-                      (preset) => DropdownMenuItem(
-                        value: preset,
-                        child: Text(preset.label),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (value) {
-                  if (value != null) setState(() => _imagePreset = value);
-                },
+              _AdminProductPreview(
+                name: _nameController.text,
+                priceText: _priceController.text,
+                category: _category,
+                imagePreset: _imagePreset,
+              ),
+              const SizedBox(height: AppSizes.md),
+              _AdminImagePresetPicker(
+                selectedPreset: _imagePreset,
+                onChanged: (value) => setState(() => _imagePreset = value),
               ),
             ],
           ),
@@ -697,6 +702,294 @@ class _AdminProductDialogState extends State<_AdminProductDialog> {
     }
 
     if (mounted) Navigator.pop(context, true);
+  }
+}
+
+class _AdminProductPreview extends StatelessWidget {
+  const _AdminProductPreview({
+    required this.name,
+    required this.priceText,
+    required this.category,
+    required this.imagePreset,
+  });
+
+  final String name;
+  final String priceText;
+  final Category category;
+  final AdminImagePreset imagePreset;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final parsedPrice = int.tryParse(priceText.trim());
+
+    return Container(
+      padding: const EdgeInsets.all(AppSizes.sm),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.45),
+        borderRadius: BorderRadius.circular(AppSizes.radiusSm),
+        border: Border.all(color: colorScheme.outlineVariant),
+      ),
+      child: Row(
+        children: [
+          AppImage.asset(
+            imagePreset.assetPath,
+            width: 64,
+            height: 64,
+            borderRadius: BorderRadius.circular(AppSizes.radiusSm),
+            fallbackKind: AppImageFallbackKind.product,
+          ),
+          const SizedBox(width: AppSizes.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name.trim().isEmpty ? 'Tên món sẽ hiển thị ở đây' : name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: AppSizes.xs),
+                Text(
+                  category.label,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: AppSizes.xs),
+                Text(
+                  parsedPrice == null || parsedPrice <= 0
+                      ? 'Giá món'
+                      : FormatUtils.formatCurrency(parsedPrice),
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AdminImagePresetPicker extends StatelessWidget {
+  const _AdminImagePresetPicker({
+    required this.selectedPreset,
+    required this.onChanged,
+  });
+
+  final AdminImagePreset selectedPreset;
+  final ValueChanged<AdminImagePreset> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Column(
+      key: const Key('admin-image-preset-picker'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Chọn ảnh món',
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: AppSizes.xs),
+        Text(
+          'Chỉ dùng ảnh có sẵn trong ứng dụng.',
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: AppSizes.sm),
+        Wrap(
+          spacing: AppSizes.sm,
+          runSpacing: AppSizes.sm,
+          children: [
+            ...adminImagePresetChoices.map((preset) {
+              final isSelected = preset == selectedPreset;
+              return SizedBox(
+                width: 118,
+                height: 128,
+                child: _AdminImagePresetTile(
+                  key: Key('admin-image-preset-${preset.name}'),
+                  preset: preset,
+                  isSelected: isSelected,
+                  onTap: () => onChanged(preset),
+                ),
+              );
+            }),
+            const SizedBox(
+              width: 118,
+              height: 128,
+              child: _AdminAddImageHintTile(),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _AdminImagePresetTile extends StatelessWidget {
+  const _AdminImagePresetTile({
+    super.key,
+    required this.preset,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final AdminImagePreset preset;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final borderColor = isSelected
+        ? colorScheme.primary
+        : colorScheme.outlineVariant;
+
+    return Material(
+      color: isSelected
+          ? colorScheme.primaryContainer.withValues(alpha: 0.35)
+          : colorScheme.surface,
+      borderRadius: BorderRadius.circular(AppSizes.radiusSm),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppSizes.radiusSm),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          padding: const EdgeInsets.all(AppSizes.xs),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppSizes.radiusSm),
+            border: Border.all(color: borderColor, width: isSelected ? 2 : 1),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: AppImage.asset(
+                        preset.assetPath,
+                        borderRadius: BorderRadius.circular(
+                          AppSizes.radiusSm - 2,
+                        ),
+                        fallbackKind: AppImageFallbackKind.product,
+                      ),
+                    ),
+                    if (isSelected)
+                      Positioned(
+                        top: AppSizes.xs,
+                        right: AppSizes.xs,
+                        child: Container(
+                          padding: const EdgeInsets.all(3),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.check,
+                            size: 14,
+                            color: colorScheme.onPrimary,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSizes.xs),
+              SizedBox(
+                width: double.infinity,
+                child: Text(
+                  preset.label,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: isSelected
+                        ? colorScheme.primary
+                        : colorScheme.onSurface,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AdminAddImageHintTile extends StatelessWidget {
+  const _AdminAddImageHintTile();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(AppSizes.radiusSm),
+        border: Border.all(
+          color: colorScheme.outlineVariant,
+          style: BorderStyle.solid,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSizes.xs),
+        child: Column(
+          children: [
+            Expanded(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerHighest.withValues(
+                    alpha: 0.55,
+                  ),
+                  borderRadius: BorderRadius.circular(AppSizes.radiusSm - 2),
+                ),
+                child: Center(
+                  child: Icon(
+                    Icons.add,
+                    size: AppSizes.iconLg,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSizes.xs),
+            SizedBox(
+              width: double.infinity,
+              child: Text(
+                'Ảnh khác',
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.labelMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -750,9 +1043,29 @@ class _OrderTile extends StatelessWidget {
         subtitle: Text(
           'Khách hàng ID: ${order.userId} · ${order.status.label}',
         ),
-        trailing: Text(
-          FormatUtils.formatCurrency(order.finalAmount),
-          style: const TextStyle(fontWeight: FontWeight.w800),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              FormatUtils.formatCurrency(order.finalAmount),
+              style: const TextStyle(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(width: AppSizes.xs),
+            IconButton(
+              key: Key('admin-view-invoice-button-${order.orderId}'),
+              tooltip: 'Xem hóa đơn',
+              visualDensity: VisualDensity.compact,
+              icon: const Icon(Icons.receipt_long_outlined),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => InvoiceScreen(order: order),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ),
     );

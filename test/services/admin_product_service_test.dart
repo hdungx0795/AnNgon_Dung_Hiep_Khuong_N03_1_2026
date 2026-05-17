@@ -75,4 +75,39 @@ void main() {
       );
     },
   );
+
+  test('admin product image preset can be changed during update', () async {
+    final adminService = AdminProductService();
+
+    final adminProduct = await adminService.addProduct(
+      name: 'Admin Burger',
+      description: 'Demo admin product',
+      price: 45000,
+      category: Category.food,
+      imagePreset: AdminImagePreset.burger,
+    );
+
+    await adminService.updateProduct(
+      adminProduct.copyWith(imagePreset: AdminImagePreset.drink),
+    );
+
+    final updatedProduct = adminService.getAllAdminProducts().single;
+    expect(updatedProduct.imagePreset, AdminImagePreset.drink);
+    expect(
+      updatedProduct.toProductModel().imagePath,
+      AdminImagePreset.drink.assetPath,
+    );
+  });
+
+  test('admin picker image choices use dedicated non-duplicated assets', () {
+    final assetPaths = adminImagePresetChoices
+        .map((preset) => preset.assetPath)
+        .toList();
+
+    expect(assetPaths.toSet(), hasLength(assetPaths.length));
+    expect(
+      assetPaths,
+      everyElement(startsWith('assets/images/admin_add_products/')),
+    );
+  });
 }

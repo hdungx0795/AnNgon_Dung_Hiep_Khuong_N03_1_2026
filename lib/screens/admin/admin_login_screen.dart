@@ -50,8 +50,14 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
   @override
   Widget build(BuildContext context) {
     return AuthLayout(
+      eyebrow: 'Khu vực nội bộ',
       title: 'Cổng quản trị',
       subtitle: 'Đăng nhập tài khoản quản trị nội bộ.',
+      highlights: const [
+        AuthHighlight(icon: Icons.inventory_2_outlined, label: 'Sản phẩm'),
+        AuthHighlight(icon: Icons.receipt_long_outlined, label: 'Đơn hàng'),
+        AuthHighlight(icon: Icons.analytics_outlined, label: 'Tổng quan'),
+      ],
       footer: TextButton(
         onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
         child: const Text('Quay lại đăng nhập người dùng'),
