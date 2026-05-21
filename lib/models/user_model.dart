@@ -60,4 +60,30 @@ class UserModel {
       createdAt: createdAt ?? this.createdAt,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'phone': phone,
+      'email': email,
+      'dob': dob,
+      'passwordHash': passwordHash,
+      'avatarPath': avatarPath,
+      'createdAt': createdAt.toIso8601String(),
+    };
+  }
+
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
+      id: json['id'] as int,
+      name: json['name'] as String,
+      phone: json['phone'] as String,
+      email: json['email'] as String,
+      dob: json['dob'] as String,
+      passwordHash: json['passwordHash'] as String,
+      avatarPath: json['avatarPath'] as String?,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+    );
+  }
 }

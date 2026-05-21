@@ -38,4 +38,24 @@ class VoucherModel {
     }
     return discount;
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'code': code,
+      'discountAmount': discountAmount,
+      'discountPercent': discountPercent,
+      'minOrderAmount': minOrderAmount,
+      'expiresAt': expiresAt.toIso8601String(),
+    };
+  }
+
+  factory VoucherModel.fromJson(Map<String, dynamic> json) {
+    return VoucherModel(
+      code: json['code'] as String,
+      discountAmount: json['discountAmount'] as int,
+      discountPercent: (json['discountPercent'] as num).toDouble(),
+      minOrderAmount: json['minOrderAmount'] as int,
+      expiresAt: DateTime.parse(json['expiresAt'] as String),
+    );
+  }
 }

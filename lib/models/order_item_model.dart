@@ -24,4 +24,22 @@ class OrderItemModel {
   });
 
   int get totalPrice => unitPrice * quantity;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'productId': productId,
+      'productName': productName,
+      'quantity': quantity,
+      'unitPrice': unitPrice,
+    };
+  }
+
+  factory OrderItemModel.fromJson(Map<String, dynamic> json) {
+    return OrderItemModel(
+      productId: json['productId'] as int,
+      productName: json['productName'] as String,
+      quantity: json['quantity'] as int,
+      unitPrice: json['unitPrice'] as int,
+    );
+  }
 }

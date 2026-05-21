@@ -29,5 +29,24 @@ void main() {
       expect(voucher.calculateDiscount(79000), 0);
       expect(voucher.calculateDiscount(100000), 20000);
     });
+
+    test('toJson and fromJson round-trip matches original values', () {
+      final voucher = VoucherModel(
+        code: 'VOUCHER50',
+        discountAmount: 50000,
+        discountPercent: 0.1,
+        minOrderAmount: 200000,
+        expiresAt: DateTime(2026, 12, 31, 23, 59, 59),
+      );
+
+      final jsonMap = voucher.toJson();
+      final roundTripVoucher = VoucherModel.fromJson(jsonMap);
+
+      expect(roundTripVoucher.code, voucher.code);
+      expect(roundTripVoucher.discountAmount, voucher.discountAmount);
+      expect(roundTripVoucher.discountPercent, voucher.discountPercent);
+      expect(roundTripVoucher.minOrderAmount, voucher.minOrderAmount);
+      expect(roundTripVoucher.expiresAt, voucher.expiresAt);
+    });
   });
 }
