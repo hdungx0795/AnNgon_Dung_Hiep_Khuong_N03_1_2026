@@ -126,14 +126,19 @@ class _AdminOverviewTab extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _StatCard(
-                  label: 'Sản phẩm',
-                  value:
-                      (productService.getAllProducts().length +
+                child: FutureBuilder<List<ProductModel>>(
+                  future: productService.getAllProducts(),
+                  builder: (context, snapshot) {
+                    final loadedProducts = snapshot.data?.length ?? 0;
+                    return _StatCard(
+                      label: 'Sản phẩm',
+                      value: (loadedProducts +
                               adminProductService.getAllAdminProducts().length)
                           .toString(),
-                  icon: Icons.fastfood_outlined,
-                  color: Colors.orange,
+                      icon: Icons.fastfood_outlined,
+                      color: Colors.orange,
+                    );
+                  },
                 ),
               ),
               const SizedBox(width: AppSizes.md),
