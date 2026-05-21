@@ -73,3 +73,7 @@ android/.gradle/
 android/local.properties
 android/key.properties
 *.aab
+
+# Firebase configuration
+android/app/google-services.json
+
