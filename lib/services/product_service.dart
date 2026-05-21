@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/product_model.dart';
 import '../models/enums/category.dart';
@@ -5,9 +6,21 @@ import '../models/admin_product_model.dart';
 import 'database_service.dart';
 
 class ProductService {
-  static final ProductService _instance = ProductService._();
-  factory ProductService() => _instance;
-  ProductService._();
+  final FirebaseFirestore? _firestoreOverride;
+  static ProductService? _instance;
+
+  factory ProductService({FirebaseFirestore? firestore}) {
+    if (firestore != null) {
+      return ProductService._(firestore);
+    }
+    _instance ??= ProductService._(null);
+    return _instance!;
+  }
+
+  ProductService._(this._firestoreOverride);
+
+  FirebaseFirestore get _firestore => _firestoreOverride ?? FirebaseFirestore.instance;
+  CollectionReference get _productsCol => _firestore.collection('products');
 
   Box<ProductModel> get _productBox =>
       Hive.box<ProductModel>(DatabaseService.productsBoxName);
@@ -15,13 +28,34 @@ class ProductService {
   Box<AdminProductModel> get _adminProductBox =>
       Hive.box<AdminProductModel>(DatabaseService.adminProductsBoxName);
 
-  List<ProductModel> getAllProducts() {
-    return [
-      ..._productBox.values,
-      ..._adminProductBox.values
-          .where((product) => product.isActive)
-          .map((product) => product.toProductModel()),
-    ];
+  Future<List<ProductModel>> getAllProducts() async {
+    List<ProductModel> products = [];
+    
+    // 1. Fetch from Firestore
+    try {
+      final snapshot = await _productsCol.get();
+      if (snapshot.docs.isNotEmpty) {
+        products = snapshot.docs.map((doc) {
+          final data = doc.data() as Map<String, dynamic>;
+          return ProductModel.fromJson(data);
+        }).toList();
+      }
+    } catch (e) {
+      // Fallback if firestore fails
+    }
+
+    // 2. Fallback to Hive if Firestore is empty or failed
+    if (products.isEmpty) {
+      products = _productBox.values.toList();
+    }
+
+    // 3. Merge local active admin products
+    final adminProducts = _adminProductBox.values
+        .where((product) => product.isActive)
+        .map((product) => product.toProductModel())
+        .toList();
+
+    return [...products, ...adminProducts];
   }
 
   List<ProductModel> getSeedProducts() {
@@ -29,7 +63,7 @@ class ProductService {
   }
 
   List<ProductModel> getProductsByCategory(Category category) {
-    if (category == Category.all) return getAllProducts();
+    if (category == Category.all) return _productBox.values.toList();
     return _productBox.values.where((p) => p.category == category).toList();
   }
 
@@ -41,11 +75,25 @@ class ProductService {
   }
 
   Future<ProductModel?> getProductById(int id) async {
-    final seedProduct = _productBox.get(id);
-    if (seedProduct != null) return seedProduct;
-
+    // 1. Check if it's an admin product first
     final adminProduct = _adminProductBox.get(id.toString());
-    if (adminProduct == null || !adminProduct.isActive) return null;
-    return adminProduct.toProductModel();
+    if (adminProduct != null) {
+      if (!adminProduct.isActive) return null;
+      return adminProduct.toProductModel();
+    }
+
+    // 2. Fetch from Firestore
+    try {
+      final docSnap = await _productsCol.doc(id.toString()).get();
+      if (docSnap.exists && docSnap.data() != null) {
+        return ProductModel.fromJson(docSnap.data() as Map<String, dynamic>);
+      }
+    } catch (e) {
+      // Fallback
+    }
+
+    // 3. Fallback to Hive
+    final seedProduct = _productBox.get(id);
+    return seedProduct;
   }
 }

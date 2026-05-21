@@ -33,7 +33,12 @@ class ProductProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    _products = _productService.getAllProducts();
+    try {
+      _products = await _productService.getAllProducts();
+    } catch (e) {
+      // If there's an unexpected error, keep the fallback empty to not crash
+      _products = [];
+    }
 
     _isLoading = false;
     notifyListeners();

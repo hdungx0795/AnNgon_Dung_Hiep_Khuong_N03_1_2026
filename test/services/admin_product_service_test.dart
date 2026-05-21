@@ -45,7 +45,7 @@ void main() {
         'Test Burger',
       ]);
       expect(
-        productService.getAllProducts().map((p) => p.name),
+        (await productService.getAllProducts()).map((p) => p.name),
         containsAll(['Test Burger', 'Admin Pizza']),
       );
     },
@@ -70,7 +70,7 @@ void main() {
       expect(adminService.getAllAdminProducts(), hasLength(1));
       expect(adminService.getAllAdminProducts().single.isActive, isFalse);
       expect(
-        productService.getAllProducts().map((p) => p.name),
+        (await productService.getAllProducts()).map((p) => p.name),
         isNot(contains('Admin Drink')),
       );
     },
