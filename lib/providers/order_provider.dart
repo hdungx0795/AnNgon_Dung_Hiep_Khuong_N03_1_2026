@@ -49,18 +49,24 @@ class OrderProvider extends ChangeNotifier {
     _isLoading = true;
     _notifyIfActive();
 
-    final activeOrders = await _orderService.getActiveOrders(userId);
-    final orderHistory = await _orderService.getOrderHistory(userId);
+    try {
+      final activeOrders = await _orderService.getActiveOrders(userId);
+      final orderHistory = await _orderService.getOrderHistory(userId);
 
-    if (_isDisposed || requestId != _loadRequestId) {
-      return;
+      if (_isDisposed || requestId != _loadRequestId) {
+        return;
+      }
+
+      _activeOrders = activeOrders;
+      _orderHistory = orderHistory;
+    } catch (e) {
+      debugPrint('Failed to load orders: $e');
+    } finally {
+      if (!_isDisposed && requestId == _loadRequestId) {
+        _isLoading = false;
+        _notifyIfActive();
+      }
     }
-
-    _activeOrders = activeOrders;
-    _orderHistory = orderHistory;
-
-    _isLoading = false;
-    _notifyIfActive();
   }
 
   Future<OrderModel> placeOrder({

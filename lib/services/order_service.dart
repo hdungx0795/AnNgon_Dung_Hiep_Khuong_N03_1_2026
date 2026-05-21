@@ -99,7 +99,7 @@ class OrderService {
           try {
             final order = OrderModel.fromJson(doc.data());
             validOrders.add(order);
-            await _ordersBox.put(order.orderId, order);
+            await _cacheOrderIfChanged(order);
           } catch (e) {
             debugPrint('Failed to parse order ${doc.id}: $e');
           }
@@ -143,6 +143,42 @@ class OrderService {
       title: 'Cập nhật đơn hàng #${_shortOrderId(orderId)}',
       body: 'Trạng thái mới: ${status.displayName}',
     );
+  }
+
+  Future<void> _cacheOrderIfChanged(OrderModel order) async {
+    final existing = _ordersBox.get(order.orderId);
+    if (existing == null || !_isSameOrder(existing, order)) {
+      await _ordersBox.put(order.orderId, order);
+    }
+  }
+
+  bool _isSameOrder(OrderModel a, OrderModel b) {
+    if (a.orderId != b.orderId ||
+        a.userId != b.userId ||
+        a.totalAmount != b.totalAmount ||
+        a.paymentMethod != b.paymentMethod ||
+        a.deliveryAddress != b.deliveryAddress ||
+        a.note != b.note ||
+        a.status != b.status ||
+        a.shipperName != b.shipperName ||
+        a.createdAt != b.createdAt ||
+        a.voucherCode != b.voucherCode ||
+        a.discount != b.discount ||
+        a.items.length != b.items.length) {
+      return false;
+    }
+
+    for (int i = 0; i < a.items.length; i++) {
+      final ai = a.items[i];
+      final bi = b.items[i];
+      if (ai.productId != bi.productId ||
+          ai.productName != bi.productName ||
+          ai.quantity != bi.quantity ||
+          ai.unitPrice != bi.unitPrice) {
+        return false;
+      }
+    }
+    return true;
   }
 
   Future<void> completeOrder(String orderId) async {
