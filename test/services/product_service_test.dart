@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:pka_food/models/enums/admin_image_preset.dart';
+import 'package:pka_food/models/admin_product_model.dart';
 import 'package:pka_food/models/enums/category.dart';
 import 'package:pka_food/models/product_model.dart';
 import 'package:pka_food/services/admin_product_service.dart';
@@ -28,7 +29,7 @@ void main() {
     
     fakeFirestore = FakeFirebaseFirestore();
     productService = ProductService(firestore: fakeFirestore);
-    adminProductService = AdminProductService();
+    adminProductService = AdminProductService(firestore: fakeFirestore);
   });
 
   tearDown(() async {
@@ -121,5 +122,49 @@ void main() {
     expect(names, contains('Seed Product'));
     expect(names, contains('Admin Combo'));
     expect(names, isNot(contains('Inactive Pizza')));
+  });
+
+  test('getAllProducts syncs admin products from Firestore', () async {
+    // Put cloud admin product
+    final cloudProduct = AdminProductModel(
+      id: -10,
+      name: 'Cloud Burger',
+      description: 'Test',
+      price: 15000,
+      category: Category.food,
+      imagePreset: AdminImagePreset.burger,
+      isActive: true,
+    );
+    await fakeFirestore.collection('admin_products').doc('-10').set(cloudProduct.toJson());
+
+    final products = await productService.getAllProducts();
+    
+    // Should sync and include it
+    final names = products.map((e) => e.name).toList();
+    expect(names, contains('Cloud Burger'));
+  });
+
+  test('getAllProducts does not include inactive cloud admin products', () async {
+    // Put inactive cloud admin product
+    final cloudProduct = AdminProductModel(
+      id: -11,
+      name: 'Hidden Cloud Pizza',
+      description: 'Test',
+      price: 25000,
+      category: Category.food,
+      imagePreset: AdminImagePreset.pizza,
+      isActive: false,
+    );
+    await fakeFirestore.collection('admin_products').doc('-11').set(cloudProduct.toJson());
+
+    final products = await productService.getAllProducts();
+    
+    // Should NOT include it
+    final names = products.map((e) => e.name).toList();
+    expect(names, isNot(contains('Hidden Cloud Pizza')));
+    
+    // Verify it was cached in Hive as inactive
+    final cached = adminProductService.getAllAdminProducts().firstWhere((p) => p.id == -11);
+    expect(cached.isActive, isFalse);
   });
 }

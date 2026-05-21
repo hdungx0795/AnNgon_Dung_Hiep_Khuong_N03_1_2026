@@ -352,13 +352,20 @@ class _AdminProductsTab extends StatelessWidget {
     final adminProducts = adminProductService.getAllAdminProducts();
 
     return Scaffold(
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSizes.md,
-          AppSizes.md,
-          AppSizes.md,
-          96,
-        ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await context.read<AdminProductService>().syncAdminProductsFromFirestore();
+          if (!context.mounted) return;
+          await context.read<ProductProvider>().loadProducts();
+          onChanged();
+        },
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(
+            AppSizes.md,
+            AppSizes.md,
+            AppSizes.md,
+            96,
+          ),
         children: [
           const SectionHeader(
             title: 'Món có sẵn',
@@ -385,6 +392,7 @@ class _AdminProductsTab extends StatelessWidget {
                   _AdminProductTile(product: product, onChanged: onChanged),
             ),
         ],
+      ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         key: const Key('admin-add-product-button'),
@@ -804,8 +812,6 @@ class _AdminImagePresetPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Column(
       key: const Key('admin-image-preset-picker'),
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -814,13 +820,6 @@ class _AdminImagePresetPicker extends StatelessWidget {
           'Chọn ảnh món',
           style: theme.textTheme.titleSmall?.copyWith(
             fontWeight: FontWeight.w800,
-          ),
-        ),
-        const SizedBox(height: AppSizes.xs),
-        Text(
-          'Chỉ dùng ảnh có sẵn trong ứng dụng.',
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: AppSizes.sm),
