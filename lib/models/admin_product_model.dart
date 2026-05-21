@@ -69,4 +69,28 @@ class AdminProductModel {
       isActive: isActive ?? this.isActive,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'description': description,
+      'price': price,
+      'category': category.name,
+      'imagePreset': imagePreset.name,
+      'isActive': isActive,
+    };
+  }
+
+  factory AdminProductModel.fromJson(Map<String, dynamic> json) {
+    return AdminProductModel(
+      id: json['id'] as int,
+      name: json['name'] as String,
+      description: json['description'] as String,
+      price: json['price'] as int,
+      category: Category.values.firstWhere((c) => c.name == json['category']),
+      imagePreset: AdminImagePreset.values.firstWhere((i) => i.name == json['imagePreset']),
+      isActive: json['isActive'] as bool? ?? true,
+    );
+  }
 }

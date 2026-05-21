@@ -34,4 +34,28 @@ class ReviewModel {
     required this.comment,
     required this.createdAt,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'userId': userId,
+      'productId': productId,
+      'orderId': orderId,
+      'stars': stars,
+      'comment': comment,
+      'createdAt': createdAt.toIso8601String(),
+    };
+  }
+
+  factory ReviewModel.fromJson(Map<String, dynamic> json) {
+    return ReviewModel(
+      id: json['id'] as int,
+      userId: json['userId'] as int,
+      productId: json['productId'] as int,
+      orderId: json['orderId'] as String,
+      stars: json['stars'] as int,
+      comment: json['comment'] as String,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+    );
+  }
 }

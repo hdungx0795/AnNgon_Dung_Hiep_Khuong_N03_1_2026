@@ -47,4 +47,16 @@ class ProductModel {
       description: json['description'] ?? '',
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'category': category.name,
+      'price': price,
+      'rating': rating,
+      'imagePath': imagePath,
+      'description': description,
+    };
+  }
 }
