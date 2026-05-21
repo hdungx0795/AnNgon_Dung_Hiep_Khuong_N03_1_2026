@@ -62,8 +62,17 @@ class ProductService {
     return _productBox.values.toList();
   }
 
+  List<ProductModel> _getLocalActiveAdminProducts() {
+    return _adminProductBox.values
+        .where((product) => product.isActive)
+        .map((product) => product.toProductModel())
+        .toList();
+  }
+
   List<ProductModel> getProductsByCategory(Category category) {
-    if (category == Category.all) return _productBox.values.toList();
+    if (category == Category.all) {
+      return [..._productBox.values, ..._getLocalActiveAdminProducts()];
+    }
     return _productBox.values.where((p) => p.category == category).toList();
   }
 

@@ -61,7 +61,7 @@ void main() {
     await fakeFirestore.collection('products').doc('10').set(firestoreProduct.toJson());
 
     // Create an active admin product
-    final adminProduct = await adminProductService.addProduct(
+    await adminProductService.addProduct(
       name: 'Admin Combo',
       description: 'Test Combo',
       price: 100000,
@@ -88,5 +88,38 @@ void main() {
     expect(names, contains('Admin Combo'));
     expect(names, isNot(contains('Inactive Pizza')));
     expect(names, isNot(contains('Fallback Burger'))); // Because Firestore was NOT empty, fallback is skipped
+  });
+
+  test('getProductsByCategory(Category.all) includes active admin products and excludes inactive ones', () async {
+    // Put seed product in Hive
+    await productBox.put(1, testProduct(id: 1, name: 'Seed Product'));
+
+    // Create an active admin product
+    await adminProductService.addProduct(
+      name: 'Admin Combo',
+      description: 'Test Combo',
+      price: 100000,
+      category: Category.combo,
+      imagePreset: AdminImagePreset.combo,
+    );
+
+    // Create an inactive admin product
+    final inactiveAdminProduct = await adminProductService.addProduct(
+      name: 'Inactive Pizza',
+      description: 'Test Pizza',
+      price: 50000,
+      category: Category.food,
+      imagePreset: AdminImagePreset.pizza,
+    );
+    await adminProductService.setActive(inactiveAdminProduct.id, false);
+
+    final products = productService.getProductsByCategory(Category.all);
+    
+    // Should contain 1 Seed product + 1 Active admin product
+    expect(products.length, 2);
+    final names = products.map((e) => e.name).toList();
+    expect(names, contains('Seed Product'));
+    expect(names, contains('Admin Combo'));
+    expect(names, isNot(contains('Inactive Pizza')));
   });
 }
