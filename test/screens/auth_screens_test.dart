@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:pka_food/providers/auth_provider.dart';
 import 'package:pka_food/providers/cart_provider.dart';
 import 'package:pka_food/providers/favorites_provider.dart';
@@ -115,7 +116,7 @@ void main() {
 Widget _authTestApp(Widget child) {
   return MultiProvider(
     providers: [
-      Provider(create: (_) => AuthService()),
+      Provider(create: (_) => AuthService(firestore: FakeFirebaseFirestore())),
       Provider(create: (_) => CartService()),
       Provider(create: (_) => OrderService()),
       Provider(create: (_) => PrefsService()),

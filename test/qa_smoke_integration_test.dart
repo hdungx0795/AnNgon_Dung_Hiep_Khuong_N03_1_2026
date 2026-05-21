@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:pka_food/core/utils/hash_utils.dart';
@@ -41,7 +42,7 @@ void main() {
   test('E2E QA Smoke Validation Test', () async {
     // Services
     final prefsService = PrefsService();
-    final authService = AuthService();
+    final authService = AuthService(firestore: FakeFirebaseFirestore());
     final productService = ProductService();
     final adminProductService = AdminProductService();
     final cartService = CartService();
