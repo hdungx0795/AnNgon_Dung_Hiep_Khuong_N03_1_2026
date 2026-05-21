@@ -205,6 +205,38 @@ void main() {
     expect(doc.exists, isTrue);
     expect(doc.data()?['status'], OrderStatus.confirmed.name);
   });
+
+  test('fetching identical order does not trigger Hive watch', () async {
+    final orderJson = OrderModel(
+      orderId: 'order-cache-test',
+      userId: 1,
+      items: [],
+      totalAmount: 100,
+      paymentMethod: PaymentMethod.cod,
+      deliveryAddress: '',
+      note: '',
+      status: OrderStatus.created,
+      shipperName: '',
+      createdAt: DateTime(2026, 5, 20),
+    ).toJson();
+
+    await fakeFirestore.collection('orders').doc('order-cache-test').set(orderJson);
+
+    int watchCount = 0;
+    final sub = ordersBox.watch().listen((_) => watchCount++);
+    
+    // Fetch 1: should cache and trigger watch
+    await orderService.getActiveOrders(1);
+    await Future<void>.delayed(Duration.zero);
+    expect(watchCount, 1);
+    
+    // Fetch 2: should not cache again
+    await orderService.getActiveOrders(1);
+    await Future<void>.delayed(Duration.zero);
+    expect(watchCount, 1);
+
+    await sub.cancel();
+  });
 }
 
 const _testDelays = [
