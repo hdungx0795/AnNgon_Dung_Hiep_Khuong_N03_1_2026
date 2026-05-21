@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -9,7 +10,7 @@ import '../core/utils/hash_utils.dart';
 import 'database_service.dart';
 
 class SeedingService {
-  static Future<void> seedAll() async {
+  static Future<void> seedAll({FirebaseFirestore? firestore}) async {
     final productsBox = Hive.box<ProductModel>(DatabaseService.productsBoxName);
     final usersBox = Hive.box<UserModel>(DatabaseService.usersBoxName);
     final vouchersBox = Hive.box<VoucherModel>(DatabaseService.vouchersBoxName);
@@ -17,6 +18,13 @@ class SeedingService {
     // Only seed if empty
     if (productsBox.isNotEmpty && usersBox.isNotEmpty && vouchersBox.isNotEmpty) {
       return;
+    }
+
+    FirebaseFirestore? fs;
+    try {
+      fs = firestore ?? FirebaseFirestore.instance;
+    } catch (e) {
+      // Ignore if no firebase app in tests
     }
 
     try {
@@ -44,9 +52,23 @@ class SeedingService {
       // 2. Seed Products
       if (productsBox.isEmpty) {
         final List<dynamic> productsJson = data['products'];
+        
+        // Seed Hive
         for (var productJson in productsJson) {
           final product = ProductModel.fromJson(productJson);
           await productsBox.put(product.id, product);
+        }
+
+        // Seed Firestore
+        if (fs != null) {
+          final productsCol = fs.collection('products');
+          final snapshot = await productsCol.limit(1).get();
+          if (snapshot.docs.isEmpty) {
+            for (var productJson in productsJson) {
+              final product = ProductModel.fromJson(productJson);
+              await productsCol.doc(product.id.toString()).set(product.toJson());
+            }
+          }
         }
       }
 
