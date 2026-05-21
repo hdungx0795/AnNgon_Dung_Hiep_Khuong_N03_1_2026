@@ -67,4 +67,49 @@ void main() {
 
     expect(notifications, 0);
   });
+
+  test('loadOrders resets isLoading even if service throws', () async {
+    final provider = OrderProvider(_ThrowingOrderService());
+    
+    // Add dummy active orders to verify state is preserved
+    provider.activeOrders.add(_createTestOrder('old-1'));
+    
+    expect(provider.isLoading, isFalse);
+    expect(provider.activeOrders, isNotEmpty);
+    
+    await provider.loadOrders(1);
+    
+    expect(provider.isLoading, isFalse);
+    expect(provider.activeOrders.length, 1);
+  });
+}
+
+class _ThrowingOrderService implements OrderService {
+  @override
+  Future<List<OrderModel>> getActiveOrders(int userId) async {
+    throw Exception('Simulated fetch failure');
+  }
+
+  @override
+  Future<List<OrderModel>> getOrderHistory(int userId) async {
+    return [];
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+OrderModel _createTestOrder(String id) {
+  return OrderModel(
+    orderId: id,
+    userId: 1,
+    items: [],
+    totalAmount: 100,
+    paymentMethod: PaymentMethod.cod,
+    deliveryAddress: 'Test address',
+    note: '',
+    status: OrderStatus.created,
+    shipperName: 'Shipper',
+    createdAt: DateTime.now(),
+  );
 }
