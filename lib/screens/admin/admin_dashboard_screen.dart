@@ -26,6 +26,17 @@ class AdminDashboardScreen extends StatefulWidget {
 class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   int _selectedIndex = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    _syncOrdersAndRefresh();
+  }
+
+  Future<void> _syncOrdersAndRefresh() async {
+    await context.read<AdminOrderReadService>().syncOrdersFromFirestore();
+    if (mounted) setState(() {});
+  }
+
   void _refresh() {
     setState(() {});
   }
@@ -48,7 +59,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       body: IndexedStack(
         index: _selectedIndex,
         children: [
-          _AdminOverviewTab(onRefresh: _refresh),
+          _AdminOverviewTab(onRefresh: _syncOrdersAndRefresh),
           _AdminProductsTab(onChanged: _refresh),
           const _AdminOrdersTab(),
         ],
@@ -82,7 +93,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 class _AdminOverviewTab extends StatelessWidget {
   const _AdminOverviewTab({required this.onRefresh});
 
-  final VoidCallback onRefresh;
+  final Future<void> Function() onRefresh;
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +106,7 @@ class _AdminOverviewTab extends StatelessWidget {
         .length;
 
     return RefreshIndicator(
-      onRefresh: () async => onRefresh(),
+      onRefresh: onRefresh,
       child: ListView(
         padding: const EdgeInsets.all(AppSizes.md),
         children: [
