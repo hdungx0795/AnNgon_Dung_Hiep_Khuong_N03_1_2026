@@ -98,7 +98,6 @@ class _AdminOverviewTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final productService = context.read<ProductService>();
-    final adminProductService = context.read<AdminProductService>();
     final orderService = context.read<AdminOrderReadService>();
     final allOrders = orderService.getAllOrders();
     final processingOrders = allOrders
@@ -143,9 +142,7 @@ class _AdminOverviewTab extends StatelessWidget {
                     final loadedProducts = snapshot.data?.length ?? 0;
                     return _StatCard(
                       label: 'Sản phẩm',
-                      value: (loadedProducts +
-                              adminProductService.getAllAdminProducts().length)
-                          .toString(),
+                      value: loadedProducts.toString(),
                       icon: Icons.fastfood_outlined,
                       color: Colors.orange,
                     );
@@ -183,7 +180,7 @@ class _AdminOverviewTab extends StatelessWidget {
           if (allOrders.isEmpty)
             const Center(child: Text('Chưa có dữ liệu đơn hàng'))
           else
-            ...allOrders.reversed
+            ...allOrders
                 .take(3)
                 .map((order) => _OrderTile(order: order)),
 
