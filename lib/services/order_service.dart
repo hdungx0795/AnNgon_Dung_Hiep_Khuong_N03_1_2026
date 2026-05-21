@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
@@ -12,9 +13,18 @@ import 'database_service.dart';
 import 'notification_service.dart';
 
 class OrderService {
-  static final OrderService _instance = OrderService._();
-  factory OrderService() => _instance;
-  OrderService._();
+  static OrderService? _instance;
+  factory OrderService({FirebaseFirestore? firestore}) {
+    if (firestore != null) {
+      return OrderService._(firestore);
+    }
+    _instance ??= OrderService._(null);
+    return _instance!;
+  }
+  OrderService._(this._firestoreOverride);
+
+  final FirebaseFirestore? _firestoreOverride;
+  FirebaseFirestore get _fs => _firestoreOverride ?? FirebaseFirestore.instance;
 
   Box<OrderModel> get _ordersBox =>
       Hive.box<OrderModel>(DatabaseService.ordersBoxName);
@@ -40,7 +50,7 @@ class OrderService {
         )
         .toList();
 
-    final totalAmount = items.fold(0, (sum, i) => sum + i.totalPrice);
+    final totalAmount = items.fold(0, (acc, i) => acc + i.totalPrice);
     final discount = voucher?.calculateDiscount(totalAmount) ?? 0;
 
     final order = OrderModel(
@@ -60,6 +70,12 @@ class OrderService {
 
     await _ordersBox.put(orderId, order);
 
+    try {
+      await _fs.collection('orders').doc(orderId).set(order.toJson());
+    } catch (e) {
+      debugPrint('Failed to save order to Firestore: $e');
+    }
+
     // Start simulation
     startDeliverySimulation(orderId);
 
@@ -67,23 +83,41 @@ class OrderService {
   }
 
   Future<List<OrderModel>> getActiveOrders(int userId) async {
-    return _ordersBox.values
-        .where(
-          (o) =>
-              o.userId == userId &&
-              o.status.index < OrderStatus.completed.index,
-        )
-        .toList();
+    return _getOrdersFromFirestoreWithFallback(userId, active: true);
   }
 
   Future<List<OrderModel>> getOrderHistory(int userId) async {
-    return _ordersBox.values
-        .where(
-          (o) =>
-              o.userId == userId &&
-              o.status.index >= OrderStatus.completed.index,
-        )
-        .toList();
+    return _getOrdersFromFirestoreWithFallback(userId, active: false);
+  }
+
+  Future<List<OrderModel>> _getOrdersFromFirestoreWithFallback(int userId, {required bool active}) async {
+    List<OrderModel> validOrders = [];
+    try {
+      final snapshot = await _fs.collection('orders').where('userId', isEqualTo: userId).get();
+      if (snapshot.docs.isNotEmpty) {
+        for (var doc in snapshot.docs) {
+          try {
+            final order = OrderModel.fromJson(doc.data());
+            validOrders.add(order);
+            await _ordersBox.put(order.orderId, order);
+          } catch (e) {
+            debugPrint('Failed to parse order ${doc.id}: $e');
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Firestore fetch failed: $e');
+    }
+
+    if (validOrders.isEmpty) {
+      validOrders = _ordersBox.values.where((o) => o.userId == userId).toList();
+    }
+
+    if (active) {
+      return validOrders.where((o) => o.status.index < OrderStatus.completed.index).toList();
+    } else {
+      return validOrders.where((o) => o.status.index >= OrderStatus.completed.index).toList();
+    }
   }
 
   Future<void> updateOrderStatus(String orderId, OrderStatus status) async {
@@ -94,7 +128,14 @@ class OrderService {
       return;
     }
 
-    await _ordersBox.put(orderId, order.copyWith(status: status));
+    final updatedOrder = order.copyWith(status: status);
+    await _ordersBox.put(orderId, updatedOrder);
+
+    try {
+      await _fs.collection('orders').doc(orderId).set(updatedOrder.toJson());
+    } catch (e) {
+      debugPrint('Failed to update order status on Firestore: $e');
+    }
 
     // Notify user
     NotificationService().showNotification(
@@ -172,6 +213,12 @@ class OrderService {
       shipperName: shipperName,
     );
     await _ordersBox.put(orderId, updatedOrder);
+
+    try {
+      await _fs.collection('orders').doc(orderId).set(updatedOrder.toJson());
+    } catch (e) {
+      debugPrint('Failed to advance order status on Firestore: $e');
+    }
 
     NotificationService().showNotification(
       id: orderId.hashCode,
