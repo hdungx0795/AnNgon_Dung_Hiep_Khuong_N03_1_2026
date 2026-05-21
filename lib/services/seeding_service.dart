@@ -15,11 +15,6 @@ class SeedingService {
     final usersBox = Hive.box<UserModel>(DatabaseService.usersBoxName);
     final vouchersBox = Hive.box<VoucherModel>(DatabaseService.vouchersBoxName);
 
-    // Only seed if empty
-    if (productsBox.isNotEmpty && usersBox.isNotEmpty && vouchersBox.isNotEmpty) {
-      return;
-    }
-
     FirebaseFirestore? fs;
     try {
       fs = firestore ?? FirebaseFirestore.instance;
@@ -50,24 +45,24 @@ class SeedingService {
       }
 
       // 2. Seed Products
+      final List<dynamic> productsJson = data['products'];
+      
+      // Seed Hive
       if (productsBox.isEmpty) {
-        final List<dynamic> productsJson = data['products'];
-        
-        // Seed Hive
         for (var productJson in productsJson) {
           final product = ProductModel.fromJson(productJson);
           await productsBox.put(product.id, product);
         }
+      }
 
-        // Seed Firestore
-        if (fs != null) {
-          final productsCol = fs.collection('products');
-          final snapshot = await productsCol.limit(1).get();
-          if (snapshot.docs.isEmpty) {
-            for (var productJson in productsJson) {
-              final product = ProductModel.fromJson(productJson);
-              await productsCol.doc(product.id.toString()).set(product.toJson());
-            }
+      // Seed Firestore
+      if (fs != null) {
+        final productsCol = fs.collection('products');
+        final snapshot = await productsCol.limit(1).get();
+        if (snapshot.docs.isEmpty) {
+          for (var productJson in productsJson) {
+            final product = ProductModel.fromJson(productJson);
+            await productsCol.doc(product.id.toString()).set(product.toJson());
           }
         }
       }
