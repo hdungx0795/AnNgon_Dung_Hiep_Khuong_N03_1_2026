@@ -3,10 +3,12 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:pka_food/models/enums/order_status.dart';
 import 'package:pka_food/models/enums/payment_method.dart';
 import 'package:pka_food/models/order_item_model.dart';
 import 'package:pka_food/models/order_model.dart';
+import 'package:pka_food/models/cart_item_model.dart';
 import 'package:pka_food/services/database_service.dart';
 import 'package:pka_food/services/order_service.dart';
 
@@ -20,6 +22,7 @@ void main() {
   );
 
   late Directory hiveDirectory;
+  late FakeFirebaseFirestore fakeFirestore;
   late OrderService orderService;
   late Box<OrderModel> ordersBox;
 
@@ -30,7 +33,8 @@ void main() {
 
   setUp(() async {
     hiveDirectory = await setUpTestHive();
-    orderService = OrderService()..cancelAllDeliverySimulations();
+    fakeFirestore = FakeFirebaseFirestore();
+    orderService = OrderService(firestore: fakeFirestore)..cancelAllDeliverySimulations();
     ordersBox = Hive.box<OrderModel>(DatabaseService.ordersBoxName);
   });
 
@@ -106,6 +110,100 @@ void main() {
     final order = ordersBox.get('order-1');
     expect(order?.status, OrderStatus.delivering);
     expect(order?.shipperName, 'Nguyễn Văn Tài');
+    
+    // Also verify Firestore is updated
+    final fsOrder = await fakeFirestore.collection('orders').doc('order-1').get();
+    expect(fsOrder.data()?['status'], OrderStatus.delivering.name);
+  });
+
+  test('createOrder writes to Hive and Firestore', () async {
+    final cartItem = CartItemModel(
+      product: testProduct(id: 1, name: 'Burger', price: 100),
+      quantity: 2,
+    );
+    
+    final order = await orderService.createOrder(
+      userId: 1,
+      items: [cartItem],
+      paymentMethod: PaymentMethod.cod,
+      address: 'Home',
+      note: '',
+    );
+    
+    // Verify Hive
+    expect(ordersBox.get(order.orderId), isNotNull);
+    
+    // Verify Firestore
+    final doc = await fakeFirestore.collection('orders').doc(order.orderId).get();
+    expect(doc.exists, isTrue);
+    expect(doc.data()?['userId'], 1);
+  });
+
+  test('getActiveOrders reads from Firestore and falls back to Hive', () async {
+    // 1. Put into Firestore directly
+    await fakeFirestore.collection('orders').doc('order-fs').set(
+      OrderModel(
+        orderId: 'order-fs',
+        userId: 1,
+        items: [],
+        totalAmount: 100,
+        paymentMethod: PaymentMethod.cod,
+        deliveryAddress: '',
+        note: '',
+        status: OrderStatus.created,
+        shipperName: '',
+        createdAt: DateTime.now(),
+      ).toJson()
+    );
+    
+    // Read from service
+    final activeOrders = await orderService.getActiveOrders(1);
+    expect(activeOrders.length, 1);
+    expect(activeOrders.first.orderId, 'order-fs');
+    
+    // Verify it cached to Hive
+    expect(ordersBox.get('order-fs'), isNotNull);
+  });
+
+  test('getOrderHistory reads from Firestore', () async {
+    await fakeFirestore.collection('orders').doc('order-fs-hist').set(
+      OrderModel(
+        orderId: 'order-fs-hist',
+        userId: 1,
+        items: [],
+        totalAmount: 100,
+        paymentMethod: PaymentMethod.cod,
+        deliveryAddress: '',
+        note: '',
+        status: OrderStatus.completed,
+        shipperName: '',
+        createdAt: DateTime.now(),
+      ).toJson()
+    );
+    
+    final history = await orderService.getOrderHistory(1);
+    expect(history.length, 1);
+    expect(history.first.orderId, 'order-fs-hist');
+  });
+
+  test('Fallback to Hive if Firestore is empty/error', () async {
+    // Hive has order, Firestore is empty
+    await _putOrder(ordersBox, status: OrderStatus.created);
+    
+    final activeOrders = await orderService.getActiveOrders(1);
+    expect(activeOrders.length, 1);
+    expect(activeOrders.first.orderId, 'order-1');
+  });
+
+  test('updateOrderStatus writes to Hive and Firestore', () async {
+    await _putOrder(ordersBox, status: OrderStatus.created);
+    await orderService.updateOrderStatus('order-1', OrderStatus.confirmed);
+    
+    expect(ordersBox.get('order-1')?.status, OrderStatus.confirmed);
+    
+    final doc = await fakeFirestore.collection('orders').doc('order-1').get();
+    expect(doc.exists, isTrue);
+    expect(doc.data()?['status'], OrderStatus.confirmed.name);
   });
 }
 
