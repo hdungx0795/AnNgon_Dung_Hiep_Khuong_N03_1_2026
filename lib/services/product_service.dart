@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart' hide Category;
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/product_model.dart';
 import '../models/enums/category.dart';
 import '../models/admin_product_model.dart';
+import 'admin_product_service.dart';
 import 'database_service.dart';
 
 class ProductService {
@@ -49,7 +51,13 @@ class ProductService {
       products = _productBox.values.toList();
     }
 
-    // 3. Merge local active admin products
+    // 3. Sync and merge active admin products
+    try {
+      await AdminProductService(firestore: _firestoreOverride).syncAdminProductsFromFirestore();
+    } catch (e) {
+      debugPrint('Failed to sync admin products: $e');
+    }
+
     final adminProducts = _adminProductBox.values
         .where((product) => product.isActive)
         .map((product) => product.toProductModel())

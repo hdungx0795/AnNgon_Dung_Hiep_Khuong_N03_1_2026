@@ -27,8 +27,10 @@ class _ExploreTabState extends State<ExploreTab> {
         _searchQuery.isNotEmpty ||
         productProvider.selectedCategory != Category.all;
 
-    return CustomScrollView(
-      slivers: [
+    return RefreshIndicator(
+      onRefresh: () => productProvider.loadProducts(),
+      child: CustomScrollView(
+        slivers: [
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(
             AppSizes.md,
@@ -109,7 +111,8 @@ class _ExploreTabState extends State<ExploreTab> {
               },
             ),
           ),
-      ],
+        ],
+      ),
     );
   }
 
