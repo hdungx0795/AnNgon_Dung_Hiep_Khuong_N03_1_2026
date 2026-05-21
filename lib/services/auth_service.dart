@@ -1,19 +1,50 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/user_model.dart';
 import '../core/utils/hash_utils.dart';
 import 'database_service.dart';
 
 class AuthService {
-  static final AuthService _instance = AuthService._();
-  factory AuthService() => _instance;
-  AuthService._();
+  final FirebaseFirestore? _firestoreOverride;
+
+  // Singleton instance for the normal app
+  static AuthService? _instance;
+
+  factory AuthService({FirebaseFirestore? firestore}) {
+    if (firestore != null) {
+      // For testing, always create a new instance to avoid state leakage
+      return AuthService._(firestore);
+    }
+    _instance ??= AuthService._(null);
+    return _instance!;
+  }
+
+  AuthService._(this._firestoreOverride);
+
+  FirebaseFirestore get _firestore => _firestoreOverride ?? FirebaseFirestore.instance;
 
   Box<UserModel> get _userBox =>
       Hive.box<UserModel>(DatabaseService.usersBoxName);
   Box get _sessionBox => Hive.box(DatabaseService.sessionBoxName);
 
+  CollectionReference<Map<String, dynamic>> get _usersCol =>
+      _firestore.collection('users');
+
   Future<UserModel?> login(String phone, String password) async {
     try {
+      // 1. Check Firestore first
+      final docSnap = await _usersCol.doc(phone).get();
+      if (docSnap.exists && docSnap.data() != null) {
+        final user = UserModel.fromJson(docSnap.data()!);
+        if (HashUtils.verifyPassword(password, user.passwordHash)) {
+          await _sessionBox.put('current_user_phone', phone);
+          return user;
+        } else {
+          return null; // Don't fallback if phone exists but pass is wrong
+        }
+      }
+
+      // 2. Fallback to Hive
       final user = _userBox.values.firstWhere(
         (u) =>
             u.phone == phone &&
@@ -34,22 +65,34 @@ class AuthService {
     required String dob,
     required String password,
   }) async {
-    if (_userBox.values.any((u) => u.phone == phone)) {
+    try {
+      // Check if phone exists in Firestore
+      final docSnap = await _usersCol.doc(phone).get();
+      if (docSnap.exists) {
+        return false;
+      }
+
+      // Check if phone exists in Hive (seed users)
+      if (_userBox.values.any((u) => u.phone == phone)) {
+        return false;
+      }
+
+      final newUser = UserModel(
+        id: DateTime.now().millisecondsSinceEpoch,
+        name: name,
+        phone: phone,
+        email: email,
+        dob: dob,
+        passwordHash: HashUtils.hashPassword(password),
+        createdAt: DateTime.now(),
+      );
+
+      // Save to Firestore ONLY
+      await _usersCol.doc(phone).set(newUser.toJson());
+      return true;
+    } catch (e) {
       return false;
     }
-
-    final newUser = UserModel(
-      id: DateTime.now().millisecondsSinceEpoch,
-      name: name,
-      phone: phone,
-      email: email,
-      dob: dob,
-      passwordHash: HashUtils.hashPassword(password),
-      createdAt: DateTime.now(),
-    );
-
-    await _userBox.put(newUser.phone, newUser);
-    return true;
   }
 
   Future<UserModel?> getCurrentUser() async {
@@ -57,6 +100,13 @@ class AuthService {
     if (phone == null) return null;
 
     try {
+      // 1. Check Firestore
+      final docSnap = await _usersCol.doc(phone).get();
+      if (docSnap.exists && docSnap.data() != null) {
+        return UserModel.fromJson(docSnap.data()!);
+      }
+
+      // 2. Fallback to Hive
       return _userBox.values.firstWhere((u) => u.phone == phone);
     } catch (e) {
       return null;
@@ -69,9 +119,22 @@ class AuthService {
 
   Future<bool> updateUser(UserModel updatedUser) async {
     try {
+      // 1. Check Firestore
+      final docSnap = await _usersCol.doc(updatedUser.phone).get();
+      if (docSnap.exists) {
+        await _usersCol.doc(updatedUser.phone).set(updatedUser.toJson());
+        return true;
+      }
+
+      // 2. If not in Firestore, check Hive for migration
       final key = _findUserKey(updatedUser.id, updatedUser.phone);
-      await _userBox.put(key ?? updatedUser.phone, updatedUser);
-      return true;
+      if (key != null) {
+        // Hot migrate to Firestore
+        await _usersCol.doc(updatedUser.phone).set(updatedUser.toJson());
+        return true;
+      }
+
+      return false;
     } catch (e) {
       return false;
     }
@@ -83,6 +146,23 @@ class AuthService {
     String newPassword,
   ) async {
     try {
+      // 1. Check Firestore by query
+      final querySnap = await _usersCol.where('id', isEqualTo: userId).limit(1).get();
+      if (querySnap.docs.isNotEmpty) {
+        final doc = querySnap.docs.first;
+        final user = UserModel.fromJson(doc.data());
+        if (!HashUtils.verifyPassword(oldPassword, user.passwordHash)) {
+          return false; // Found in Firestore but pass wrong, don't fallback
+        }
+        
+        final updatedUser = user.copyWith(
+          passwordHash: HashUtils.hashPassword(newPassword),
+        );
+        await doc.reference.set(updatedUser.toJson());
+        return true;
+      }
+
+      // 2. Fallback to Hive
       final key = _findUserKey(userId);
       if (key == null) return false;
 
@@ -96,7 +176,10 @@ class AuthService {
       final updatedUser = user.copyWith(
         passwordHash: HashUtils.hashPassword(newPassword),
       );
-      await _userBox.put(key, updatedUser);
+      
+      // Hot migrate to Firestore
+      await _usersCol.doc(updatedUser.phone).set(updatedUser.toJson());
+      
       return true;
     } catch (e) {
       return false;
@@ -105,17 +188,32 @@ class AuthService {
 
   Future<bool> resetPassword(String phone, String newPassword) async {
     try {
+      // 1. Check Firestore
+      final docSnap = await _usersCol.doc(phone).get();
+      if (docSnap.exists && docSnap.data() != null) {
+        final user = UserModel.fromJson(docSnap.data()!);
+        final updatedUser = user.copyWith(
+          passwordHash: HashUtils.hashPassword(newPassword),
+        );
+        await _usersCol.doc(phone).set(updatedUser.toJson());
+        return true;
+      }
+
+      // 2. Fallback to Hive
       final userIndex = _userBox.values.toList().indexWhere(
         (u) => u.phone == phone,
       );
-      if (userIndex == -1) return false;
+      if (userIndex != -1) {
+        final user = _userBox.getAt(userIndex)!;
+        final updatedUser = user.copyWith(
+          passwordHash: HashUtils.hashPassword(newPassword),
+        );
+        // Hot migrate to Firestore
+        await _usersCol.doc(phone).set(updatedUser.toJson());
+        return true;
+      }
 
-      final user = _userBox.getAt(userIndex)!;
-      final updatedUser = user.copyWith(
-        passwordHash: HashUtils.hashPassword(newPassword),
-      );
-      await _userBox.putAt(userIndex, updatedUser);
-      return true;
+      return false;
     } catch (e) {
       return false;
     }
