@@ -122,6 +122,16 @@ void main() {
     expect(names, contains('Seed Product'));
     expect(names, contains('Admin Combo'));
     expect(names, isNot(contains('Inactive Pizza')));
+
+    // Check specific category
+    final comboProducts = productService.getProductsByCategory(Category.combo);
+    expect(comboProducts.length, 1);
+    expect(comboProducts.first.name, 'Admin Combo');
+
+    // Check search
+    final searchResults = productService.searchProducts('Admin');
+    expect(searchResults.length, 1);
+    expect(searchResults.first.name, 'Admin Combo');
   });
 
   test('getAllProducts syncs admin products from Firestore', () async {
