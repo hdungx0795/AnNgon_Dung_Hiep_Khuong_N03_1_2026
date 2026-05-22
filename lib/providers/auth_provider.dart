@@ -20,7 +20,11 @@ class AuthProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     
-    _currentUser = await _authService.getCurrentUser();
+    try {
+      _currentUser = await _authService.getCurrentUser();
+    } catch (e) {
+      _error = e.toString();
+    }
     
     _isLoading = false;
     notifyListeners();
@@ -31,15 +35,22 @@ class AuthProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    final user = await _authService.login(phone, password);
-    
-    if (user != null) {
-      _currentUser = user;
-      _isLoading = false;
-      notifyListeners();
-      return true;
-    } else {
-      _error = 'Số điện thoại hoặc mật khẩu không đúng';
+    try {
+      final user = await _authService.login(phone, password);
+      
+      if (user != null) {
+        _currentUser = user;
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        _error = 'Số điện thoại hoặc mật khẩu không đúng';
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      _error = e.toString();
       _isLoading = false;
       notifyListeners();
       return false;
@@ -56,21 +67,26 @@ class AuthProvider extends ChangeNotifier {
     _isLoading = true;
     _error = null;
     notifyListeners();
-
-    final success = await _authService.register(
-      name: name,
-      phone: phone,
-      email: email,
-      dob: dob,
-      password: password,
-    );
-
-    if (success) {
-      _isLoading = false;
-      notifyListeners();
-      return true;
-    } else {
-      _error = 'Số điện thoại đã được đăng ký';
+    try {
+      final success = await _authService.register(
+        name: name,
+        phone: phone,
+        email: email,
+        dob: dob,
+        password: password,
+      );
+      if (success) {
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        _error = 'Số điện thoại đã được đăng ký';
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      _error = e.toString();
       _isLoading = false;
       notifyListeners();
       return false;
@@ -108,17 +124,24 @@ class AuthProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    final success = await _authService.changePassword(_currentUser!.id, oldPassword, newPassword);
-    
-    _isLoading = false;
-    if (success) {
-      // Refresh _currentUser from Hive so in-memory state stays consistent
-      _currentUser = await _authService.getCurrentUser();
-    } else {
-      _error = 'Mật khẩu cũ không chính xác';
+    try {
+      final success = await _authService.changePassword(_currentUser!.id, oldPassword, newPassword);
+      
+      _isLoading = false;
+      if (success) {
+        // Refresh _currentUser from Hive so in-memory state stays consistent
+        _currentUser = await _authService.getCurrentUser();
+      } else {
+        _error = 'Mật khẩu cũ không chính xác';
+      }
+      notifyListeners();
+      return success;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
     }
-    notifyListeners();
-    return success;
   }
 
   Future<bool> resetPassword(String phone, String newPassword) async {
