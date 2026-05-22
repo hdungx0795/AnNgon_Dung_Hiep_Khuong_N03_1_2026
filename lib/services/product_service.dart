@@ -78,15 +78,17 @@ class ProductService {
   }
 
   List<ProductModel> getProductsByCategory(Category category) {
+    final allProducts = [..._productBox.values, ..._getLocalActiveAdminProducts()];
     if (category == Category.all) {
-      return [..._productBox.values, ..._getLocalActiveAdminProducts()];
+      return allProducts;
     }
-    return _productBox.values.where((p) => p.category == category).toList();
+    return allProducts.where((p) => p.category == category).toList();
   }
 
   List<ProductModel> searchProducts(String query) {
     final lowerQuery = query.toLowerCase();
-    return _productBox.values
+    final allProducts = [..._productBox.values, ..._getLocalActiveAdminProducts()];
+    return allProducts
         .where((p) => p.name.toLowerCase().contains(lowerQuery))
         .toList();
   }
