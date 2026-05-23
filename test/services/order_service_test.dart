@@ -48,7 +48,7 @@ void main() {
         .setMockMethodCallHandler(notificationsChannel, null);
   });
 
-  test('completeOrder cancels pending simulation timers', () async {
+  test('TC8 Unit/OrderService - completeOrder cancels pending simulation timers', () async {
     await _putOrder(ordersBox, status: OrderStatus.created);
 
     orderService.startDeliverySimulationWithDelays('order-1', _testDelays);
@@ -77,7 +77,7 @@ void main() {
     },
   );
 
-  test('completed order does not start a delivery simulation', () async {
+  test('TC8 Unit/OrderService - completed order avoids delivery simulation', () async {
     await _putOrder(ordersBox, status: OrderStatus.completed);
 
     orderService.startDeliverySimulationWithDelays('order-1', _testDelays);
@@ -101,7 +101,7 @@ void main() {
     },
   );
 
-  test('delivering timer updates status and shipper name together', () async {
+  test('TC8 Unit/OrderService - delivering timer updates status and shipper', () async {
     await _putOrder(ordersBox, status: OrderStatus.created);
 
     orderService.startDeliverySimulationWithDelays('order-1', _testDelays);
@@ -116,7 +116,7 @@ void main() {
     expect(fsOrder.data()?['status'], OrderStatus.delivering.name);
   });
 
-  test('createOrder writes to Hive and Firestore', () async {
+  test('TC8 Unit/OrderService - createOrder writes to Hive and Firestore', () async {
     final cartItem = CartItemModel(
       product: testProduct(id: 1, name: 'Burger', price: 100),
       quantity: 2,
@@ -139,7 +139,7 @@ void main() {
     expect(doc.data()?['userId'], 1);
   });
 
-  test('getActiveOrders reads from Firestore and falls back to Hive', () async {
+  test('TC8 Unit/OrderService - getActiveOrders uses Firestore with Hive fallback', () async {
     // 1. Put into Firestore directly
     await fakeFirestore.collection('orders').doc('order-fs').set(
       OrderModel(
@@ -165,7 +165,7 @@ void main() {
     expect(ordersBox.get('order-fs'), isNotNull);
   });
 
-  test('getOrderHistory reads from Firestore', () async {
+  test('TC8 Unit/OrderService - getOrderHistory reads from Firestore', () async {
     await fakeFirestore.collection('orders').doc('order-fs-hist').set(
       OrderModel(
         orderId: 'order-fs-hist',
@@ -186,7 +186,7 @@ void main() {
     expect(history.first.orderId, 'order-fs-hist');
   });
 
-  test('Fallback to Hive if Firestore is empty/error', () async {
+  test('TC8 Unit/OrderService - falls back to Hive on Firestore error', () async {
     // Hive has order, Firestore is empty
     await _putOrder(ordersBox, status: OrderStatus.created);
     
@@ -195,7 +195,7 @@ void main() {
     expect(activeOrders.first.orderId, 'order-1');
   });
 
-  test('updateOrderStatus writes to Hive and Firestore', () async {
+  test('TC8 Unit/OrderService - updateOrderStatus syncs to Hive and Firestore', () async {
     await _putOrder(ordersBox, status: OrderStatus.created);
     await orderService.updateOrderStatus('order-1', OrderStatus.confirmed);
     
@@ -206,7 +206,7 @@ void main() {
     expect(doc.data()?['status'], OrderStatus.confirmed.name);
   });
 
-  test('fetching identical order does not trigger Hive watch', () async {
+  test('TC8 Unit/OrderService - prevents duplicate Hive cache writes', () async {
     final orderJson = OrderModel(
       orderId: 'order-cache-test',
       userId: 1,

@@ -27,7 +27,7 @@ void main() {
     await tearDownTestHive(hiveDirectory);
   });
 
-  test('register stores new users in Firestore with a safe phone key', () async {
+  test('TC8 Unit/AuthService - register stores new user safely in Firestore', () async {
     final success = await authService.register(
       name: 'New User',
       phone: '0912345678',
@@ -43,7 +43,7 @@ void main() {
     expect(usersBox.get('0912345678'), isNull); // Should not write to Hive
   });
 
-  test('register blocks duplicate phone in Firestore', () async {
+  test('TC8 Unit/AuthService - register blocks duplicate phone in Firestore', () async {
     await authService.register(
       name: 'User 1',
       phone: '0900000001',
@@ -61,7 +61,7 @@ void main() {
     expect(success, isFalse);
   });
 
-  test('register blocks duplicate phone in Hive seed', () async {
+  test('TC8 Unit/AuthService - register blocks duplicate phone in Hive seed', () async {
     final seededUser = UserModel(
       id: 1,
       name: 'Seed User',
@@ -158,7 +158,7 @@ void main() {
     },
   );
   
-  test('login does not fallback to Hive if Firestore phone exists but wrong pass', () async {
+  test('TC8 Unit/AuthService - login does not fallback to Hive on wrong pass', () async {
     // 1. Put user in Hive with 'oldpass'
     final hiveUser = UserModel(
       id: 1,
