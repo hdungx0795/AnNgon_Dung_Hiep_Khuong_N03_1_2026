@@ -37,8 +37,8 @@ void main() {
     await tearDownTestHive(hiveDirectory);
   });
 
-  group('TC8: Workflow Logic Tests (3-4 steps/actions)', () {
-    test('1. Auth workflow: Onboarding/Login -> Submit -> Home', () async {
+  group('TC8 Workflow/Logic - 3-4 steps/actions', () {
+    test('TC8 Workflow/Auth - login submit loads authenticated state', () async {
       // Setup
       final authService = AuthService(firestore: FakeFirebaseFirestore());
       final authProvider = AuthProvider(authService);
@@ -60,7 +60,7 @@ void main() {
       expect(authProvider.currentUser!.phone, '0901112222');
     });
 
-    test('2. Explore workflow: Explore -> Tap product -> Detail -> Add to cart', () async {
+    test('TC8 Workflow/Explore - tap product to detail and add to cart', () async {
       // Setup
       final productsBox = Hive.box<ProductModel>(DatabaseService.productsBoxName);
       final product = testProduct(id: 1, name: 'Workflow Burger', price: 30000);
@@ -85,7 +85,7 @@ void main() {
       expect(cartProvider.items.first.product.name, 'Workflow Burger');
     });
 
-    test('3. Checkout workflow: Cart -> Checkout -> Submit -> Success state', () async {
+    test('TC8 Workflow/Checkout - cart to order success in 3 actions', () async {
       // Setup
       final cartProvider = CartProvider(CartService());
       await cartProvider.clearCart('0900'); // Ensure fresh state
@@ -116,7 +116,7 @@ void main() {
       expect(cartProvider.itemCount, 0); // Cart is cleared after checkout
     });
 
-    test('4. Order workflow: Orders -> Tap active -> Tracking -> Complete', () async {
+    test('TC8 Workflow/Order - track active order to completion', () async {
       // Setup
       final fakeFirestore = FakeFirebaseFirestore();
       final orderService = OrderService(firestore: fakeFirestore);
@@ -147,7 +147,7 @@ void main() {
       expect(orderProvider.activeOrders.where((o) => o.orderId == trackingOrder.orderId).isEmpty, isTrue);
     });
 
-    test('5. Admin product workflow: Dashboard -> Add product -> UI Updates', () async {
+    test('TC8 Workflow/Admin - add product and verify UI updates', () async {
       // Setup
       final adminProductService = AdminProductService(firestore: FakeFirebaseFirestore());
       final adminAuthService = AdminAuthService();
@@ -175,7 +175,7 @@ void main() {
       expect(addedProduct.isActive, isTrue);
     });
 
-    test('6. Admin order workflow: Dashboard -> Orders -> List shown -> Status Update', () async {
+    test('TC8 Workflow/Admin - view orders and update status', () async {
       // Setup - Use shared FakeFirebaseFirestore to prove cross-service sync
       final sharedFirestore = FakeFirebaseFirestore();
       final adminOrderReadService = AdminOrderReadService(firestore: sharedFirestore);

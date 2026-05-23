@@ -23,7 +23,7 @@ void main() {
     await tearDownTestHive(hiveDirectory);
   });
 
-  test('loadOrders is a no-op after dispose', () async {
+  test('TC8 Provider/OrderProvider - loadOrders is a no-op after dispose', () async {
     final provider = OrderProvider(OrderService());
 
     provider.dispose();
@@ -34,7 +34,7 @@ void main() {
     expect(provider.orderHistory, isEmpty);
   });
 
-  test('disposed provider ignores order box watch events', () async {
+  test('TC8 Provider/OrderProvider - ignores order box watch events after dispose', () async {
     final provider = OrderProvider(OrderService());
     var notifications = 0;
     provider.addListener(() => notifications++);
@@ -68,7 +68,7 @@ void main() {
     expect(notifications, 0);
   });
 
-  test('loadOrders resets isLoading even if service throws', () async {
+  test('TC8 Provider/OrderProvider - resets loading after service error', () async {
     final provider = OrderProvider(_ThrowingOrderService());
     
     // Add dummy active orders to verify state is preserved

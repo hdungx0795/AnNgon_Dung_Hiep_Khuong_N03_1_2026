@@ -38,7 +38,7 @@ void main() {
     await tearDownTestHive(hiveDirectory);
   });
 
-  testWidgets('ExploreTab renders search and seeded product grid', (
+  testWidgets('TC8 App/ExploreTab - renders products and category filters', (
     tester,
   ) async {
     final provider = await _loadedProductProvider();
@@ -51,7 +51,7 @@ void main() {
     expect(find.text('Test Drink'), findsOneWidget);
   });
 
-  testWidgets('ExploreTab preserves provider search behavior', (tester) async {
+  testWidgets('TC8 App/ExploreTab - preserves provider search behavior', (tester) async {
     final provider = await _loadedProductProvider();
 
     await tester.pumpWidget(_exploreTestApp(provider));
@@ -64,7 +64,7 @@ void main() {
     expect(find.text('Test Burger'), findsNothing);
   });
 
-  testWidgets('ExploreTab preserves provider category behavior', (
+  testWidgets('TC8 App/ExploreTab - preserves provider category behavior', (
     tester,
   ) async {
     final provider = await _loadedProductProvider();
@@ -82,7 +82,7 @@ void main() {
     expect(find.text('Test Burger'), findsNothing);
   });
 
-  testWidgets('ExploreTab promo CTA selects combo category', (tester) async {
+  testWidgets('TC8 App/ExploreTab - promo CTA selects combo category', (tester) async {
     final provider = await _loadedProductProvider();
 
     await tester.pumpWidget(_exploreTestApp(provider));
@@ -93,7 +93,7 @@ void main() {
     expect(provider.selectedCategory, Category.combo);
   });
 
-  testWidgets('ExploreTab shows empty state for no search matches', (
+  testWidgets('TC8 App/ExploreTab - shows empty state for no search matches', (
     tester,
   ) async {
     final provider = await _loadedProductProvider();
@@ -108,7 +108,7 @@ void main() {
     expect(find.text('Test Burger'), findsNothing);
   });
 
-  testWidgets('ExploreTab shows empty state when no products exist', (
+  testWidgets('TC8 App/ExploreTab - shows empty state when no products exist', (
     tester,
   ) async {
     final provider = ProductProvider(ProductService());
@@ -119,7 +119,7 @@ void main() {
     expect(find.text('Chưa có món nào'), findsOneWidget);
   });
 
-  testWidgets('ExploreTab preserves product detail navigation', (tester) async {
+  testWidgets('TC8 App/ExploreTab - preserves product detail navigation', (tester) async {
     tester.view.physicalSize = const Size(800, 1200);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -136,7 +136,7 @@ void main() {
     expect(find.text('Test Burger'), findsWidgets);
   });
 
-  testWidgets('ExploreTab renders in dark mode', (tester) async {
+  testWidgets('TC8 App/ExploreTab - renders in dark mode', (tester) async {
     final provider = await _loadedProductProvider();
 
     await tester.pumpWidget(
@@ -148,7 +148,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('ExploreTab remains stable on narrow layout', (tester) async {
+  testWidgets('TC8 App/ExploreTab - remains stable on narrow layout', (tester) async {
     tester.view.physicalSize = const Size(320, 800);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);

@@ -17,7 +17,7 @@ void main() {
     await tearDownTestHive(hiveDirectory);
   });
 
-  test('CartProvider supports load, add, update quantity, and clear cart', () async {
+  test('TC8 Provider/CartProvider - supports load, add, update, and clear', () async {
     final provider = CartProvider(CartService());
     const phone = '0900000000';
     final product = testProduct(price: 30000);
