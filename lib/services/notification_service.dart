@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationService {
@@ -26,7 +28,10 @@ class NotificationService {
     required int id,
     required String title,
     required String body,
+    String? payload,
   }) async {
+    if (Platform.environment.containsKey('FLUTTER_TEST')) return;
+
     const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
       'order_status_channel',
       'Order Status',
