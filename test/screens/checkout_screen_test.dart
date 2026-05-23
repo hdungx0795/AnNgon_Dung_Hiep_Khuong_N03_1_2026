@@ -46,7 +46,7 @@ void main() {
     await tearDownTestHive(hiveDirectory);
   });
 
-  testWidgets('CheckoutScreen shows address validation inline', (tester) async {
+  testWidgets('TC8 App/CheckoutScreen - shows address validation inline', (tester) async {
     await _pumpCheckout(tester, cartProvider, orderProvider);
 
     await _scrollTo(
@@ -59,7 +59,7 @@ void main() {
     expect(orderProvider.placeOrderCallCount, 0);
   });
 
-  testWidgets('CheckoutScreen applies a valid voucher', (tester) async {
+  testWidgets('TC8 App/CheckoutScreen - applies a valid voucher', (tester) async {
     await _pumpCheckout(tester, cartProvider, orderProvider);
 
     await tester.enterText(
@@ -77,7 +77,7 @@ void main() {
     expect(_currencyText('50.000'), findsWidgets);
   });
 
-  testWidgets('CheckoutScreen shows invalid voucher feedback', (tester) async {
+  testWidgets('TC8 App/CheckoutScreen - shows invalid voucher feedback', (tester) async {
     await _pumpCheckout(tester, cartProvider, orderProvider);
 
     await tester.enterText(
@@ -95,7 +95,7 @@ void main() {
     expect(find.byKey(const Key('checkout-applied-voucher')), findsNothing);
   });
 
-  testWidgets('CheckoutScreen confirms QR bank transfer before placing order', (
+  testWidgets('TC8 App/CheckoutScreen - confirms QR bank transfer before placing order', (
     tester,
   ) async {
     await _pumpCheckout(tester, cartProvider, orderProvider);
@@ -129,7 +129,7 @@ void main() {
     expect(find.byKey(const Key('checkout-success-title')), findsOneWidget);
   });
 
-  testWidgets('CheckoutScreen renders order review totals', (tester) async {
+  testWidgets('TC8 App/CheckoutScreen - renders order review totals', (tester) async {
     await _pumpCheckout(tester, cartProvider, orderProvider);
 
     await _scrollTo(tester, find.text('2x Test Burger'));
@@ -140,7 +140,7 @@ void main() {
     expect(_currencyText('60.000'), findsWidgets);
   });
 
-  testWidgets('CheckoutScreen places order and opens confirmation sheet', (
+  testWidgets('TC8 App/CheckoutScreen - places order and opens confirmation sheet', (
     tester,
   ) async {
     await _pumpCheckout(tester, cartProvider, orderProvider);
@@ -171,7 +171,7 @@ void main() {
     expect(find.text('Không tìm thấy đơn hàng'), findsOneWidget);
   });
 
-  testWidgets('CheckoutScreen disables submit while placing order', (
+  testWidgets('TC8 App/CheckoutScreen - disables submit while placing order', (
     tester,
   ) async {
     final pendingOrder = Completer<OrderModel>();

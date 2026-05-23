@@ -39,7 +39,7 @@ void main() {
     await tearDownTestHive(hiveDirectory);
   });
 
-  test('E2E QA Smoke Validation Test', () async {
+  test('TC8 Smoke/E2E - user and admin flow completes without crash', () async {
     // Services
     final prefsService = PrefsService();
     final authService = AuthService(firestore: FakeFirebaseFirestore());

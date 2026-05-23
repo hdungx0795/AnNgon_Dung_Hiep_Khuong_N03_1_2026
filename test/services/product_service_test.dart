@@ -36,7 +36,7 @@ void main() {
     await tearDownTestHive(hiveDirectory);
   });
 
-  test('getAllProducts reads from Firestore if available', () async {
+  test('TC8 Unit/ProductService - reads from Firestore if available', () async {
     // Put product in Firestore
     final firestoreProduct = testProduct(id: 10, name: 'Firestore Drink', category: Category.drink);
     await fakeFirestore.collection('products').doc('10').set(firestoreProduct.toJson());
@@ -48,7 +48,7 @@ void main() {
     expect(products.first.id, 10);
   });
 
-  test('getAllProducts falls back to Hive if Firestore is empty', () async {
+  test('TC8 Unit/ProductService - falls back to Hive when Firestore is empty', () async {
     // Firestore is empty initially
     final products = await productService.getAllProducts();
     
@@ -56,7 +56,7 @@ void main() {
     expect(products.first.name, 'Fallback Burger');
   });
 
-  test('getAllProducts merges local active admin products', () async {
+  test('TC8 Unit/ProductService - merges local active admin products', () async {
     // Put product in Firestore
     final firestoreProduct = testProduct(id: 10, name: 'Firestore Drink');
     await fakeFirestore.collection('products').doc('10').set(firestoreProduct.toJson());
@@ -91,7 +91,7 @@ void main() {
     expect(names, isNot(contains('Fallback Burger'))); // Because Firestore was NOT empty, fallback is skipped
   });
 
-  test('getProductsByCategory(Category.all) includes active admin products and excludes inactive ones', () async {
+  test('TC8 Unit/ProductService - filters admin products by active status', () async {
     // Put seed product in Hive
     await productBox.put(1, testProduct(id: 1, name: 'Seed Product'));
 
@@ -134,7 +134,7 @@ void main() {
     expect(searchResults.first.name, 'Admin Combo');
   });
 
-  test('getAllProducts syncs admin products from Firestore', () async {
+  test('TC8 Unit/ProductService - syncs admin products from Firestore', () async {
     // Put cloud admin product
     final cloudProduct = AdminProductModel(
       id: -10,
@@ -154,7 +154,7 @@ void main() {
     expect(names, contains('Cloud Burger'));
   });
 
-  test('getAllProducts does not include inactive cloud admin products', () async {
+  test('TC8 Unit/ProductService - filters inactive cloud admin products', () async {
     // Put inactive cloud admin product
     final cloudProduct = AdminProductModel(
       id: -11,
