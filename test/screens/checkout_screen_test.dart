@@ -32,6 +32,7 @@ void main() {
   late _TestOrderProvider orderProvider;
 
   setUpAll(() async {
+    HttpOverrides.global = _MockHttpOverrides();
     hiveDirectory = await setUpTestHive();
   });
 
@@ -43,6 +44,7 @@ void main() {
   });
 
   tearDownAll(() async {
+    HttpOverrides.global = null;
     await tearDownTestHive(hiveDirectory);
   });
 
@@ -114,16 +116,40 @@ void main() {
       find.byKey(const Key('checkout-place-order-button')),
     );
     await _pressPlaceOrder(tester);
-    await tester.pumpAndSettle();
+    
+    // 1. Wait for QrPaymentScreen push transition
+    await tester.pump(const Duration(milliseconds: 500));
+    
+    // Clear expected exception from Image.network failure
+    tester.takeException();
 
     expect(orderProvider.placeOrderCallCount, 0);
+    // Since it failed to load, errorBuilder is shown, but the widget still has the key
     expect(find.byKey(const Key('qr-payment-image')), findsOneWidget);
     expect(find.byKey(const Key('qr-payment-amount')), findsOneWidget);
 
+    // 2. Wait for 3s delay in QrPaymentScreen to show the confirm button
     await tester.pump(const Duration(seconds: 3));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('qr-payment-confirm-button')));
-    await tester.pumpAndSettle();
+    
+    // 3. Wait for the FadeTransition to complete (so opacity is 1.0 and button is hittable)
+    await tester.pump(const Duration(milliseconds: 500));
+    
+    // 4. Tap the button
+    final confirmBtn = find.byKey(const Key('qr-payment-confirm-button'));
+    // We don't use pumpAndSettle here because the errorBuilder doesn't cause infinite animation,
+    // but the ensureVisible might not be needed.
+    await tester.ensureVisible(confirmBtn);
+    await tester.pump();
+    await tester.tap(confirmBtn);
+    
+    // 5. Wait for the 1s delay in _handleConfirm
+    await tester.pump(const Duration(seconds: 1));
+    
+    // 6. Wait for Navigator.pop transition
+    await tester.pump(const Duration(milliseconds: 500));
+    
+    // 7. Wait for BottomSheet transition (order success)
+    await tester.pump(const Duration(milliseconds: 500));
 
     expect(orderProvider.lastPaymentMethod, PaymentMethod.bankTransfer);
     expect(find.byKey(const Key('checkout-success-title')), findsOneWidget);
@@ -425,4 +451,19 @@ class _TestOrderProvider extends OrderProvider {
       discount: discount,
     );
   }
+}
+
+class _MockHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) => _MockHttpClient();
+}
+
+class _MockHttpClient implements HttpClient {
+  @override
+  Future<HttpClientRequest> getUrl(Uri url) async {
+    throw const SocketException('Mocked network error');
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) {}
 }
