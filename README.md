@@ -117,7 +117,7 @@
 
 ---
 
-## 📌 Nội dung buổi thực hành 04
+## 📌 Bài tập thực hành số 6 (Tổng quát hóa kết hợp Chuyên biệt hóa)
 
 ### ✅ Nhiệm vụ đã thực hiện (Tổng quát hóa & Chuyên biệt hóa OOP)
 
@@ -179,17 +179,20 @@ Trong buổi học hôm nay, nhóm đã tiến hành tối ưu hóa cấu trúc 
 * **Nhiệm vụ:**
   * Kế thừa `BaseModel<int>` cho thực thể `MonAn` và `DanhGia`.
   * Chuyên biệt hóa thực thể phụ thuộc `ChiTietDonHang` (không có id độc lập).
-  * Triển khai `MonAnRepository` và `DanhGiaRepository` chứa các truy vấn đặc thù của món ăn (tìm kiếm, lọc danh mục) và đánh giá (tính trung bình sao).
+  * Triển khai `MonAnRepository` và `DanhGiaRepository` chứa các truy vấn đặc thù của món ăn (tìm kiếm, lọc danh mục, món nổi bật, lọc giá) và đánh giá (tính trung bình sao).
 * **Trích lược code chính:**
-  * Lớp `MonAn` tổng quát hóa kế thừa `BaseModel<int>`:
+  * Lớp `MonAn` tổng quát hóa kế thừa `BaseModel<int>` và có thuộc tính chuyên biệt hóa:
     ```dart
     class MonAn implements BaseModel<int> {
       final int id;
       final String name;
       // ... các thuộc tính khác
+
+      // Đánh giá xem món ăn có thuộc nhóm nổi bật không (Chuyên biệt hóa)
+      bool get isTopRated => rating >= 4.5;
     }
     ```
-  * Chuyên biệt hóa trong `MonAnRepository` với tìm kiếm & lọc:
+  * Chuyên biệt hóa trong `MonAnRepository` với tìm kiếm, lọc danh mục, lọc nổi bật & lọc giá:
     ```dart
     class MonAnRepository extends InMemoryRepository<MonAn, int> {
       MonAnRepository(super.initialItems);
@@ -201,6 +204,18 @@ Trong buổi học hôm nay, nhóm đã tiến hành tối ưu hóa cấu trúc 
       List<MonAn> search(String query) {
         final q = query.toLowerCase();
         return getAll().where((m) => m.name.toLowerCase().contains(q) || m.description.toLowerCase().contains(q)).toList();
+      }
+
+      // Lấy danh sách món ăn nổi bật (Chuyên biệt hóa)
+      List<MonAn> getTopRated(int count) {
+        final list = getAll().toList();
+        list.sort((a, b) => b.rating.compareTo(a.rating));
+        return list.take(count).toList();
+      }
+
+      // Lọc món ăn theo khoảng giá (Chuyên biệt hóa)
+      List<MonAn> getMonAnTheoGia(double minPrice, double maxPrice) {
+        return getAll().where((monAn) => monAn.price >= minPrice && monAn.price <= maxPrice).toList();
       }
     }
     ```
