@@ -5,20 +5,8 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_sizes.dart';
 import '../../core/utils/format_utils.dart';
 
-const _merchantName = 'PKA Food';
-const _bankName = 'MBBank';
-const _accountNumber = '6888000888';
-
-String buildSepayQrUrl({required int amount, required String description}) {
-  final uri = Uri.https('qr.sepay.vn', '/img', {
-    'acc': _accountNumber,
-    'bank': _bankName,
-    'amount': amount.toString(),
-    'des': description,
-    'template': 'compact',
-  });
-  return uri.toString();
-}
+const _qrPaymentAsset = 'assets/images/QR/qr.png';
+const _merchantName = 'PHENIKAA FOOD APP';
 
 class QrPaymentScreen extends StatefulWidget {
   const QrPaymentScreen({
@@ -74,7 +62,7 @@ class _QrPaymentScreenState extends State<QrPaymentScreen>
     final suffix = DateTime.now().millisecondsSinceEpoch.toString().substring(
       7,
     );
-    return 'PKAFOOD$suffix';
+    return 'PKA $suffix';
   }
 
   void _copyToClipboard(String text, String label) {
@@ -151,41 +139,13 @@ class _QrPaymentScreenState extends State<QrPaymentScreen>
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(AppSizes.radiusSm),
-                      child: Image.network(
-                        buildSepayQrUrl(
-                          amount: widget.amount,
-                          description: _transferContent,
-                        ),
+                      child: Image.asset(
+                        _qrPaymentAsset,
                         key: const Key('qr-payment-image'),
                         width: 232,
                         height: 232,
                         fit: BoxFit.contain,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return const SizedBox(
-                            width: 232,
-                            height: 232,
-                            child: Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                          );
-                        },
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            width: 232,
-                            height: 232,
-                            color: Colors.grey[200],
-                            alignment: Alignment.center,
-                            child: const Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.broken_image, size: 48, color: Colors.grey),
-                                SizedBox(height: 8),
-                                Text('Không thể tải mã QR', style: TextStyle(color: Colors.grey)),
-                              ],
-                            ),
-                          );
-                        },
+                        filterQuality: FilterQuality.none,
                       ),
                     ),
                   ),
@@ -225,19 +185,6 @@ class _QrPaymentScreenState extends State<QrPaymentScreen>
                     label: 'Đơn vị nhận thanh toán',
                     value: _merchantName,
                     icon: Icons.storefront_outlined,
-                  ),
-                  const Divider(height: AppSizes.lg),
-                  const _PaymentInfoRow(
-                    label: 'Ngân hàng',
-                    value: _bankName,
-                    icon: Icons.account_balance_outlined,
-                  ),
-                  const Divider(height: AppSizes.lg),
-                  _PaymentInfoRow(
-                    label: 'Số tài khoản',
-                    value: _accountNumber,
-                    icon: Icons.credit_card_outlined,
-                    onCopy: () => _copyToClipboard(_accountNumber, 'số tài khoản'),
                   ),
                   const Divider(height: AppSizes.lg),
                   _PaymentInfoRow(
