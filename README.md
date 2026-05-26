@@ -305,5 +305,16 @@ Dữ liệu ban đầu chất lượng cao được thiết lập sẵn trong fi
 - **Số điện thoại:** `0987654321`
 - **Mật khẩu:** `123456`
 
+## 📚 7. Tài liệu Đồ án (Documentation)
+
+Chi tiết các tài liệu phân tích, thiết kế, kịch bản demo và kết quả kiểm thử (Tiêu chí 1-10) được lưu trong thư mục `docs/`:
+- [User Stories](docs/user_stories.md)
+- [Phân tích yêu cầu](docs/requirements_analysis.md)
+- [Thiết kế hệ thống](docs/system_design.md)
+- [Thiết kế giao diện](docs/ui_design.md)
+- [Báo cáo kiểm thử](docs/testing_tc8.md)
+- [Kịch bản Demo](docs/demo_script.md)
+- [Checklist Nộp bài](docs/submission_checklist.md)
+
 ---
 *Báo cáo đồ án được xây dựng và hoàn thiện bởi các thành viên nhóm N03 lớp Lập trình thiết bị di động năm học 2025-2026.*
