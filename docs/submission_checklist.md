@@ -1,27 +1,42 @@
-# Submission Checklist (Tiêu chí 9, 10 & Layout mẫu)
+# Submission Checklist (Tiêu chí 9)
 
-## Danh sách Nộp bài (Tiêu chí 9)
+Để đạt điểm tối đa ở Tiêu chí 9, nhóm cần đảm bảo nộp đủ các file/link sau lên hệ thống của trường. Các thành viên sử dụng checklist này để kiểm tra lần cuối trước khi nộp:
 
-Để đạt điểm tối đa ở Tiêu chí 9, nhóm cần đảm bảo nộp đủ các file/link sau lên hệ thống của trường:
+## 1. Source Code (GitHub & File Nén)
+- [ ] Code nằm ở branch `feature-hiep`.
+- [ ] Đã đẩy (push) commit mới nhất lên GitHub sau khi cập nhật Docs và Test.
+- [ ] Link GitHub dự án: `[Điền link GitHub tại đây]`
+- [ ] (Nếu nộp file nén) Đã chạy `flutter clean`. KHÔNG đưa các file/thư mục nhạy cảm hoặc thừa vào file nén: `_excluded_from_git/`, `.idea/`, `android/app/google-services.json`.
 
-- [ ] **Báo cáo PDF:** Trích xuất các file trong thư mục `docs/` thành một file Word/PDF hoàn chỉnh có trang bìa, mục lục.
-- [ ] **Video Demo:** Quay video theo kịch bản `docs/demo_script.md` (độ dài 3-5 phút), upload lên YouTube hoặc Google Drive (nhớ mở quyền truy cập Public/Anyone with link). (Nhớ thực hiện thao tác Pull-to-refresh trong demo).
-- [ ] **Source Code:** Nén thư mục project (sau khi chạy `flutter clean` để giảm dung lượng) HOẶC nộp link GitHub (nếu giảng viên cho phép).
-- [ ] **File APK:** Build file APK bằng lệnh `flutter build apk --release` và đính kèm vào hồ sơ (đã có ở `build/app/outputs/flutter-apk/app-release.apk`).
-- [ ] **Tài liệu README:** File `README.md` đã được update và nằm ở thư mục gốc.
+## 2. File APK (Bản Build Release)
+- [ ] Đã chạy lệnh `flutter build apk --release`.
+- [ ] Lấy file APK để nộp tại đường dẫn: `build\app\outputs\flutter-apk\app-release.apk`.
 
-## Lưu ý về Git Contribution (Tiêu chí 10)
+## 3. Báo cáo PDF (Trích xuất từ thư mục docs/)
+Báo cáo PDF cần tổng hợp đầy đủ các phần sau (đã có sẵn file Markdown trong `docs/`):
+- [ ] **TC1:** User Stories (`user_stories.md`).
+- [ ] **TC2:** Phân tích yêu cầu / Requirements analysis (`requirements_analysis.md`).
+- [ ] **TC3:** Thiết kế hệ thống / System design gồm Class Diagram, Activity, Flowchart, Database Schema (`system_design.md`).
+- [ ] **TC4:** Thiết kế UI (`ui_design.md`) đính kèm ảnh Figma/bản vẽ tay.
+- [ ] **TC7:** Bằng chứng NoSQL. Ảnh chụp màn hình Firebase Console chứng minh có 4 collections: `users`, `products`, `orders`, `admin_products`.
+- [ ] **TC8:** Báo cáo Testing (`testing_tc8.md`). Kèm theo screenshot terminal chạy `flutter test` và `flutter analyze` báo Pass/No issues.
+- [ ] **TC10:** Lịch sử Git (Screenshot) thể hiện sự đóng góp của nhiều thành viên.
 
-Theo yêu cầu tiêu chí 10, lịch sử commit phải thể hiện sự đóng góp của **nhiều thành viên**.
-**Hiện trạng repo Git:**
-- Commits chủ yếu được thực hiện bởi `pachip` (hhkk77441@gmail.com).
-- Có sự đóng góp của `hdungx0795`, `bachiep`, `NguyenKimKhuong` nhưng số lượng ít hơn (chủ yếu từ các tuần đầu).
+## 4. Video Demo (Bắt buộc)
+Video demo độ dài 3-5 phút, bám sát kịch bản `docs/demo_script.md`:
+- [ ] Link Video (YouTube/Drive mở quyền Public): `[Điền link Video tại đây]`
+- [ ] Nội dung video bao gồm **User flow** (Login, Mua hàng, Checkout).
+- [ ] Nội dung video bao gồm **Admin flow** (Login admin, Dashboard, Cập nhật trạng thái đơn).
+- [ ] Có thao tác thể hiện **Firestore Sync** và **Pull-to-refresh**.
+- [ ] (Tuỳ chọn) Trình diễn lướt qua kết quả Test hoặc quá trình build APK.
 
-**Giải pháp cho nhóm:**
-1. Hãy đảm bảo các thành viên khác có pull code về máy, tự build thử.
-2. Nếu cần, các thành viên khác có thể thực hiện một số commit nhỏ (ví dụ: comment code, sửa lỗi chính tả trong báo cáo) trước khi tạo file nén nộp bài, để lịch sử Git đa dạng hơn.
+## 5. Thiết kế (Figma / Bản vẽ tay) & Layout Mẫu (TC4, TC5)
+- [ ] **Thiết kế TC4:** Bản vẽ tay và Figma đã có ngoài repo. Cần đính kèm hình ảnh và Link Figma khi nộp bài. Link Figma: `[Điền link Figma tại đây]`
+- [ ] **Layout mẫu TC5:** Hiện đang chờ giảng viên cập nhật/giao layout mẫu tĩnh. *Nếu/Khi có*, cần bổ sung code đúng theo mẫu giảng viên cấp (không dính dáng logic project chính) để lấy 1 điểm. Nếu giảng viên xác nhận dùng layout của project chính thì bỏ qua bước này.
 
-## Layout Mẫu (Tiêu chí 5)
-- **Yêu cầu:** "Code đúng layout mẫu giảng viên cung cấp. Không liên quan đến project chính."
-- **Tình trạng:** Trong repo chưa có thông tin rõ ràng về "Layout mẫu của giảng viên".
-- **Hành động:** Nếu giảng viên có một bài tập Layout tĩnh riêng biệt, người dùng cần tự bổ sung folder code giao diện này vào project (có thể tách riêng thư mục `layout_mau/`) để chấm điểm, tránh bị mất điểm Tiêu chí 5. Nếu PKA Food là project chính, hãy xác nhận lại với giảng viên xem Tiêu chí 5 có áp dụng vào project chính hay không.
+## 6. Lịch sử Git & Contribution (Tiêu chí 10)
+- [ ] Branch `feature-hiep` đã push commit mới nhất.
+- [ ] Local và origin đồng bộ (trạng thái `0 0` khi diff).
+- [ ] KHÔNG track (commit nhầm) các file nhạy cảm: `_excluded_from_git/`, `.idea/`, `android/app/google-services.json`.
+- [ ] Commit history thể hiện rõ quá trình làm theo các Phase.
+- [ ] (Lưu ý) Lịch sử Git hiện tại chủ yếu do 1 người commit. Nhóm cần ghi chú giải thích sự phân công/đóng góp của các thành viên khác khi báo cáo với giảng viên nếu có yêu cầu.
