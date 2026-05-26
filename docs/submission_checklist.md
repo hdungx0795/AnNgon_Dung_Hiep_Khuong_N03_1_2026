@@ -39,4 +39,3 @@ Video demo độ dài 3-5 phút, bám sát kịch bản `docs/demo_script.md`:
 - [ ] Local và origin đồng bộ (trạng thái `0 0` khi diff).
 - [ ] KHÔNG track (commit nhầm) các file nhạy cảm: `_excluded_from_git/`, `.idea/`, `android/app/google-services.json`.
 - [ ] Commit history thể hiện rõ quá trình làm theo các Phase.
-- [ ] (Lưu ý) Lịch sử Git hiện tại chủ yếu do 1 người commit. Nhóm cần ghi chú giải thích sự phân công/đóng góp của các thành viên khác khi báo cáo với giảng viên nếu có yêu cầu.
