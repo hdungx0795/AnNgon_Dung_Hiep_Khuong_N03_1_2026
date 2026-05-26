@@ -28,6 +28,10 @@ class MonAn implements BaseModel<int> {
     return '${price.toStringAsFixed(0)} VND';
   }
 
+  // Đánh giá xem món ăn có thuộc nhóm nổi bật không
+  bool get isTopRated => rating >= 4.5;
+
+
   factory MonAn.fromJson(Map<String, dynamic> json) {
     return MonAn(
       id: (json['id'] as num?)?.toInt() ?? 0,
