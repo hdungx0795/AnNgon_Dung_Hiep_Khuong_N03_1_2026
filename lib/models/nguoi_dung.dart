@@ -1,4 +1,7 @@
-class NguoiDung {
+import 'base_model.dart';
+
+class NguoiDung implements BaseModel<String> {
+  @override
   final String id;
   final String name;
   final String phone;
@@ -36,6 +39,7 @@ class NguoiDung {
     );
   }
 
+  @override
   Map<String, dynamic> toJson() {
     return {
       'id': id,

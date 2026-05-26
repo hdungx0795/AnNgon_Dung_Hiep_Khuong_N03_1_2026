@@ -1,4 +1,7 @@
-class DanhGia {
+import 'base_model.dart';
+
+class DanhGia implements BaseModel<int> {
+  @override
   final int id;
   final int userId;
   final int productId;
@@ -39,6 +42,7 @@ class DanhGia {
     );
   }
 
+  @override
   Map<String, dynamic> toJson() {
     return {
       'id': id,

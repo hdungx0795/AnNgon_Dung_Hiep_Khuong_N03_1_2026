@@ -3,23 +3,29 @@ import '../models/cart_item.dart';
 import '../models/chi_tiet_don_hang.dart';
 import '../models/don_hang.dart';
 import '../models/mon_an.dart';
+import 'mon_an_repository.dart';
+import 'nguoi_dung_repository.dart';
+import 'don_hang_repository.dart';
+import 'danh_gia_repository.dart';
 
 class AppRepository {
-  final List<MonAn> _monAns = List<MonAn>.from(mockMonAns);
-  final List<DonHang> _donHangs = List<DonHang>.from(mockDonHangs);
-  final List<ChiTietDonHang> _chiTietDonHangs =
-      List<ChiTietDonHang>.from(mockChiTietDonHangs);
+  // Tích hợp các sub-repositories được tổng quát hóa (Facade Pattern)
+  final MonAnRepository monAnRepo = MonAnRepository(mockMonAns);
+  final NguoiDungRepository nguoiDungRepo = NguoiDungRepository(mockNguoiDungs);
+  final DonHangRepository donHangRepo = DonHangRepository(mockDonHangs);
+  final DanhGiaRepository danhGiaRepo = DanhGiaRepository(mockDanhGias);
+
+  // Những phần chuyên biệt hóa không tổng quát hóa được (Dependent entities & Local states)
+  final List<ChiTietDonHang> _chiTietDonHangs = List<ChiTietDonHang>.from(mockChiTietDonHangs);
   final List<CartItem> _initialCartItems = List<CartItem>.from(mockCartItems);
 
-  List<MonAn> getMonAns() => List<MonAn>.unmodifiable(_monAns);
+  // Uỷ nhiệm các phương thức thông qua các repository chuyên biệt tương ứng
+  List<MonAn> getMonAns() => monAnRepo.getAll();
 
-  List<CartItem> getInitialCartItems() =>
-      List<CartItem>.unmodifiable(_initialCartItems);
+  List<CartItem> getInitialCartItems() => List<CartItem>.unmodifiable(_initialCartItems);
 
   List<DonHang> getDonHangsByUser(int userId) {
-    final results = _donHangs.where((item) => item.userId == userId).toList();
-    results.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    return results;
+    return donHangRepo.getByUserId(userId);
   }
 
   List<ChiTietDonHang> getChiTietByOrderId(String orderId) {
@@ -33,7 +39,7 @@ class AppRepository {
     required int userId,
     required List<CartItem> cartItems,
   }) {
-    final latestOrderId = _donHangs
+    final latestOrderId = donHangRepo.getAll()
         .map((e) => int.tryParse(e.orderId) ?? 0)
         .fold(0, (a, b) => a > b ? a : b);
     final newOrderIdInt = latestOrderId + 1;
@@ -64,10 +70,9 @@ class AppRepository {
         )
         .toList();
 
-    _donHangs.add(donHangMoi);
+    donHangRepo.add(donHangMoi);
     _chiTietDonHangs.addAll(chiTietMoi);
 
     return donHangMoi;
   }
 }
-

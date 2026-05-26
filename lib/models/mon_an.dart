@@ -1,4 +1,7 @@
-class MonAn {
+import 'base_model.dart';
+
+class MonAn implements BaseModel<int> {
+  @override
   final int id;
   final String name;
   final String category;
@@ -37,6 +40,7 @@ class MonAn {
     );
   }
 
+  @override
   Map<String, dynamic> toJson() {
     return {
       'id': id,

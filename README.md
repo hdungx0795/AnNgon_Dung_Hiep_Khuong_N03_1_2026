@@ -117,13 +117,160 @@
 
 ---
 
+## 📌 Nội dung buổi thực hành 04
+
+### ✅ Nhiệm vụ đã thực hiện (Tổng quát hóa & Chuyên biệt hóa OOP)
+
+Trong buổi học hôm nay, nhóm đã tiến hành tối ưu hóa cấu trúc mã nguồn của ứng dụng **Ăn Ngon** bằng cách áp dụng tối đa các kỹ thuật lập trình hướng đối tượng (OOP) nâng cao, đặc biệt là **Generics (Tham số hóa kiểu dữ liệu)** và **Abstract Classes / Interface** để **Tổng quát hóa (Generalization)** các lớp, đồng thời giữ **Chuyên biệt hóa (Specialization)** đối với các nghiệp vụ/thực thể đặc thù.
+
+#### 1. Kiến trúc hệ thống & Thiết kế Phân tích:
+* **Tổng quát hóa (Generalization):**
+  * Định nghĩa lớp trừu tượng cơ sở `BaseModel<ID>` đại diện cho mọi thực thể có định danh.
+  * Xây dựng giao diện Generic `Repository<T, ID>` quy chuẩn các thao tác CRUD cơ bản (`getAll`, `getById`, `add`, `update`, `delete`).
+  * Triển khai lớp cụ thể Generic `InMemoryRepository<T, ID>` để tái sử dụng toàn bộ logic lưu trữ dữ liệu tĩnh, tuân thủ nguyên lý **DRY (Don't Repeat Yourself)**.
+* **Chuyên biệt hóa (Specialization):**
+  * Đối với các thực thể phụ thuộc hoặc đối tượng giá trị không có vòng đời độc lập (`ChiTietDonHang` và `CartItem`), nhóm đã **chuyên biệt hóa** chúng mà không kế thừa `BaseModel`.
+  * Các Repository chuyên biệt kế thừa từ `InMemoryRepository` để mở rộng các phương thức truy vấn nghiệp vụ đặc thù (ví dụ: tìm kiếm món ăn, lọc đơn hàng của người dùng, xác thực đăng nhập, tính đánh giá sao trung bình).
+  * Áp dụng **Facade Pattern** cho `AppRepository` để bọc các Repository con, bảo toàn tính tương thích ngược cho giao diện UI cũ.
+
+---
+
+### 👥 Chi tiết phần việc & Trích lược Code của từng Sinh viên
+
+#### 🛠️ 1. Hoàng Văn Dũng - 23010438: Thiết kế Core Infrastructure (Generic & Abstract Core)
+* **Nhiệm vụ:**
+  * Thiết kế lớp trừu tượng cơ sở `BaseModel` và interface `Repository`.
+  * Triển khai bộ khung Generic CRUD `InMemoryRepository` để quản lý các thao tác dữ liệu dùng chung.
+* **Trích lược code chính:**
+  * Lớp Generic trừu tượng cơ sở `BaseModel<ID>`:
+    ```dart
+    abstract class BaseModel<ID> {
+      ID get id;
+      Map<String, dynamic> toJson();
+    }
+    ```
+  * Lớp triển khai Generic CRUD `InMemoryRepository<T extends BaseModel<ID>, ID>`:
+    ```dart
+    class InMemoryRepository<T extends BaseModel<ID>, ID> implements Repository<T, ID> {
+      final List<T> _items;
+      InMemoryRepository([List<T>? initialItems]) : _items = List<T>.from(initialItems ?? []);
+      
+      @override
+      List<T> getAll() => List<T>.unmodifiable(_items);
+      
+      @override
+      T? getById(ID id) => _items.firstWhere((item) => item.id == id);
+      
+      @override
+      void add(T item) => _items.add(item);
+      
+      @override
+      void update(ID id, T item) {
+        final index = _items.indexWhere((x) => x.id == id);
+        if (index != -1) _items[index] = item;
+      }
+      
+      @override
+      void delete(ID id) => _items.removeWhere((item) => item.id == id);
+    }
+    ```
+
+#### 🍔 2. Lưu Đức Hiệp - 23010437: Tổng quát & Chuyên biệt hóa nghiệp vụ Món ăn & Đánh giá
+* **Nhiệm vụ:**
+  * Kế thừa `BaseModel<int>` cho thực thể `MonAn` và `DanhGia`.
+  * Chuyên biệt hóa thực thể phụ thuộc `ChiTietDonHang` (không có id độc lập).
+  * Triển khai `MonAnRepository` và `DanhGiaRepository` chứa các truy vấn đặc thù của món ăn (tìm kiếm, lọc danh mục) và đánh giá (tính trung bình sao).
+* **Trích lược code chính:**
+  * Lớp `MonAn` tổng quát hóa kế thừa `BaseModel<int>`:
+    ```dart
+    class MonAn implements BaseModel<int> {
+      final int id;
+      final String name;
+      // ... các thuộc tính khác
+    }
+    ```
+  * Chuyên biệt hóa trong `MonAnRepository` với tìm kiếm & lọc:
+    ```dart
+    class MonAnRepository extends InMemoryRepository<MonAn, int> {
+      MonAnRepository(super.initialItems);
+      
+      List<MonAn> getByCategory(String category) {
+        return getAll().where((m) => m.category.toLowerCase() == category.toLowerCase()).toList();
+      }
+      
+      List<MonAn> search(String query) {
+        final q = query.toLowerCase();
+        return getAll().where((m) => m.name.toLowerCase().contains(q) || m.description.toLowerCase().contains(q)).toList();
+      }
+    }
+    ```
+  * Chuyên biệt hóa thực thể phụ thuộc `ChiTietDonHang` (không kế thừa `BaseModel`):
+    ```dart
+    class ChiTietDonHang {
+      final int orderId;
+      final int productId;
+      final int quantity;
+      final double unitPrice;
+      // ... giữ nguyên tính chuyên biệt hóa
+    }
+    ```
+
+#### 👤 3. Nguyễn Kim Khương - 23010428: Tổng quát & Chuyên biệt hóa nghiệp vụ Người dùng & Đơn hàng
+* **Nhiệm vụ:**
+  * Kế thừa `BaseModel<String>` cho thực thể `NguoiDung` và `DonHang`.
+  * Chuyên biệt hóa thực thể cục bộ `CartItem` cho giỏ hàng.
+  * Triển khai `NguoiDungRepository` (hàm login/authenticate) và `DonHangRepository` (lọc đơn hàng theo user, đặt hàng từ giỏ hàng).
+* **Trích lược code chính:**
+  * Lớp `DonHang` kế thừa `BaseModel<String>` với getter id được override:
+    ```dart
+    class DonHang implements BaseModel<String> {
+      final String orderId;
+      @override
+      String get id => orderId;
+      // ... các thuộc tính khác
+    }
+    ```
+  * Nghiệp vụ đơn hàng chuyên biệt trong `DonHangRepository`:
+    ```dart
+    class DonHangRepository extends InMemoryRepository<DonHang, String> {
+      DonHangRepository(super.initialItems);
+      
+      List<DonHang> getByUserId(int userId) {
+        final results = getAll().where((d) => d.userId == userId).toList();
+        results.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        return results;
+      }
+    }
+    ```
+  * Xác thực người dùng chuyên biệt trong `NguoiDungRepository`:
+    ```dart
+    class NguoiDungRepository extends InMemoryRepository<NguoiDung, String> {
+      NguoiDungRepository(super.initialItems);
+      
+      NguoiDung? authenticate(String email, String passwordHash) {
+        try {
+          return getAll().firstWhere((u) => u.email == email && u.passwordHash == passwordHash);
+        } catch (_) { return null; }
+      }
+    }
+    ```
+
+---
+
+### 🔗 Link Repository Nhóm GitHub
+* Repo URL: [AnNgon_Dung_Hiep_Khuong_N03_1_2026](https://github.com/hdungx0795/AnNgon_Dung_Hiep_Khuong_N03_1_2026)
+
+---
+
 ## ⚙️ Công nghệ sử dụng
 
 * **Nền tảng:** Flutter & Dart
-* **Kiến trúc & Kỹ thuật:** * Quản lý trạng thái cơ bản (`StatefulWidget`, `setState`)
-  * Lập trình hướng đối tượng (OOP: Classes, Objects, Methods)
-  * Collections (List, Array, Maps)
-  * Generics (Kiểu dữ liệu tổng quát) & Static
+* **Kiến trúc & Kỹ thuật:** 
+  * Quản lý trạng thái cơ bản (`StatefulWidget`, `setState`)
+  * Lập trình hướng đối tượng nâng cao (OOP: Abstract Classes, Interface, Inheritance)
+  * Lập trình Generic (Tham số hóa kiểu dữ liệu cho Model & Repository CRUD)
+  * Áp dụng Design Pattern: Facade Pattern & Repository Pattern
+  * Collections (List, Array, Maps, Spread Operator)
 * **Quản lý phiên bản:** Git & GitHub
 
 ---
