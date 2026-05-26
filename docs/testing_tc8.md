@@ -9,13 +9,13 @@ Dự án PKA Food được thiết kế với sự chú trọng cao về kiểm 
 
 ## 2. Các mức độ Test
 ### a. Unit Tests (Logic/Models/Providers/Services)
-Kiểm thử các class thuần Dart, không phụ thuộc UI.
+Kiểm thử các class thuần Dart, không phụ thuộc UI. Các test case bao phủ cả trường hợp thành công (success), thất bại (failure), trường hợp biên (edge cases) và dữ liệu dự phòng (fallback).
 - `test/models/`: Kiểm thử parse JSON và tuần tự hóa của Model.
 - `test/providers/`: Kiểm thử logic tính toán (tính tổng tiền, quản lý danh sách, thay đổi trạng thái). VD: `test/providers/cart_provider_test.dart`, `test/providers/order_provider_test.dart`.
 - `test/services/`: Kiểm thử các dịch vụ kết nối. VD: `test/services/auth_service_registration_test.dart`, `test/services/product_service_test.dart`, `test/services/order_service_test.dart`.
 
 ### b. UI / Screen Tests (Widget Tests)
-Kiểm thử các màn hình Flutter để đảm bảo nút bấm, text hiển thị đúng.
+Kiểm thử các màn hình Flutter để đảm bảo nút bấm, text hiển thị đúng. Chú trọng kiểm tra đầy đủ các trạng thái loading, empty, error, và ngăn chặn crash ở mức widget.
 - Sử dụng `pumpWidget` kết hợp với mock providers.
 - Các file test nằm trong `test/screens/`:
   - `test/screens/auth_screens_test.dart`
@@ -35,7 +35,12 @@ Sử dụng `FakeFirebaseFirestore` và Hive Local Test.
   6) **Admin order sync workflow**: Đồng bộ, xem chi tiết và duyệt đơn hàng.
 
 ### d. QA Smoke Integration Test
-File `test/qa_smoke_integration_test.dart` kiểm tra toàn bộ luồng khởi động app với `MultiProvider`, Firebase Mock, Hive Init để đảm bảo App Boot an toàn và không bị crash.
+File `test/qa_smoke_integration_test.dart` kiểm tra toàn bộ luồng khởi động app với `MultiProvider`, Firebase Mock, Hive Init để đảm bảo App Boot an toàn và không bị crash cho cả luồng User và Admin.
+
+### e. Kiểm thử thủ công và Hiệu năng (Manual Demo & Performance)
+- **APK Release Build:** Đã build thành công bản APK Release, giảm thiểu dung lượng và tối ưu hóa code.
+- **Tính mượt mà:** Ứng dụng chạy mượt mà trên máy ảo (Emulator) và thiết bị thật (Physical device).
+- **Hiệu năng:** 60fps được kiểm tra thủ công trong quá trình demo/runtime, không phải automated benchmark. Đảm bảo UI phản hồi tức thì với các thao tác chuyển màn hình và scroll danh sách.
 
 ## 3. Bảng Mapping Test -> Tiêu chí (TC8)
 
