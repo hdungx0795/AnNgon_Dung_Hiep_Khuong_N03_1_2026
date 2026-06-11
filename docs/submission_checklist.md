@@ -32,7 +32,7 @@ Video demo độ dài 3-5 phút, bám sát kịch bản `docs/demo_script.md`:
 
 ## 5. Thiết kế (Figma / Bản vẽ tay) & Layout Mẫu (TC4, TC5)
 - [ ] **Thiết kế TC4:** Bản vẽ tay và Figma đã có ngoài repo. Cần đính kèm hình ảnh và Link Figma khi nộp bài. Link Figma: `[Điền link Figma tại đây]`
-- [ ] **Layout mẫu TC5:** Hiện đang chờ giảng viên cập nhật/giao layout mẫu tĩnh. *Nếu/Khi có*, cần bổ sung code đúng theo mẫu giảng viên cấp (không dính dáng logic project chính) để lấy 1 điểm. Nếu giảng viên xác nhận dùng layout của project chính thì bỏ qua bước này.
+- [x] **Layout mẫu TC5:** Đã hoàn thiện thiết kế theo mẫu Grab Home Screen (2 hàng x 4 cột shortcuts, ví liên kết MoMo popup bật/tắt, banner trượt ngang mở món, và bong bóng chat hỗ trợ nổi cố định). Toàn bộ được tích hợp làm màn hình chính (ExploreTab) của Customer Flow với màu đỏ thương hiệu. Xem chi tiết phân tích tại [ui_design.md](file:///d:/Project1/ki%203%20nam%203/resources/LearnFlutter/AnNgon_Dung_Hiep_Khuong_N03_1_2026/docs/ui_design.md#5-thi%E1%BA%BFt-k%E1%BA%BF-giao-di%E1%BB%87n-m%E1%BA%ABu-theo-y%C3%AAu-c%E1%BA%A7u-c%E1%BB%A7a-gi%C3%A1o-vi%C3%AAn-ti%C3%AAu-ch%C3%AD-5).
 
 ## 6. Lịch sử Git & Contribution (Tiêu chí 10)
 - [ ] Branch `feature-hiep` đã push commit mới nhất.
