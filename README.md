@@ -8,8 +8,8 @@ Một dự án ứng dụng di động đặt đồ ăn thông minh cao cấp đ
 | Thành viên | Mã Sinh Viên | Vai Trò Chính | Các module chính phụ trách |
 | :--- | :---: | :--- | :--- |
 | **Lưu Đức Hiệp** | **23010437** | Team Leader / Principal Developer | - Trưởng nhóm quản lý tiến độ, thiết lập kiến trúc **Clean Architecture**.<br>- Trực tiếp cấu hình và tích hợp **Firebase (Auth, Firestore)** để đồng bộ dữ liệu thời gian thực với **Hive NoSQL** cục bộ.<br>- Xây dựng các luồng nghiệp vụ cốt lõi: Giỏ hàng, Đặt hàng, Tracking bản đồ và Thanh toán QR.<br>- Thiết kế toàn bộ hệ thống UI/UX cao cấp, tích hợp Provider Pattern quản lý trạng thái toàn cục. |
-| **Hoàng Văn Dũng** | **23010438** | Backend & Admin Developer | - Phát triển các tính năng dành riêng cho Quản trị viên (Admin Dashboard).<br>- Xây dựng luồng quản lý thêm/sửa/xóa sản phẩm và theo dõi duyệt đơn hàng.<br>- Hỗ trợ tích hợp đổ dữ liệu mẫu (Seed Data) lên Firestore. |
-| **Nguyễn Kim Khương** | **23010428** | Frontend Developer | - Xây dựng các tab giao diện Trang chủ, Khám phá và Yêu thích.<br>- Hỗ trợ tối ưu hóa hiển thị thiết kế UI (Responsive) trên màn hình thiết bị khác nhau.<br>- Tham gia viết một số Widgets dùng chung (Common Widgets). |
+| **Hoàng Văn Dũng** | **23010438** | Backend Developer / Documentation | - Phát triển các tính năng dành riêng cho Quản trị viên (Admin Dashboard).<br>- Phụ trách khảo sát yêu cầu, phân tích hệ thống và biên soạn tài liệu báo cáo (Docs).<br>- Xây dựng luồng quản lý thêm/sửa/xóa sản phẩm và theo dõi duyệt đơn hàng. |
+| **Nguyễn Kim Khương** | **23010428** | UI/UX Designer / Frontend Developer | - Thiết kế toàn bộ giao diện nguyên mẫu trên **Figma** (Wireframes & UI Design).<br>- Xây dựng các tab giao diện Trang chủ, Khám phá và Yêu thích.<br>- Tối ưu hóa hiển thị Responsive trên màn hình thiết bị khác nhau. |
 
 ---
 
