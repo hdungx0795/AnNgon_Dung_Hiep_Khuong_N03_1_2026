@@ -1,4 +1,6 @@
-class DonHang {
+import 'base_model.dart';
+
+class DonHang implements BaseModel<String> {
   final String orderId;
   final int userId;
   final double totalAmount;
@@ -7,6 +9,9 @@ class DonHang {
   final int statusIndex;
   final String? note;
   final DateTime createdAt;
+
+  @override
+  String get id => orderId;
 
   const DonHang({
     required this.orderId,
@@ -52,6 +57,7 @@ class DonHang {
     );
   }
 
+  @override
   Map<String, dynamic> toJson() {
     return {
       'orderId': orderId,
