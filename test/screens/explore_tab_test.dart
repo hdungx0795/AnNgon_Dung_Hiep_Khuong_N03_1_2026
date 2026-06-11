@@ -46,12 +46,17 @@ void main() {
     await tester.pumpWidget(_exploreTestApp(provider));
 
     expect(find.byKey(const Key('explore-search-field')), findsOneWidget);
+
+    await _scrollToProducts(tester);
+
     expect(find.byKey(const Key('explore-product-grid')), findsOneWidget);
     expect(find.text('Test Burger'), findsOneWidget);
     expect(find.text('Test Drink'), findsOneWidget);
   });
 
-  testWidgets('TC8 App/ExploreTab - preserves provider search behavior', (tester) async {
+  testWidgets('TC8 App/ExploreTab - preserves provider search behavior', (
+    tester,
+  ) async {
     final provider = await _loadedProductProvider();
 
     await tester.pumpWidget(_exploreTestApp(provider));
@@ -60,6 +65,8 @@ void main() {
     await tester.pump();
 
     expect(provider.products.map((product) => product.name), ['Test Drink']);
+    await _scrollToProducts(tester);
+
     expect(find.text('Test Drink'), findsOneWidget);
     expect(find.text('Test Burger'), findsNothing);
   });
@@ -70,6 +77,8 @@ void main() {
     final provider = await _loadedProductProvider();
 
     await tester.pumpWidget(_exploreTestApp(provider));
+    await tester.ensureVisible(find.byKey(const Key('explore-category-drink')));
+    await tester.pumpAndSettle();
 
     await tester.tap(find.byKey(const Key('explore-category-drink')));
     await tester.pump();
@@ -78,19 +87,72 @@ void main() {
     expect(provider.products.map((product) => product.category), [
       Category.drink,
     ]);
+    await _scrollToProducts(tester);
+
     expect(find.text('Test Drink'), findsOneWidget);
     expect(find.text('Test Burger'), findsNothing);
   });
 
-  testWidgets('TC8 App/ExploreTab - promo CTA selects combo category', (tester) async {
+  testWidgets('TC8 App/ExploreTab - home shortcut category buttons work', (
+    tester,
+  ) async {
     final provider = await _loadedProductProvider();
 
     await tester.pumpWidget(_exploreTestApp(provider));
 
-    await tester.tap(find.text('Xem ngay'));
-    await tester.pump();
-
+    await _tapCategoryShortcut(tester, Category.combo);
     expect(provider.selectedCategory, Category.combo);
+
+    await _tapCategoryShortcut(tester, Category.food);
+    expect(provider.selectedCategory, Category.food);
+    expect(provider.products.map((product) => product.name), ['Test Burger']);
+
+    await _tapCategoryShortcut(tester, Category.drink);
+    expect(provider.selectedCategory, Category.drink);
+    expect(provider.products.map((product) => product.name), ['Test Drink']);
+
+    await _tapCategoryShortcut(tester, Category.all);
+    expect(provider.selectedCategory, Category.all);
+    expect(provider.products.map((product) => product.name), [
+      'Test Burger',
+      'Test Drink',
+    ]);
+  });
+
+  testWidgets('TC8 App/ExploreTab - promo arrow opens product detail', (
+    tester,
+  ) async {
+    final provider = await _loadedProductProvider();
+
+    await tester.pumpWidget(_exploreTestApp(provider));
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -520));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('promo-open-button')).first);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ProductDetailScreen), findsOneWidget);
+  });
+
+  testWidgets('TC8 App/ExploreTab - support bubble opens chat after message', (
+    tester,
+  ) async {
+    final provider = await _loadedProductProvider();
+
+    await tester.pumpWidget(_exploreTestApp(provider));
+
+    await tester.tap(find.byTooltip('Hỗ trợ'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byKey(const Key('support-chat-preview-input')),
+      'Tôi cần hỗ trợ',
+    );
+    await tester.tap(find.byKey(const Key('support-chat-preview-send')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('delivery-chat-shipper-name')), findsOneWidget);
+    expect(find.text('Nhân viên hỗ trợ'), findsOneWidget);
   });
 
   testWidgets('TC8 App/ExploreTab - shows empty state for no search matches', (
@@ -102,6 +164,8 @@ void main() {
 
     await tester.enterText(find.byType(TextFormField), 'khong-co-mon');
     await tester.pump();
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -900));
+    await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('explore-no-results-state')), findsOneWidget);
     expect(find.text('Không tìm thấy món phù hợp'), findsOneWidget);
@@ -114,12 +178,16 @@ void main() {
     final provider = ProductProvider(ProductService());
 
     await tester.pumpWidget(_exploreTestApp(provider));
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -900));
+    await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('explore-empty-state')), findsOneWidget);
     expect(find.text('Chưa có món nào'), findsOneWidget);
   });
 
-  testWidgets('TC8 App/ExploreTab - preserves product detail navigation', (tester) async {
+  testWidgets('TC8 App/ExploreTab - preserves product detail navigation', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(800, 1200);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -128,6 +196,7 @@ void main() {
     final provider = await _loadedProductProvider();
 
     await tester.pumpWidget(_exploreTestApp(provider));
+    await _scrollToProducts(tester);
 
     await tester.tap(find.text('Test Burger'));
     await tester.pumpAndSettle();
@@ -144,11 +213,15 @@ void main() {
     );
 
     expect(find.byKey(const Key('explore-search-field')), findsOneWidget);
+    await _scrollToProducts(tester);
+
     expect(find.text('Test Burger'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('TC8 App/ExploreTab - remains stable on narrow layout', (tester) async {
+  testWidgets('TC8 App/ExploreTab - remains stable on narrow layout', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(320, 800);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -157,6 +230,7 @@ void main() {
     final provider = await _loadedProductProvider();
 
     await tester.pumpWidget(_exploreTestApp(provider));
+    await _scrollToProducts(tester);
 
     expect(find.byKey(const Key('explore-product-grid')), findsOneWidget);
     expect(find.text('Test Burger'), findsOneWidget);
@@ -164,11 +238,35 @@ void main() {
   });
 }
 
+Future<void> _scrollToProducts(WidgetTester tester) async {
+  await tester.drag(find.byType(CustomScrollView), const Offset(0, -900));
+  await tester.pumpAndSettle();
+}
+
+Future<void> _tapCategoryShortcut(
+  WidgetTester tester,
+  Category category,
+) async {
+  final finder = find.byKey(Key('explore-category-${category.name}'));
+  await tester.ensureVisible(finder);
+  await tester.pumpAndSettle();
+  await tester.tap(finder);
+  await tester.pump();
+}
+
 Future<void> _seedProducts() async {
   final productsBox = Hive.box<ProductModel>(DatabaseService.productsBoxName);
   await productsBox.put(
     1,
-    testProduct(id: 1, name: 'Test Burger', price: 30000),
+    ProductModel(
+      id: 1,
+      name: 'Test Burger',
+      category: Category.food,
+      price: 30000,
+      rating: 4.5,
+      imagePath: 'assets/images/products/comboBurgerCoca.jpg',
+      description: 'Test product',
+    ),
   );
   await productsBox.put(
     2,

@@ -63,11 +63,10 @@ void main() {
       orderProvider: orderProvider,
     );
 
-    expect(find.byKey(const Key('home-shell-app-bar')), findsOneWidget);
+    expect(find.byKey(const Key('home-shell-app-bar')), findsNothing);
     expect(find.byKey(const Key('home-shell-navigation-bar')), findsOneWidget);
     expect(find.byKey(const Key('home-shell-indexed-stack')), findsOneWidget);
-    expect(find.text('Khám phá'), findsOneWidget);
-    expect(find.text('Bạn muốn ăn gì hôm nay?'), findsOneWidget);
+    expect(find.byKey(const Key('explore-search-field')), findsOneWidget);
   });
 
   testWidgets('home shell switches tabs in the approved order', (tester) async {
@@ -82,6 +81,7 @@ void main() {
 
     await tester.tap(find.text('Giỏ hàng'));
     await tester.pumpAndSettle();
+    expect(find.byKey(const Key('home-shell-app-bar')), findsOneWidget);
     expect(find.text('Giỏ hàng'), findsWidgets);
     expect(find.text('Vui lòng đăng nhập'), findsOneWidget);
 
@@ -128,7 +128,7 @@ void main() {
     expect(indexedStack.children.length, 4);
 
     await tester.enterText(
-      find.widgetWithText(TextFormField, 'Tìm kiếm món ngon'),
+      find.byKey(const Key('explore-search-field')),
       'burger',
     );
     await tester.tap(find.text('Giỏ hàng'));
@@ -150,7 +150,7 @@ void main() {
       themeMode: ThemeMode.dark,
     );
 
-    expect(find.byKey(const Key('home-shell-app-bar')), findsOneWidget);
+    expect(find.byKey(const Key('home-shell-app-bar')), findsNothing);
     expect(find.byKey(const Key('home-shell-navigation-bar')), findsOneWidget);
     expect(tester.takeException(), isNull);
   });

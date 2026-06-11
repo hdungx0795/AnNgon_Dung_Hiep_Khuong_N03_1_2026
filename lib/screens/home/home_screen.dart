@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'tabs/explore_tab.dart';
 import 'tabs/cart_tab.dart';
+import 'tabs/explore_tab.dart';
 import 'tabs/favorites_tab.dart';
 import 'tabs/orders_tab.dart';
 
@@ -15,50 +15,52 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _tabs = [
-    const ExploreTab(),
-    const CartTab(),
-    const OrdersTab(),
-    const FavoritesTab(),
-  ];
-
-  final List<String> _titles = [
-    'Khám phá',
-    'Giỏ hàng',
-    'Đơn hàng',
-    'Yêu thích',
-  ];
+  final List<String> _titles = ['', 'Giỏ hàng', 'Đơn hàng', 'Yêu thích'];
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final List<Widget> tabs = [
+      ExploreTab(
+        onCartTabPressed: () => setState(() => _currentIndex = 1),
+      ),
+      const CartTab(),
+      const OrdersTab(),
+      const FavoritesTab(),
+    ];
 
     return Scaffold(
-      appBar: AppBar(
-        key: const Key('home-shell-app-bar'),
-        toolbarHeight: 48,
-        leading: IconButton(
-          tooltip: 'Hồ sơ',
-          icon: CircleAvatar(
-            backgroundColor: colorScheme.primaryContainer,
-            radius: 16,
-            child: Icon(
-              Icons.person_outline,
-              size: 18,
-              color: colorScheme.primary,
+      appBar: _currentIndex == 0
+          ? null
+          : AppBar(
+              key: const Key('home-shell-app-bar'),
+              toolbarHeight: 48,
+              leading: IconButton(
+                tooltip: 'Hồ sơ',
+                icon: CircleAvatar(
+                  backgroundColor: colorScheme.primaryContainer,
+                  radius: 16,
+                  child: Icon(
+                    Icons.person_outline,
+                    size: 18,
+                    color: colorScheme.primary,
+                  ),
+                ),
+                onPressed: () => Navigator.pushNamed(context, '/profile'),
+              ),
+              title: Text(
+                _titles[_currentIndex],
+                style: const TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 20,
+                  color: Colors.black, // Explicitly black for contrast in appBar
+                ),
+              ),
             ),
-          ),
-          onPressed: () => Navigator.pushNamed(context, '/profile'),
-        ),
-        title: Text(
-          _titles[_currentIndex],
-          style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 20),
-        ),
-      ),
       body: IndexedStack(
         key: const Key('home-shell-indexed-stack'),
         index: _currentIndex,
-        children: _tabs,
+        children: tabs,
       ),
       bottomNavigationBar: NavigationBar(
         key: const Key('home-shell-navigation-bar'),
