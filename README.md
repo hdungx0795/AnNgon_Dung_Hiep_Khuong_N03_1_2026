@@ -15,7 +15,7 @@ Một dự án ứng dụng di động đặt đồ ăn thông minh cao cấp đ
 
 ## 📂 Sơ Đồ Cấu Trúc Thư Mục Hệ Thống (Detailed Directory Tree)
 
-Dưới đây là sơ đồ chi tiết toàn bộ các file nguồn trong thư mục `lib/` của dự án **PKA Food v2.0**:
+Dưới đây là sơ đồ chi tiết tất cả các file nguồn trong thư mục `lib/` của dự án **PKA Food v2.0**:
 
 ```text
 lib/
