@@ -1,5 +1,5 @@
 # 🍔 PKA Food v2.0 — Báo cáo Đồ án Ứng dụng Đặt Đồ Ăn Trực Tuyến
-Một dự án ứng dụng di động đặt đồ ăn thông minh cao cấp được xây dựng bằng **Flutter & Dart**, áp dụng mô hình thiết kế **Clean & Layered Architecture** (Kiến trúc phân lớp), quản lý trạng thái tập trung với **Provider Pattern**, và lưu trữ cục bộ tốc độ siêu cao bằng **Hive NoSQL Database** (Local-First).
+Một dự án ứng dụng di động đặt đồ ăn thông minh cao cấp được xây dựng bằng **Flutter & Dart**, áp dụng mô hình thiết kế **Clean & Layered Architecture** (Kiến trúc phân lớp), quản lý trạng thái tập trung với **Provider Pattern**. Ứng dụng kết hợp sức mạnh của **Firebase Firestore** (Cloud Backend) để đồng bộ dữ liệu thời gian thực và **Hive NoSQL Database** (Local-First) để lưu trữ cục bộ tốc độ siêu cao.
 
 ---
 
@@ -7,9 +7,9 @@ Một dự án ứng dụng di động đặt đồ ăn thông minh cao cấp đ
 
 | Thành viên | Mã Sinh Viên | Vai Trò Chính | Các module chính phụ trách |
 | :--- | :---: | :--- | :--- |
-| **Hoàng Văn Dũng** | **23010438** | Architecture Lead / Developer | - Thiết lập kiến trúc dự án, cấu hình Hive NoSQL Database.<br>- Xây dựng tầng Providers, Services và luồng thanh toán.<br>- Phát triển module Admin Dashboard & doanh thu. |
-| **Lưu Đức Hiệp** | **23010437** | Fullstack Developer / UI Designer | - Thiết kế giao diện chi tiết (Screens & Reusable Widgets).<br>- Phát triển luồng chat/gọi điện thời gian thực với Shipper.<br>- Quản lý cấu hình chủ đề đồng nhất (Light/Dark Mode). |
-| **Nguyễn Kim Khương** | **23010428** | Frontend Developer | - Xây dựng các tab giao diện Trang chủ, Yêu thích và Giỏ hàng.<br>- Tối ưu hóa hiển thị Responsive trên các kích thước màn hình.<br>- Phát triển luồng đăng nhập, đăng ký và bảo mật tài khoản. |
+| **Lưu Đức Hiệp** | **23010437** | Team Leader / Principal Developer | - Trưởng nhóm quản lý tiến độ, thiết lập kiến trúc **Clean Architecture**.<br>- Trực tiếp cấu hình và tích hợp **Firebase (Auth, Firestore)** để đồng bộ dữ liệu thời gian thực với **Hive NoSQL** cục bộ.<br>- Xây dựng các luồng nghiệp vụ cốt lõi: Giỏ hàng, Đặt hàng, Tracking bản đồ và Thanh toán QR.<br>- Thiết kế toàn bộ hệ thống UI/UX cao cấp, tích hợp Provider Pattern quản lý trạng thái toàn cục. |
+| **Hoàng Văn Dũng** | **23010438** | Backend & Admin Developer | - Phát triển các tính năng dành riêng cho Quản trị viên (Admin Dashboard).<br>- Xây dựng luồng quản lý thêm/sửa/xóa sản phẩm và theo dõi duyệt đơn hàng.<br>- Hỗ trợ tích hợp đổ dữ liệu mẫu (Seed Data) lên Firestore. |
+| **Nguyễn Kim Khương** | **23010428** | Frontend Developer | - Xây dựng các tab giao diện Trang chủ, Khám phá và Yêu thích.<br>- Hỗ trợ tối ưu hóa hiển thị thiết kế UI (Responsive) trên màn hình thiết bị khác nhau.<br>- Tham gia viết một số Widgets dùng chung (Common Widgets). |
 
 ---
 
@@ -105,7 +105,7 @@ lib/
 │   ├── admin_product_service.dart # Thêm, sửa, xóa món ăn dành riêng cho trang quản trị Admin
 │   ├── auth_service.dart         # Xử lý đăng nhập, đăng ký, băm mật khẩu khách hàng
 │   ├── cart_service.dart         # Lưu trữ, đồng bộ giỏ hàng cá nhân trực tiếp vào Hive
-│   ├── database_service.dart     # Đăng ký toàn bộ các Hive Adapters và mở các Box NoSQL
+│   ├── database_service.dart     # Khởi tạo các kết nối Database (đăng ký Hive Adapters, mở Box NoSQL)
 │   ├── notification_service.dart # Quản lý, giả lập đẩy thông báo cục bộ của hệ thống
 │   ├── order_service.dart        # Xử lý lưu đơn, đổi trạng thái, reorder trong Hive database
 │   ├── prefs_service.dart        # Lưu trữ các cài đặt cá nhân (Dark mode, danh sách món yêu thích)
@@ -134,8 +134,9 @@ lib/
 #### 📝 [lib/main.dart](file:///d:/Project1/ki%203%20nam%203/resources/LearnFlutter/AnNgon_Dung_Hiep_Khuong_N03_1_2026/lib/main.dart)
 * **Chức năng:** Điểm bắt đầu (Entry Point) của toàn bộ ứng dụng.
 * **Nội dung thực hiện:** 
-  * Gọi `WidgetsFlutterBinding.ensureInitialized()` để bảo đảm các kênh hệ thống Flutter được thiết lập đầy đủ trước khi thực thi mã không đồng bộ.
-  * Khởi tạo cơ sở dữ liệu `DatabaseService().init()` chuẩn bị các Box NoSQL.
+  * Gọi `WidgetsFlutterBinding.ensureInitialized()` để thiết lập các kênh hệ thống Flutter.
+  * Khởi tạo `Firebase.initializeApp()` để kết nối hệ thống Backend đám mây (Firestore, Auth).
+  * Khởi tạo cơ sở dữ liệu cục bộ `DatabaseService().init()` chuẩn bị và mở các Box Hive NoSQL phục vụ lưu trữ Local-First.
   * Khởi tạo dịch vụ thông báo cục bộ `NotificationService().init()`.
   * Chạy hàm `runApp(const PkaFoodApp())` để đưa Widget Tree lên màn hình.
 
@@ -178,14 +179,14 @@ Tất cả các model trong dự án được tích hợp các Annotation `@Hive
 
 ### 3.4 Tầng Dịch Vụ - Tương Tác Cơ Sở Dữ Liệu (Services Layer)
 
-Đây là lớp nghiệp vụ thuần của ứng dụng, trực tiếp giao tiếp với NoSQL Box hoặc hệ thống phần cứng.
+Đây là lớp nghiệp vụ thuần của ứng dụng, trực tiếp giao tiếp với **Firebase Firestore** (Cloud Database), **NoSQL Box** (Local Database) hoặc hệ thống phần cứng.
 
-* 📝 [lib/services/database_service.dart](file:///d:/Project1/ki%203%20nam%203/resources/LearnFlutter/AnNgon_Dung_Hiep_Khuong_N03_1_2026/lib/services/database_service.dart): Khởi tạo Hive, đăng ký toàn bộ 15 Adapters nhị phân khác nhau và mở sẵn các Box tương ứng (`users`, `products`, `orders`, `cart`, `reviews`, `vouchers`, `userPrefs`, `session`, `admin_products`).
-* 📝 [lib/services/seeding_service.dart](file:///d:/Project1/ki%203%20nam%203/resources/LearnFlutter/AnNgon_Dung_Hiep_Khuong_N03_1_2026/lib/services/seeding_service.dart): Giải mã tệp tin cấu hình dữ liệu mẫu `assets/seeddata.json` chứa 30 món ăn, 3 tài khoản mặc định và 3 mã voucher siêu ưu đãi. Dịch vụ tự động kiểm tra, nếu dữ liệu trống trong lần chạy đầu tiên, nó sẽ tự động điền (seed) toàn bộ dữ liệu mẫu vào Hive.
-* 📝 [lib/services/auth_service.dart](file:///d:/Project1/ki%203%20nam%203/resources/LearnFlutter/AnNgon_Dung_Hiep_Khuong_N03_1_2026/lib/services/auth_service.dart): Xử lý đăng ký (kiểm tra số điện thoại trùng lặp), đăng nhập (so khớp password băm SHA-256), ghi nhớ trạng thái đăng nhập vào session box và thay đổi mật khẩu người dùng.
-* 📝 [lib/services/cart_service.dart](file:///d:/Project1/ki%203%20nam%203/resources/LearnFlutter/AnNgon_Dung_Hiep_Khuong_N03_1_2026/lib/services/cart_service.dart): Đồng bộ hóa trực tiếp giỏ hàng của người dùng vào Hive. Lưu lại trạng thái giỏ hàng ngay lập tức để khi người dùng tắt app bật lại, giỏ hàng vẫn được bảo toàn nguyên vẹn.
-* 📝 [lib/services/product_service.dart](file:///d:/Project1/ki%203%20nam%203/resources/LearnFlutter/AnNgon_Dung_Hiep_Khuong_N03_1_2026/lib/services/product_service.dart): Đọc thông tin món ăn từ Hive, cung cấp các bộ lọc tìm kiếm nâng cao theo tên, khoảng giá hoặc danh mục món ăn.
-* 📝 [lib/services/order_service.dart](file:///d:/Project1/ki%203%20nam%203/resources/LearnFlutter/AnNgon_Dung_Hiep_Khuong_N03_1_2026/lib/services/order_service.dart): Tạo mới đơn hàng thành công, trừ số lượng sản phẩm mua, xử lý lưu vết lịch sử giao dịch và cung cấp tính năng "Đặt lại đơn" (Reorder) nhân bản nhanh đơn cũ vào giỏ hàng mới.
+* 📝 [lib/services/database_service.dart](file:///d:/Project1/ki%203%20nam%203/resources/LearnFlutter/AnNgon_Dung_Hiep_Khuong_N03_1_2026/lib/services/database_service.dart): Khởi tạo kết nối cơ sở dữ liệu cục bộ, đăng ký toàn bộ Adapters nhị phân và mở sẵn các Box Hive.
+* 📝 [lib/services/seeding_service.dart](file:///d:/Project1/ki%203%20nam%203/resources/LearnFlutter/AnNgon_Dung_Hiep_Khuong_N03_1_2026/lib/services/seeding_service.dart): Giải mã dữ liệu mẫu `assets/seeddata.json`. Tự động đồng bộ (seed) dữ liệu ban đầu lên **Firebase Firestore** đồng thời lưu cache xuống **Hive** trong lần khởi chạy đầu tiên.
+* 📝 [lib/services/auth_service.dart](file:///d:/Project1/ki%203%20nam%203/resources/LearnFlutter/AnNgon_Dung_Hiep_Khuong_N03_1_2026/lib/services/auth_service.dart): Dịch vụ xác thực (Authentication) mạnh mẽ tương tác trực tiếp với **Firebase Firestore**. Xử lý luồng đăng nhập, đăng ký, mã hóa mật khẩu và lưu cache phiên đăng nhập cục bộ.
+* 📝 [lib/services/cart_service.dart](file:///d:/Project1/ki%203%20nam%203/resources/LearnFlutter/AnNgon_Dung_Hiep_Khuong_N03_1_2026/lib/services/cart_service.dart): Đồng bộ hóa tức thì trạng thái giỏ hàng vào Hive cục bộ, mang lại tốc độ phản hồi cực nhanh.
+* 📝 [lib/services/product_service.dart](file:///d:/Project1/ki%203%20nam%203/resources/LearnFlutter/AnNgon_Dung_Hiep_Khuong_N03_1_2026/lib/services/product_service.dart): Xử lý truy xuất danh sách món ăn thời gian thực từ **Firestore Cloud**, kết hợp khả năng đọc dự phòng (fallback) qua Hive cục bộ. Hỗ trợ truy vấn bộ lọc tìm kiếm nâng cao.
+* 📝 [lib/services/order_service.dart](file:///d:/Project1/ki%203%20nam%203/resources/LearnFlutter/AnNgon_Dung_Hiep_Khuong_N03_1_2026/lib/services/order_service.dart): Đồng bộ đơn hàng đa nền tảng (**Firestore sync với Hive fallback**). Xử lý tạo đơn, lưu vết lịch sử giao dịch và cung cấp tính năng "Đặt lại đơn" (Reorder).
 * 📝 [lib/services/voucher_service.dart](file:///d:/Project1/ki%203%20nam%203/resources/LearnFlutter/AnNgon_Dung_Hiep_Khuong_N03_1_2026/lib/services/voucher_service.dart): Kiểm tra tính hợp lệ của mã code (ngày hết hạn, giá trị đơn tối thiểu) và tính toán số tiền thực tế được khấu trừ khi chốt đơn.
 * 📝 [lib/services/notification_service.dart](file:///d:/Project1/ki%203%20nam%203/resources/LearnFlutter/AnNgon_Dung_Hiep_Khuong_N03_1_2026/lib/services/notification_service.dart): Giả lập cơ chế đẩy thông báo đẩy cục bộ (Local Notifications) thông báo cho người dùng mỗi khi trạng thái đơn hàng thay đổi trên bản đồ giao nhận.
 * 📝 [lib/services/admin_product_service.dart](file:///d:/Project1/ki%203%20nam%203/resources/LearnFlutter/AnNgon_Dung_Hiep_Khuong_N03_1_2026/lib/services/admin_product_service.dart): Hỗ trợ các quyền quản lý đầy đủ (CRUD) cho Admin: Thêm món mới, Sửa thông tin món, Xóa món hoặc Đánh dấu ngưng phục vụ món ăn nào đó.
@@ -288,7 +289,7 @@ Tất cả các model trong dự án được tích hợp các Annotation `@Hive
    flutter run
    ```
 
-*(Lưu ý: Ứng dụng đã được tích hợp sẵn hệ thống **Seeding Service**. Trong lần chạy đầu tiên, cơ sở dữ liệu Hive sẽ tự động được khởi tạo với toàn bộ danh mục sản phẩm, mã giảm giá và tài khoản mẫu).*
+*(Lưu ý: Ứng dụng đã tích hợp sẵn **Firebase** và hệ thống **Seeding Service**. Trong lần chạy đầu tiên, cơ sở dữ liệu Firebase Firestore và Hive sẽ tự động đồng bộ toàn bộ danh mục sản phẩm, tài khoản và mã giảm giá).*
 
 ---
 
