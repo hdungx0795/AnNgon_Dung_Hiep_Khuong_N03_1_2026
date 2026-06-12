@@ -1,6 +1,6 @@
 {
-    "name": "an_ngon_app",
-    "short_name": "an_ngon_app",
+    "name": "pka_food",
+    "short_name": "pka_food",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
